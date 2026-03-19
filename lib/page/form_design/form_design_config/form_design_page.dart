@@ -90,13 +90,13 @@ class _FormDesignPageState extends State<FormDesignPage> {
                 final sectionName = matchedSections.first.name;
                 showDialog<bool>(
                   context: context,
-                  builder: (_) => AlertDialog(
+                  builder: (dialogContext) => AlertDialog(
                     title: const Text('刪除 Section'),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('確定要刪除「$sectionName」？操作無法復原。'),
+                        Text('確定要刪除「$sectionName」?操作無法復原。'),
                         if (inUse) ...[
                           const SizedBox(height: 12),
                           Row(
@@ -123,11 +123,11 @@ class _FormDesignPageState extends State<FormDesignPage> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
                         child: const Text('取消'),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
                         child: Text(
                           '刪除',
                           style: TextStyle(

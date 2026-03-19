@@ -48,6 +48,27 @@ class FormDesignService {
   /// 刪除指定 Section（從可用清單永久移除）
   Future<Result<bool>> deleteSection(String sectionId) async {
     try {
+      final formsResult = await _formRepository.loadDraftForms();
+      if (!formsResult.isSuccess) {
+        return Result.failure(formsResult.error ?? '讀取表單資料失敗');
+      }
+
+      final updatedForms = (formsResult.data ?? <FormModel>[])
+          .map(
+            (form) => form.copyWith(
+              sectionIds:
+                  form.sectionIds.where((id) => id != sectionId).toList(),
+            ),
+          )
+          .toList();
+
+      final saveFormsResult = await _formRepository.saveAllDraftForms(
+        updatedForms,
+      );
+      if (!saveFormsResult.isSuccess) {
+        return Result.failure(saveFormsResult.error ?? '更新表單資料失敗');
+      }
+
       return await _sectionRepository.deleteSection(sectionId);
     } catch (ex) {
       return Result.failure('刪除 Section 失敗：${ex.toString()}');

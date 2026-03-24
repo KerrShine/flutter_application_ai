@@ -13,6 +13,8 @@ import 'package:flutter_application_ai/service/main_service.dart';
 import 'package:flutter_application_ai/page/main/bloc/main_bloc.dart';
 import 'package:flutter_application_ai/data/local/local_storage.dart';
 import 'package:flutter_application_ai/data/local/local_storage_factory.dart';
+import 'package:flutter_application_ai/data/tempData/temp_data_storage.dart';
+import 'package:flutter_application_ai/data/tempData/temp_data_storage_factory.dart';
 
 import 'package:flutter_application_ai/repositories/interface/form_repository.dart';
 import 'package:flutter_application_ai/repositories/form_repository_impl.dart';
@@ -28,6 +30,12 @@ import 'package:flutter_application_ai/repositories/interface/form_browse_reposi
 import 'package:flutter_application_ai/repositories/form_browse_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_browse_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_bloc.dart';
+import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
+import 'package:flutter_application_ai/repositories/org_design_repository_impl.dart';
+import 'package:flutter_application_ai/service/org_design_service.dart';
+import 'package:flutter_application_ai/page/org_design/org_manager/bloc/org_manager_bloc.dart';
+import 'package:flutter_application_ai/page/org_design/org_design_config/bloc/org_design_config_bloc.dart';
+import 'package:flutter_application_ai/page/org_design/org_tree_design/bloc/org_tree_design_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -38,6 +46,10 @@ Future<void> initDI() async {
   final localStorage = createStorage();
   await localStorage.init();
   sl.registerSingleton<LocalStorage>(localStorage);
+
+  final tempDataStorage = createTempDataStorage(localStorage);
+  await tempDataStorage.init();
+  sl.registerSingleton<TempDataStorage>(tempDataStorage);
 
   // final db = await DBInit().database;
   // sl.registerSingleton<Database>(db);
@@ -53,6 +65,10 @@ Future<void> initDI() async {
       () => SectionRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<FormBrowseRepository>(
       () => FormBrowseRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<OrgDesignRepository>(() => OrgDesignRepositoryImpl(
+        sl<LocalStorage>(),
+        sl<TempDataStorage>(),
+      ));
 
   // 3. Service
   sl.registerFactory<LoginService>(() => LoginService(sl<LoginRepository>()));
@@ -68,6 +84,8 @@ Future<void> initDI() async {
       () => FormDesignService(sl<SectionRepository>(), sl<FormRepository>()));
   sl.registerFactory<FormBrowseService>(
       () => FormBrowseService(sl<FormBrowseRepository>()));
+  sl.registerFactory<OrgDesignService>(
+      () => OrgDesignService(sl<OrgDesignRepository>()));
   sl.registerFactory<MainService>(() => MainService());
 
   // 4. Bloc
@@ -83,5 +101,11 @@ Future<void> initDI() async {
       () => FormDesignBloc(sl<FormDesignService>()));
   sl.registerFactory<FormBrowseBloc>(
       () => FormBrowseBloc(sl<FormBrowseService>()));
+  sl.registerFactory<OrgManagerBloc>(
+      () => OrgManagerBloc(sl<OrgDesignService>()));
+  sl.registerFactory<OrgDesignConfigBloc>(
+      () => OrgDesignConfigBloc(sl<OrgDesignService>()));
+  sl.registerFactory<OrgTreeDesignBloc>(
+      () => OrgTreeDesignBloc(sl<OrgDesignService>()));
   sl.registerFactory<MainBloc>(() => MainBloc(sl<MainService>()));
 }

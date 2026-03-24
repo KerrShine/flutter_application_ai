@@ -88,9 +88,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                     // 第一層：WEB管理系統
                     ExpansionTile(
-                      initiallyExpanded:
-                          currentPath == RouteName.formSectionDesignPage ||
-                              currentPath.startsWith(RouteName.formManagePage),
+                      initiallyExpanded: currentPath ==
+                              RouteName.formSectionDesignPage ||
+                          currentPath.startsWith(RouteName.formManagePage) ||
+                          currentPath == RouteName.orgManagerPage,
                       leading: const Icon(Icons.web),
                       title: const Text('簽核管理系統'),
                       children: [
@@ -127,16 +128,21 @@ class _HomePageState extends State<HomePage> {
                         ),
                         // 第二層：基本資料
                         ExpansionTile(
+                          initiallyExpanded:
+                              currentPath == RouteName.orgManagerPage,
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
                             child: Text('基本資料'),
                           ),
                           children: [
                             ListTile(
+                              selected: currentPath == RouteName.orgManagerPage,
                               contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('項目'),
+                              title: const Text('組織架構管理'),
                               onTap: () {
                                 Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.orgManagerPage));
                               },
                             ),
                           ],

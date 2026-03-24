@@ -7,12 +7,19 @@ import 'package:flutter_application_ai/page/form_design/form_create/form_create_
 import 'package:flutter_application_ai/page/form_design/form_manage/form_manage_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/form_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/form_browse_page.dart';
+import 'package:flutter_application_ai/page/org_design/org_manager/org_manager_page.dart';
+import 'package:flutter_application_ai/page/org_design/org_design_config/org_design_config_page.dart';
+import 'package:flutter_application_ai/page/org_design/org_tree_design/org_tree_design_page.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
 
 class RouteName {
   static const String loginPage = '/login';
   static const String homePage = '/home';
   static const String mainPage = '/home/main';
+  static const String orgManagerPage = '/home/org-manager';
+  static const String orgDesignConfigPage =
+      '/home/org-manager/org-design-config';
+  static const String orgTreeDesignPage = '/home/org-manager/org-tree-design';
   static const String formSectionDesignPage = '/home/form-section-design';
   static const String formManagePage = '/home/form-manage';
   static const String formCreatePage = '/home/form-manage/form-create';
@@ -38,6 +45,20 @@ class AppRouter {
           GoRoute(
             path: RouteName.mainPage,
             builder: (context, state) => const MainPage(),
+          ),
+          GoRoute(
+            path: RouteName.orgManagerPage,
+            builder: (context, state) => const OrgManagerPage(),
+            routes: [
+              GoRoute(
+                path: 'org-design-config',
+                builder: (context, state) => const OrgDesignConfigPage(),
+              ),
+              GoRoute(
+                path: 'org-tree-design',
+                builder: (context, state) => const OrgTreeDesignPage(),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteName.formSectionDesignPage,

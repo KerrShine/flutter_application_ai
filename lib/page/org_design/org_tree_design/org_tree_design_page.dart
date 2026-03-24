@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
-import 'package:flutter_application_ai/model/org_design_config_model.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/bloc/org_tree_design_bloc.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_canvas_panel_widget.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_property_panel_widget.dart';
@@ -22,12 +19,14 @@ class OrgTreeDesignPage extends StatefulWidget {
 class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
   late final OrgTreeDesignBloc _bloc;
   late final TransformationController _canvasTransformationController;
+  late final TextEditingController _filterController;
 
   @override
   void initState() {
     super.initState();
     _bloc = sl<OrgTreeDesignBloc>();
     _canvasTransformationController = TransformationController();
+    _filterController = TextEditingController();
     _canvasTransformationController.addListener(_handleCanvasTransformChanged);
     _bloc.add(const InitEvent());
   }
@@ -105,25 +104,9 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
     controller.dispose();
   }
 
-  String _buildExportJson(OrgTreeDesignState state) {
-    final exportUpdatedAt = state.updatedAt.isEmpty || state.hasUnsavedChanges
-        ? DateTime.now().toIso8601String()
-        : state.updatedAt;
-    final exportModel = OrgDesignConfigModel(
-      orgId: state.orgId,
-      orgName: state.orgName,
-      schemaVersion: state.schemaVersion,
-      updatedAt: exportUpdatedAt,
-      departmentNodes: List.of(state.availableDepartments),
-      treeCanvasNodes: List.of(state.canvasNodes),
-    );
-
-    return const JsonEncoder.withIndent('  ').convert(exportModel.toMap());
-  }
-
   Future<void> _showExportJsonDialog(
     BuildContext context,
-    OrgTreeDesignState state,
+    String exportJson,
   ) {
     return showScrollableMessageDialog(
       context: context,
@@ -131,7 +114,7 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
       width: 860,
       rightText: '關閉',
       child: SelectableText(
-        _buildExportJson(state),
+        exportJson,
         style: const TextStyle(
           fontFamily: 'monospace',
           fontSize: 13,
@@ -146,6 +129,7 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
     _canvasTransformationController
         .removeListener(_handleCanvasTransformChanged);
     _canvasTransformationController.dispose();
+    _filterController.dispose();
     _bloc.close();
     super.dispose();
   }
@@ -179,6 +163,15 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                 previous.saveDialogRequestId != current.saveDialogRequestId,
             listener: (context, state) {
               _showSaveOrgNameDialog(context, state);
+            },
+          ),
+          BlocListener<OrgTreeDesignBloc, OrgTreeDesignState>(
+            listenWhen: (previous, current) =>
+                previous.exportDialogRequestId !=
+                    current.exportDialogRequestId &&
+                current.exportJson.isNotEmpty,
+            listener: (context, state) {
+              _showExportJsonDialog(context, state.exportJson);
             },
           ),
           BlocListener<OrgTreeDesignBloc, OrgTreeDesignState>(
@@ -234,7 +227,7 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                     padding: const EdgeInsets.only(right: 12),
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        _showExportJsonDialog(context, state);
+                        _bloc.add(const RequestExportOrgTreeDesignEvent());
                       },
                       icon: const Icon(Icons.data_object_outlined),
                       label: const Text('匯出Json'),
@@ -257,14 +250,27 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                           flex: 3,
                           child: OrgTreeSourcePanelWidget(
                             orgName: state.orgName,
-                            departments: state.availableDepartments,
+                            departments: state.filteredAvailableDepartments,
                             placedDepartmentIds: state.canvasNodes
                                 .map((node) => node.departmentId)
                                 .toSet(),
                             selectedDepartmentId: state.selectedDepartmentId,
+                            filterController: _filterController,
                             onSelectDepartment: (departmentId) {
                               _bloc.add(
                                 SelectAvailableDepartmentEvent(departmentId),
+                              );
+                            },
+                            onFilterChanged: (keyword) {
+                              _bloc.add(
+                                FilterAvailableDepartmentsChangedEvent(keyword),
+                              );
+                            },
+                            onClearFilter: () {
+                              _filterController.clear();
+                              _bloc.add(
+                                const FilterAvailableDepartmentsChangedEvent(
+                                    ''),
                               );
                             },
                             onDragStarted: (departmentId) {
@@ -287,6 +293,8 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                             departments: state.availableDepartments,
                             canvasNodes: state.canvasNodes,
                             selectedDepartmentId: state.selectedDepartmentId,
+                            highlightedParentDepartmentId:
+                                state.selectedParentDepartmentId,
                             onCenterCanvas: () {
                               _bloc.add(const CenterCanvasEvent());
                             },
@@ -337,6 +345,7 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                             draftParentDepartmentId:
                                 state.draftParentDepartmentId,
                             parentDepartments: state.availableParentDepartments,
+                            departmentNameMap: state.departmentNameMap,
                             onParentChanged: (value) {
                               _bloc.add(
                                 DraftParentDepartmentChangedEvent(value ?? ''),

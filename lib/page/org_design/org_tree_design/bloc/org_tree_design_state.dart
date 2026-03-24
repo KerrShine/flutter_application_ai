@@ -37,6 +37,8 @@ class OrgTreeDesignState extends Equatable {
   final int schemaVersion;
   final String updatedAt;
   final List<OrgDepartmentNode> availableDepartments;
+  final Map<String, String> departmentNameMap;
+  final String filterKeyword;
   final List<OrgTreeCanvasNode> canvasNodes;
   final String selectedDepartmentId;
   final String draftParentDepartmentId;
@@ -51,6 +53,8 @@ class OrgTreeDesignState extends Equatable {
   final int removeDialogRequestId;
   final String pendingSaveOrgName;
   final int saveDialogRequestId;
+  final String exportJson;
+  final int exportDialogRequestId;
   final bool hasUnsavedChanges;
 
   const OrgTreeDesignState({
@@ -63,6 +67,8 @@ class OrgTreeDesignState extends Equatable {
     this.schemaVersion = 3,
     this.updatedAt = '',
     this.availableDepartments = const [],
+    this.departmentNameMap = const {},
+    this.filterKeyword = '',
     this.canvasNodes = const [],
     this.selectedDepartmentId = '',
     this.draftParentDepartmentId = '',
@@ -77,6 +83,8 @@ class OrgTreeDesignState extends Equatable {
     this.removeDialogRequestId = 0,
     this.pendingSaveOrgName = '',
     this.saveDialogRequestId = 0,
+    this.exportJson = '',
+    this.exportDialogRequestId = 0,
     this.hasUnsavedChanges = false,
   });
 
@@ -107,6 +115,24 @@ class OrgTreeDesignState extends Equatable {
         .toList();
   }
 
+  List<OrgDepartmentNode> get filteredAvailableDepartments {
+    final normalizedKeyword = filterKeyword.trim().toLowerCase();
+    if (normalizedKeyword.isEmpty) {
+      return availableDepartments;
+    }
+
+    final filteredDepartments = availableDepartments.where((department) {
+      final name = department.name.toLowerCase();
+      final code = department.departmentCode.toLowerCase();
+      return name.contains(normalizedKeyword) ||
+          code.contains(normalizedKeyword);
+    }).toList();
+
+    return filteredDepartments.isEmpty
+        ? availableDepartments
+        : filteredDepartments;
+  }
+
   List<OrgDepartmentNode> get availableParentDepartments {
     if (!isSelectedDepartmentOnCanvas) {
       return const [];
@@ -117,6 +143,19 @@ class OrgTreeDesignState extends Equatable {
     return canvasDepartments
         .where((department) => !blockedIds.contains(department.departmentId))
         .toList();
+  }
+
+  String get selectedParentDepartmentName {
+    final parentDepartmentId = selectedDepartment?.parentDepartmentId ?? '';
+    if (parentDepartmentId.isEmpty) {
+      return '未設定';
+    }
+
+    return departmentNameMap[parentDepartmentId] ?? parentDepartmentId;
+  }
+
+  String get selectedParentDepartmentId {
+    return selectedDepartment?.parentDepartmentId ?? '';
   }
 
   Set<String> _collectDescendantIds(String departmentId) {
@@ -144,6 +183,8 @@ class OrgTreeDesignState extends Equatable {
     int? schemaVersion,
     String? updatedAt,
     List<OrgDepartmentNode>? availableDepartments,
+    Map<String, String>? departmentNameMap,
+    String? filterKeyword,
     List<OrgTreeCanvasNode>? canvasNodes,
     String? selectedDepartmentId,
     String? draftParentDepartmentId,
@@ -158,6 +199,8 @@ class OrgTreeDesignState extends Equatable {
     int? removeDialogRequestId,
     String? pendingSaveOrgName,
     int? saveDialogRequestId,
+    String? exportJson,
+    int? exportDialogRequestId,
     bool? hasUnsavedChanges,
     bool clearNotice = false,
   }) {
@@ -171,6 +214,8 @@ class OrgTreeDesignState extends Equatable {
       schemaVersion: schemaVersion ?? this.schemaVersion,
       updatedAt: updatedAt ?? this.updatedAt,
       availableDepartments: availableDepartments ?? this.availableDepartments,
+      departmentNameMap: departmentNameMap ?? this.departmentNameMap,
+      filterKeyword: filterKeyword ?? this.filterKeyword,
       canvasNodes: canvasNodes ?? this.canvasNodes,
       selectedDepartmentId: selectedDepartmentId ?? this.selectedDepartmentId,
       draftParentDepartmentId:
@@ -191,6 +236,9 @@ class OrgTreeDesignState extends Equatable {
           removeDialogRequestId ?? this.removeDialogRequestId,
       pendingSaveOrgName: pendingSaveOrgName ?? this.pendingSaveOrgName,
       saveDialogRequestId: saveDialogRequestId ?? this.saveDialogRequestId,
+      exportJson: exportJson ?? this.exportJson,
+      exportDialogRequestId:
+          exportDialogRequestId ?? this.exportDialogRequestId,
       hasUnsavedChanges: hasUnsavedChanges ?? this.hasUnsavedChanges,
     );
   }
@@ -206,6 +254,8 @@ class OrgTreeDesignState extends Equatable {
         schemaVersion,
         updatedAt,
         availableDepartments,
+        departmentNameMap,
+        filterKeyword,
         canvasNodes,
         selectedDepartmentId,
         draftParentDepartmentId,
@@ -220,6 +270,8 @@ class OrgTreeDesignState extends Equatable {
         removeDialogRequestId,
         pendingSaveOrgName,
         saveDialogRequestId,
+        exportJson,
+        exportDialogRequestId,
         hasUnsavedChanges,
       ];
 }

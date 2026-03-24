@@ -6,7 +6,10 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
   final List<OrgDepartmentNode> departments;
   final Set<String> placedDepartmentIds;
   final String selectedDepartmentId;
+  final TextEditingController filterController;
   final ValueChanged<String> onSelectDepartment;
+  final ValueChanged<String> onFilterChanged;
+  final VoidCallback onClearFilter;
   final void Function(String departmentId) onDragStarted;
   final VoidCallback onAddOrganization;
 
@@ -16,13 +19,22 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
     required this.departments,
     required this.placedDepartmentIds,
     required this.selectedDepartmentId,
+    required this.filterController,
     required this.onSelectDepartment,
+    required this.onFilterChanged,
+    required this.onClearFilter,
     required this.onDragStarted,
     required this.onAddOrganization,
   });
 
   @override
   Widget build(BuildContext context) {
+    final orgTitleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          height: 1.2,
+        );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -31,7 +43,24 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
           children: [
             Text(
               orgName.isEmpty ? '簽核系統組織' : orgName,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: orgTitleStyle,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: filterController,
+              onChanged: onFilterChanged,
+              decoration: InputDecoration(
+                labelText: '篩選部門名稱 / 代碼',
+                hintText: '輸入關鍵字模糊比對',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: filterController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: onClearFilter,
+                        icon: const Icon(Icons.close),
+                      ),
+                border: const OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             Expanded(

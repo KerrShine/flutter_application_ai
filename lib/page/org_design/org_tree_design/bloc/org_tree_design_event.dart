@@ -20,6 +20,15 @@ class SelectAvailableDepartmentEvent extends OrgTreeDesignEvent {
   List<Object> get props => [departmentId];
 }
 
+class FilterAvailableDepartmentsChangedEvent extends OrgTreeDesignEvent {
+  final String keyword;
+
+  const FilterAvailableDepartmentsChangedEvent(this.keyword);
+
+  @override
+  List<Object> get props => [keyword];
+}
+
 class SelectCanvasNodeEvent extends OrgTreeDesignEvent {
   final String departmentId;
 
@@ -139,6 +148,10 @@ class RequestSaveOrgTreeDesignEvent extends OrgTreeDesignEvent {
 
 class ImportSampleOrgTreeDesignEvent extends OrgTreeDesignEvent {
   const ImportSampleOrgTreeDesignEvent();
+}
+
+class RequestExportOrgTreeDesignEvent extends OrgTreeDesignEvent {
+  const RequestExportOrgTreeDesignEvent();
 }
 
 class ConfirmSaveOrgTreeDesignEvent extends OrgTreeDesignEvent {

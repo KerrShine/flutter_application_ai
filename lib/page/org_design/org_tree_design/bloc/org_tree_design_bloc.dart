@@ -1,9 +1,11 @@
 import 'dart:math' as math;
+import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/data/tempData/org_temp_data.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
+import 'package:flutter_application_ai/model/org_design_config_model.dart';
 import 'package:flutter_application_ai/model/org_tree_canvas_node.dart';
 import 'package:flutter_application_ai/service/org_design_service.dart';
 import 'package:vector_math/vector_math_64.dart';
@@ -22,6 +24,9 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
   OrgTreeDesignBloc(this._service) : super(const OrgTreeDesignState()) {
     on<InitEvent>(_onInitEvent);
     on<SelectAvailableDepartmentEvent>(_onSelectAvailableDepartmentEvent);
+    on<FilterAvailableDepartmentsChangedEvent>(
+      _onFilterAvailableDepartmentsChangedEvent,
+    );
     on<SelectCanvasNodeEvent>(_onSelectCanvasNodeEvent);
     on<DropDepartmentToCanvasEvent>(_onDropDepartmentToCanvasEvent);
     on<MoveCanvasNodeEvent>(_onMoveCanvasNodeEvent);
@@ -37,6 +42,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     on<DismissRemoveCanvasNodeDialogEvent>(
         _onDismissRemoveCanvasNodeDialogEvent);
     on<ImportSampleOrgTreeDesignEvent>(_onImportSampleOrgTreeDesignEvent);
+    on<RequestExportOrgTreeDesignEvent>(_onRequestExportOrgTreeDesignEvent);
     on<RequestSaveOrgTreeDesignEvent>(_onRequestSaveOrgTreeDesignEvent);
     on<ConfirmSaveOrgTreeDesignEvent>(_onConfirmSaveOrgTreeDesignEvent);
     on<DismissSaveOrgTreeDesignDialogEvent>(
@@ -90,6 +96,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
       schemaVersion: loadResult.data!.schemaVersion,
       updatedAt: loadResult.data!.updatedAt,
       availableDepartments: availableDepartments,
+      departmentNameMap: _buildDepartmentNameMap(availableDepartments),
       canvasNodes: canvasNodes,
       selectedDepartmentId: selectedDepartmentId,
       draftParentDepartmentId: selectedDepartment?.parentDepartmentId ?? '',
@@ -118,6 +125,21 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     emit(state.copyWith(
       selectedDepartmentId: event.departmentId,
       draftParentDepartmentId: department?.parentDepartmentId ?? '',
+      clearNotice: true,
+    ));
+  }
+
+  void _onFilterAvailableDepartmentsChangedEvent(
+    FilterAvailableDepartmentsChangedEvent event,
+    Emitter<OrgTreeDesignState> emit,
+  ) {
+    final normalizedKeyword = event.keyword.trim();
+    if (normalizedKeyword == state.filterKeyword) {
+      return;
+    }
+
+    emit(state.copyWith(
+      filterKeyword: normalizedKeyword,
       clearNotice: true,
     ));
   }
@@ -192,6 +214,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
       state.copyWith(
         status: OrgTreeDesignStatus.success,
         availableDepartments: updatedDepartments,
+        departmentNameMap: _buildDepartmentNameMap(updatedDepartments),
         canvasNodes: updatedCanvasNodes,
         selectedDepartmentId: event.departmentId,
         draftParentDepartmentId: updatedDepartment.parentDepartmentId,
@@ -205,6 +228,14 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     MoveCanvasNodeEvent event,
     Emitter<OrgTreeDesignState> emit,
   ) {
+    final selectedDepartment = _findDepartment(
+      state.availableDepartments,
+      event.departmentId,
+    );
+    if (selectedDepartment == null) {
+      return;
+    }
+
     final subtreeIds = _collectSubtreeIds(
       state.availableDepartments,
       event.departmentId,
@@ -244,6 +275,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     emit(state.copyWith(
       canvasNodes: updatedCanvasNodes,
       selectedDepartmentId: event.departmentId,
+      draftParentDepartmentId: selectedDepartment.parentDepartmentId,
       hasUnsavedChanges: true,
       clearNotice: true,
     ));
@@ -366,6 +398,17 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     ));
   }
 
+  void _onRequestExportOrgTreeDesignEvent(
+    RequestExportOrgTreeDesignEvent event,
+    Emitter<OrgTreeDesignState> emit,
+  ) {
+    emit(state.copyWith(
+      exportJson: _buildExportJson(state),
+      exportDialogRequestId: state.exportDialogRequestId + 1,
+      clearNotice: true,
+    ));
+  }
+
   Future<void> _onImportSampleOrgTreeDesignEvent(
     ImportSampleOrgTreeDesignEvent event,
     Emitter<OrgTreeDesignState> emit,
@@ -408,6 +451,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
         schemaVersion: importedConfig.schemaVersion,
         updatedAt: importedConfig.updatedAt,
         availableDepartments: availableDepartments,
+        departmentNameMap: _buildDepartmentNameMap(availableDepartments),
         canvasNodes: canvasNodes,
         selectedDepartmentId: selectedDepartmentId,
         draftParentDepartmentId: selectedDepartment?.parentDepartmentId ?? '',
@@ -512,6 +556,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     emit(_withNotice(
       state.copyWith(
         availableDepartments: _recalculateDepthLevels(updatedDepartments),
+        departmentNameMap: _buildDepartmentNameMap(updatedDepartments),
         hasUnsavedChanges: true,
       ),
       '已更新上層部門',
@@ -560,6 +605,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
     emit(_withNotice(
       state.copyWith(
         availableDepartments: _recalculateDepthLevels(updatedDepartments),
+        departmentNameMap: _buildDepartmentNameMap(updatedDepartments),
         canvasNodes: updatedCanvasNodes,
         selectedDepartmentId: nextSelectedDepartmentId,
         draftParentDepartmentId:
@@ -647,6 +693,7 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
         schemaVersion: saveResult.data!.schemaVersion,
         updatedAt: saveResult.data!.updatedAt,
         availableDepartments: availableDepartments,
+        departmentNameMap: _buildDepartmentNameMap(availableDepartments),
         canvasNodes: canvasNodes,
         draftParentDepartmentId: selectedDepartment?.parentDepartmentId ?? '',
         pendingSaveOrgName: saveResult.data!.orgName,
@@ -663,6 +710,34 @@ class OrgTreeDesignBloc extends Bloc<OrgTreeDesignEvent, OrgTreeDesignState> {
       noticeMessage: message,
       noticeId: currentState.noticeId + 1,
     );
+  }
+
+  String _buildExportJson(OrgTreeDesignState sourceState) {
+    final exportUpdatedAt =
+        sourceState.updatedAt.isEmpty || sourceState.hasUnsavedChanges
+            ? DateTime.now().toIso8601String()
+            : sourceState.updatedAt;
+    final exportModel = OrgDesignConfigModel(
+      orgId: sourceState.orgId,
+      orgName: sourceState.orgName,
+      schemaVersion: sourceState.schemaVersion,
+      updatedAt: exportUpdatedAt,
+      departmentNodes: List<OrgDepartmentNode>.of(
+        sourceState.availableDepartments,
+      ),
+      treeCanvasNodes: List<OrgTreeCanvasNode>.of(sourceState.canvasNodes),
+    );
+
+    return const JsonEncoder.withIndent('  ').convert(exportModel.toMap());
+  }
+
+  Map<String, String> _buildDepartmentNameMap(
+    List<OrgDepartmentNode> departments,
+  ) {
+    return {
+      for (final department in departments)
+        department.departmentId: department.name,
+    };
   }
 
   void _emitScaledCanvasTransform(

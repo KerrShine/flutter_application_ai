@@ -20,6 +20,7 @@ class OrgTreeCanvasPanelWidget extends StatelessWidget {
   final List<OrgDepartmentNode> departments;
   final List<OrgTreeCanvasNode> canvasNodes;
   final String selectedDepartmentId;
+  final String highlightedParentDepartmentId;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final VoidCallback onCenterCanvas;
@@ -38,6 +39,7 @@ class OrgTreeCanvasPanelWidget extends StatelessWidget {
     required this.departments,
     required this.canvasNodes,
     required this.selectedDepartmentId,
+    required this.highlightedParentDepartmentId,
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onCenterCanvas,
@@ -237,6 +239,11 @@ class OrgTreeCanvasPanelWidget extends StatelessWidget {
                                           department: department,
                                           isSelected: department.departmentId ==
                                               selectedDepartmentId,
+                                          isHighlightedParent:
+                                              highlightedParentDepartmentId
+                                                      .isNotEmpty &&
+                                                  department.departmentId ==
+                                                      highlightedParentDepartmentId,
                                         ),
                                       ),
                                     );

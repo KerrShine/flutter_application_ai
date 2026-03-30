@@ -20,17 +20,20 @@ class DraggableDesignerItemWidget extends StatelessWidget {
       data: item,
       feedback: Material(
         elevation: 4.0,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         child: SizedBox(
           width: 300, // Fixed width for feedback
-          child: DesignerItemRowWidget(item: item, index: index, isSelected: true),
+          child:
+              DesignerItemRowWidget(item: item, index: index, isSelected: true),
         ),
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: DesignerItemRowWidget(item: item, index: index, isSelected: isSelected),
+        child: DesignerItemRowWidget(
+            item: item, index: index, isSelected: isSelected),
       ),
-      child: DesignerItemRowWidget(item: item, index: index, isSelected: isSelected),
+      child: DesignerItemRowWidget(
+          item: item, index: index, isSelected: isSelected),
     );
   }
 }

@@ -91,7 +91,8 @@ class _HomePageState extends State<HomePage> {
                       initiallyExpanded: currentPath ==
                               RouteName.formSectionDesignPage ||
                           currentPath.startsWith(RouteName.formManagePage) ||
-                          currentPath == RouteName.orgManagerPage,
+                          currentPath == RouteName.orgManagerPage ||
+                          currentPath.startsWith(RouteName.empManagerPage),
                       leading: const Icon(Icons.web),
                       title: const Text('簽核管理系統'),
                       children: [
@@ -128,8 +129,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                         // 第二層：基本資料
                         ExpansionTile(
-                          initiallyExpanded:
-                              currentPath == RouteName.orgManagerPage,
+                          initiallyExpanded: currentPath ==
+                                  RouteName.orgManagerPage ||
+                              currentPath.startsWith(RouteName.empManagerPage),
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
                             child: Text('基本資料'),
@@ -143,6 +145,17 @@ class _HomePageState extends State<HomePage> {
                                 Navigator.pop(context);
                                 _bloc.add(const HomeNavigateEvent(
                                     RouteName.orgManagerPage));
+                              },
+                            ),
+                            ListTile(
+                              selected: currentPath
+                                  .startsWith(RouteName.empManagerPage),
+                              contentPadding: const EdgeInsets.only(left: 48.0),
+                              title: const Text('職員設定'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.empManagerPage));
                               },
                             ),
                           ],

@@ -8,6 +8,8 @@ import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/o
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_property_panel_widget.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_source_panel_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
+import 'package:flutter_application_ai/theme/org_tree_design_page_theme.dart';
+import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 
 class OrgTreeDesignPage extends StatefulWidget {
   const OrgTreeDesignPage({super.key});
@@ -136,6 +138,9 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = Theme.of(context);
+    final colors = baseTheme.extension<OrgTreeDesignThemeColors>()!;
+
     return BlocProvider.value(
       value: _bloc,
       child: MultiBlocListener(
@@ -187,192 +192,291 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
         ],
         child: BlocBuilder<OrgTreeDesignBloc, OrgTreeDesignState>(
           builder: (context, state) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('組織樹設計'),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.go(RouteName.orgManagerPage),
+            return Theme(
+              data: OrgTreeDesignPageTheme.resolve(baseTheme),
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: AppBar(
+                  backgroundColor:
+                      colors.shellBackground.withValues(alpha: 0.92),
+                  surfaceTintColor: Colors.transparent,
+                  title: const Text('組織樹設計'),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => context.go(RouteName.orgManagerPage),
+                  ),
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: FilledButton.icon(
+                        onPressed: state.hasUnsavedChanges
+                            ? () {
+                                _bloc
+                                    .add(const RequestSaveOrgTreeDesignEvent());
+                              }
+                            : null,
+                        icon: state.status == OrgTreeDesignStatus.saving
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.save_outlined),
+                        label: const Text('存檔'),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          _bloc.add(const ImportSampleOrgTreeDesignEvent());
+                        },
+                        icon: const Icon(Icons.upload_file_outlined),
+                        label: const Text('匯入Json'),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          _bloc.add(const RequestExportOrgTreeDesignEvent());
+                        },
+                        icon: const Icon(Icons.data_object_outlined),
+                        label: const Text('匯出Json'),
+                      ),
+                    ),
+                  ],
                 ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: FilledButton.icon(
-                      onPressed: state.hasUnsavedChanges
-                          ? () {
-                              _bloc.add(const RequestSaveOrgTreeDesignEvent());
-                            }
-                          : null,
-                      icon: state.status == OrgTreeDesignStatus.saving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.save_outlined),
-                      label: const Text('存檔'),
+                body: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: colors.pageGradient,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        _bloc.add(const ImportSampleOrgTreeDesignEvent());
-                      },
-                      icon: const Icon(Icons.upload_file_outlined),
-                      label: const Text('匯入Json'),
-                    ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: -90,
+                        left: -30,
+                        child: _GlowOrb(color: colors.heroGlow, size: 220),
+                      ),
+                      Positioned(
+                        right: -60,
+                        bottom: -80,
+                        child: _GlowOrb(
+                          color: colors.heroGlow.withValues(alpha: 0.18),
+                          size: 240,
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                colors.shellBackground.withValues(alpha: 0.9),
+                            border: Border.all(color: colors.shellBorder),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colors.shellShadow,
+                                blurRadius: 28,
+                                offset: const Offset(0, 18),
+                              ),
+                            ],
+                          ),
+                          child: switch (state.status) {
+                            OrgTreeDesignStatus.loading =>
+                              const Center(child: CircularProgressIndicator()),
+                            OrgTreeDesignStatus.failure => Center(
+                                child: Text(
+                                  state.message.isEmpty
+                                      ? '載入失敗'
+                                      : state.message,
+                                ),
+                              ),
+                            _ => Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: OrgTreeSourcePanelWidget(
+                                        orgName: state.orgName,
+                                        departments:
+                                            state.filteredAvailableDepartments,
+                                        placedDepartmentIds: state.canvasNodes
+                                            .map((node) => node.departmentId)
+                                            .toSet(),
+                                        selectedDepartmentId:
+                                            state.selectedDepartmentId,
+                                        filterController: _filterController,
+                                        onSelectDepartment: (departmentId) {
+                                          _bloc.add(
+                                            SelectAvailableDepartmentEvent(
+                                              departmentId,
+                                            ),
+                                          );
+                                        },
+                                        onFilterChanged: (keyword) {
+                                          _bloc.add(
+                                            FilterAvailableDepartmentsChangedEvent(
+                                              keyword,
+                                            ),
+                                          );
+                                        },
+                                        onClearFilter: () {
+                                          _filterController.clear();
+                                          _bloc.add(
+                                            const FilterAvailableDepartmentsChangedEvent(
+                                              '',
+                                            ),
+                                          );
+                                        },
+                                        onDragStarted: (departmentId) {
+                                          _bloc.add(
+                                            SelectAvailableDepartmentEvent(
+                                              departmentId,
+                                            ),
+                                          );
+                                        },
+                                        onAddOrganization: () {
+                                          context.go(
+                                              RouteName.orgDesignConfigPage);
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 6,
+                                      child: OrgTreeCanvasPanelWidget(
+                                        transformationController:
+                                            _canvasTransformationController,
+                                        currentScale: state.canvasScale,
+                                        departments: state.availableDepartments,
+                                        canvasNodes: state.canvasNodes,
+                                        selectedDepartmentId:
+                                            state.selectedDepartmentId,
+                                        highlightedParentDepartmentId:
+                                            state.selectedParentDepartmentId,
+                                        onCenterCanvas: () {
+                                          _bloc.add(const CenterCanvasEvent());
+                                        },
+                                        onViewportChanged:
+                                            (viewportWidth, viewportHeight) {
+                                          _bloc.add(
+                                            UpdateCanvasViewportEvent(
+                                              viewportWidth: viewportWidth,
+                                              viewportHeight: viewportHeight,
+                                            ),
+                                          );
+                                        },
+                                        onZoomIn: () {
+                                          _bloc.add(const ZoomInCanvasEvent());
+                                        },
+                                        onZoomOut: () {
+                                          _bloc.add(const ZoomOutCanvasEvent());
+                                        },
+                                        onDropDepartment:
+                                            (departmentId, offsetDx, offsetDy) {
+                                          _bloc.add(
+                                            DropDepartmentToCanvasEvent(
+                                              departmentId: departmentId,
+                                              offsetDx: offsetDx,
+                                              offsetDy: offsetDy,
+                                            ),
+                                          );
+                                        },
+                                        onSelectNode: (departmentId) {
+                                          _bloc.add(
+                                            SelectCanvasNodeEvent(departmentId),
+                                          );
+                                        },
+                                        onMoveNode:
+                                            (departmentId, deltaDx, deltaDy) {
+                                          _bloc.add(
+                                            MoveCanvasNodeEvent(
+                                              departmentId: departmentId,
+                                              deltaDx: deltaDx,
+                                              deltaDy: deltaDy,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 3,
+                                      child: OrgTreePropertyPanelWidget(
+                                        department: state.selectedDepartment,
+                                        isOnCanvas:
+                                            state.isSelectedDepartmentOnCanvas,
+                                        draftParentDepartmentId:
+                                            state.draftParentDepartmentId,
+                                        parentDepartments:
+                                            state.availableParentDepartments,
+                                        departmentNameMap:
+                                            state.departmentNameMap,
+                                        onParentChanged: (value) {
+                                          _bloc.add(
+                                            DraftParentDepartmentChangedEvent(
+                                              value ?? '',
+                                            ),
+                                          );
+                                        },
+                                        onApplyParentDepartment: () {
+                                          _bloc.add(
+                                            ApplyParentDepartmentEvent(
+                                              state.selectedDepartmentId,
+                                            ),
+                                          );
+                                        },
+                                        onRemoveCanvasNode: () {
+                                          _bloc.add(
+                                            RequestRemoveCanvasNodeEvent(
+                                              state.selectedDepartmentId,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        _bloc.add(const RequestExportOrgTreeDesignEvent());
-                      },
-                      icon: const Icon(Icons.data_object_outlined),
-                      label: const Text('匯出Json'),
-                    ),
-                  ),
-                ],
+                ),
               ),
-              body: switch (state.status) {
-                OrgTreeDesignStatus.loading =>
-                  const Center(child: CircularProgressIndicator()),
-                OrgTreeDesignStatus.failure => Center(
-                    child: Text(state.message.isEmpty ? '載入失敗' : state.message),
-                  ),
-                _ => Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: OrgTreeSourcePanelWidget(
-                            orgName: state.orgName,
-                            departments: state.filteredAvailableDepartments,
-                            placedDepartmentIds: state.canvasNodes
-                                .map((node) => node.departmentId)
-                                .toSet(),
-                            selectedDepartmentId: state.selectedDepartmentId,
-                            filterController: _filterController,
-                            onSelectDepartment: (departmentId) {
-                              _bloc.add(
-                                SelectAvailableDepartmentEvent(departmentId),
-                              );
-                            },
-                            onFilterChanged: (keyword) {
-                              _bloc.add(
-                                FilterAvailableDepartmentsChangedEvent(keyword),
-                              );
-                            },
-                            onClearFilter: () {
-                              _filterController.clear();
-                              _bloc.add(
-                                const FilterAvailableDepartmentsChangedEvent(
-                                    ''),
-                              );
-                            },
-                            onDragStarted: (departmentId) {
-                              _bloc.add(
-                                SelectAvailableDepartmentEvent(departmentId),
-                              );
-                            },
-                            onAddOrganization: () {
-                              context.go(RouteName.orgDesignConfigPage);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 6,
-                          child: OrgTreeCanvasPanelWidget(
-                            transformationController:
-                                _canvasTransformationController,
-                            currentScale: state.canvasScale,
-                            departments: state.availableDepartments,
-                            canvasNodes: state.canvasNodes,
-                            selectedDepartmentId: state.selectedDepartmentId,
-                            highlightedParentDepartmentId:
-                                state.selectedParentDepartmentId,
-                            onCenterCanvas: () {
-                              _bloc.add(const CenterCanvasEvent());
-                            },
-                            onViewportChanged: (viewportWidth, viewportHeight) {
-                              _bloc.add(
-                                UpdateCanvasViewportEvent(
-                                  viewportWidth: viewportWidth,
-                                  viewportHeight: viewportHeight,
-                                ),
-                              );
-                            },
-                            onZoomIn: () {
-                              _bloc.add(const ZoomInCanvasEvent());
-                            },
-                            onZoomOut: () {
-                              _bloc.add(const ZoomOutCanvasEvent());
-                            },
-                            onDropDepartment:
-                                (departmentId, offsetDx, offsetDy) {
-                              _bloc.add(
-                                DropDepartmentToCanvasEvent(
-                                  departmentId: departmentId,
-                                  offsetDx: offsetDx,
-                                  offsetDy: offsetDy,
-                                ),
-                              );
-                            },
-                            onSelectNode: (departmentId) {
-                              _bloc.add(SelectCanvasNodeEvent(departmentId));
-                            },
-                            onMoveNode: (departmentId, deltaDx, deltaDy) {
-                              _bloc.add(
-                                MoveCanvasNodeEvent(
-                                  departmentId: departmentId,
-                                  deltaDx: deltaDx,
-                                  deltaDy: deltaDy,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 3,
-                          child: OrgTreePropertyPanelWidget(
-                            department: state.selectedDepartment,
-                            isOnCanvas: state.isSelectedDepartmentOnCanvas,
-                            draftParentDepartmentId:
-                                state.draftParentDepartmentId,
-                            parentDepartments: state.availableParentDepartments,
-                            departmentNameMap: state.departmentNameMap,
-                            onParentChanged: (value) {
-                              _bloc.add(
-                                DraftParentDepartmentChangedEvent(value ?? ''),
-                              );
-                            },
-                            onApplyParentDepartment: () {
-                              _bloc.add(
-                                ApplyParentDepartmentEvent(
-                                  state.selectedDepartmentId,
-                                ),
-                              );
-                            },
-                            onRemoveCanvasNode: () {
-                              _bloc.add(
-                                RequestRemoveCanvasNodeEvent(
-                                  state.selectedDepartmentId,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              },
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _GlowOrb extends StatelessWidget {
+  final Color color;
+  final double size;
+
+  const _GlowOrb({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [color, color.withValues(alpha: 0)],
+          ),
         ),
       ),
     );

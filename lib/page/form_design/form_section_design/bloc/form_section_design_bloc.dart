@@ -87,8 +87,33 @@ class FormSectionDesignBloc
     Emitter<FormSectionDesignState> emit,
   ) async {
     emit(state.copyWith(status: FormSectionDesignStatus.loading));
+
     if (event.sectionId.isEmpty) {
-      emit(state.copyWith(status: FormSectionDesignStatus.success));
+      emit(const FormSectionDesignState(
+        status: FormSectionDesignStatus.success,
+      ));
+      return;
+    }
+
+    final draftResult =
+        await formSectionDesignService.loadDraft(event.sectionId);
+    if (!draftResult.isSuccess) {
+      emit(state.copyWith(
+        status: FormSectionDesignStatus.failure,
+        message: draftResult.error ?? 'Read draft failed',
+      ));
+      return;
+    }
+
+    final draft = draftResult.data;
+    if (draft != null) {
+      emit(state.copyWith(
+        status: FormSectionDesignStatus.success,
+        items: draft.items,
+        rowCount: draft.rowCount < 1 ? 1 : draft.rowCount,
+        draftName: draft.formName,
+        editingSectionId: draft.sectionId,
+      ));
       return;
     }
 

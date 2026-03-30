@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_bloc.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_event.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_state.dart';
@@ -21,6 +22,20 @@ void main() {
       expect(LoginBloc(loginService).state,
           const LoginState(status: LoginStatus.init));
     });
+
+    blocTest<LoginBloc, LoginState>(
+      'emits updated theme mode when ChangeThemeModeEvent is added',
+      build: () => LoginBloc(loginService),
+      act: (bloc) => bloc.add(
+        const ChangeThemeModeEvent(themeMode: ThemeMode.dark),
+      ),
+      expect: () => const [
+        LoginState(
+          status: LoginStatus.init,
+          themeMode: ThemeMode.dark,
+        ),
+      ],
+    );
 
     blocTest<LoginBloc, LoginState>(
       'emits [loading, success] when LoginRequestEvent succeeds',

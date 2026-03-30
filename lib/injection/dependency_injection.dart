@@ -32,10 +32,26 @@ import 'package:flutter_application_ai/service/form_browse_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_bloc.dart';
 import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
 import 'package:flutter_application_ai/repositories/org_design_repository_impl.dart';
+import 'package:flutter_application_ai/repositories/interface/emp_role_repository.dart';
+import 'package:flutter_application_ai/repositories/interface/emp_info_repository.dart';
+import 'package:flutter_application_ai/repositories/interface/emp_agent_repository.dart';
+import 'package:flutter_application_ai/repositories/emp_role_repository_impl.dart';
+import 'package:flutter_application_ai/repositories/emp_info_repository_impl.dart';
+import 'package:flutter_application_ai/repositories/emp_agent_repository_impl.dart';
 import 'package:flutter_application_ai/service/org_design_service.dart';
 import 'package:flutter_application_ai/page/org_design/org_manager/bloc/org_manager_bloc.dart';
 import 'package:flutter_application_ai/page/org_design/org_design_config/bloc/org_design_config_bloc.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/bloc/org_tree_design_bloc.dart';
+import 'package:flutter_application_ai/service/emp_manager_service.dart';
+import 'package:flutter_application_ai/service/emp_agent_service.dart';
+import 'package:flutter_application_ai/service/emp_dep_service.dart';
+import 'package:flutter_application_ai/service/emp_info_service.dart';
+import 'package:flutter_application_ai/service/emp_role_service.dart';
+import 'package:flutter_application_ai/page/employee/emp_agent/bloc/emp_agent_bloc.dart';
+import 'package:flutter_application_ai/page/employee/emp_dep/bloc/emp_dep_bloc.dart';
+import 'package:flutter_application_ai/page/employee/emp_manager/bloc/emp_manager_bloc.dart';
+import 'package:flutter_application_ai/page/employee/emp_info/bloc/emp_info_bloc.dart';
+import 'package:flutter_application_ai/page/employee/emp_role/bloc/emp_role_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -65,6 +81,12 @@ Future<void> initDI() async {
       () => SectionRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<FormBrowseRepository>(
       () => FormBrowseRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<EmpInfoRepository>(
+      () => EmpInfoRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<EmpAgentRepository>(
+      () => EmpAgentRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<EmpRoleRepository>(
+      () => EmpRoleRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<OrgDesignRepository>(() => OrgDesignRepositoryImpl(
         sl<LocalStorage>(),
         sl<TempDataStorage>(),
@@ -87,6 +109,21 @@ Future<void> initDI() async {
   sl.registerFactory<OrgDesignService>(
       () => OrgDesignService(sl<OrgDesignRepository>()));
   sl.registerFactory<MainService>(() => MainService());
+  sl.registerFactory<EmpManagerService>(() => EmpManagerService());
+  sl.registerFactory<EmpAgentService>(() => EmpAgentService(
+        sl<EmpAgentRepository>(),
+        sl<EmpInfoRepository>(),
+        sl<OrgDesignRepository>(),
+      ));
+  sl.registerFactory<EmpDepService>(
+      () => EmpDepService(sl<EmpInfoRepository>(), sl<OrgDesignRepository>()));
+  sl.registerFactory<EmpInfoService>(() => EmpInfoService(
+        sl<EmpInfoRepository>(),
+        sl<OrgDesignRepository>(),
+        sl<EmpRoleRepository>(),
+      ));
+  sl.registerFactory<EmpRoleService>(
+      () => EmpRoleService(sl<EmpRoleRepository>()));
 
   // 4. Bloc
   sl.registerFactory<LoginBloc>(() => LoginBloc(sl<LoginService>()));
@@ -108,4 +145,10 @@ Future<void> initDI() async {
   sl.registerFactory<OrgTreeDesignBloc>(
       () => OrgTreeDesignBloc(sl<OrgDesignService>()));
   sl.registerFactory<MainBloc>(() => MainBloc(sl<MainService>()));
+  sl.registerFactory<EmpManagerBloc>(
+      () => EmpManagerBloc(sl<EmpManagerService>()));
+  sl.registerFactory<EmpAgentBloc>(() => EmpAgentBloc(sl<EmpAgentService>()));
+  sl.registerFactory<EmpDepBloc>(() => EmpDepBloc(sl<EmpDepService>()));
+  sl.registerFactory<EmpInfoBloc>(() => EmpInfoBloc(sl<EmpInfoService>()));
+  sl.registerFactory<EmpRoleBloc>(() => EmpRoleBloc(sl<EmpRoleService>()));
 }

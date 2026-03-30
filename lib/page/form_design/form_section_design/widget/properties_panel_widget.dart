@@ -4,6 +4,7 @@ import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/constant/form_section_design_constants.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/constant/form_section_design_label_mapper.dart';
+import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
 class PropertiesPanelWidget extends StatelessWidget {
   final FormSectionDesignState state;
@@ -15,11 +16,25 @@ class PropertiesPanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+
     if (state.selectedItemId.isEmpty) {
-      return const Center(
-        child: Text(
-          '請先選擇項目',
-          style: TextStyle(color: Colors.black54),
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          decoration: BoxDecoration(
+            color: themeColors.emptyStateBackground,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: themeColors.panelBorder),
+          ),
+          child: Text(
+            '請先選擇項目',
+            style: TextStyle(
+              color: themeColors.textMuted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       );
     }
@@ -37,38 +52,70 @@ class PropertiesPanelWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            '屬性檢查',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: themeColors.propertiesHeaderBackground,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: themeColors.panelBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '屬性檢查',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: themeColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '識別碼: ${selectedItem.id}',
+                  style: TextStyle(fontSize: 12, color: themeColors.textMuted),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '類型: ${selectedItem.type.name}',
+                  style: TextStyle(fontSize: 12, color: themeColors.textMuted),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
-          Text(
-            '識別碼: ${selectedItem.id}',
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-          Text(
-            '類型: ${selectedItem.type.name}',
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-          const SizedBox(height: 12),
-          TabBar(
-            labelPadding: EdgeInsets.zero,
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.grey.shade300,
-            tabs: const [
-              Tab(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text('基本屬性'),
-                ),
+          Container(
+            decoration: BoxDecoration(
+              color: themeColors.actionBarBackground,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: themeColors.panelBorder),
+            ),
+            child: TabBar(
+              labelPadding: EdgeInsets.zero,
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
+              labelColor: themeColors.textPrimary,
+              unselectedLabelColor: themeColors.textMuted,
+              indicator: BoxDecoration(
+                color: themeColors.selectedFill,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: themeColors.selectedBorder),
               ),
-              Tab(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text('排版設定'),
+              tabs: const [
+                Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('基本屬性'),
+                  ),
                 ),
-              ),
-            ],
+                Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('排版設定'),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -94,6 +141,8 @@ class _PropertiesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
     final isChoiceItem = selectedItem.type == DesignerItemType.radio ||
         selectedItem.type == DesignerItemType.checkbox ||
         selectedItem.type == DesignerItemType.dropdown;
@@ -472,13 +521,13 @@ class _PropertiesTab extends StatelessWidget {
                   DeleteDesignerItemEvent(selectedItem.id),
                 );
           },
-          icon: const Icon(Icons.delete, color: Colors.red),
-          label: const Text(
+          icon: Icon(Icons.delete, color: themeColors.destructive),
+          label: Text(
             '刪除項目',
-            style: TextStyle(color: Colors.red),
+            style: TextStyle(color: themeColors.destructive),
           ),
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.red),
+            side: BorderSide(color: themeColors.destructive),
           ),
         )
       ],

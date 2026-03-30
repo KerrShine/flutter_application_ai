@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
+import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 
 class OrgTreePropertyPanelWidget extends StatelessWidget {
   final OrgDepartmentNode? department;
@@ -25,6 +26,8 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<OrgTreeDesignThemeColors>()!;
     final availableParentIds = {
       '',
       ...parentDepartments.map((item) => item.departmentId),
@@ -38,28 +41,76 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
             ? '未設定'
             : departmentNameMap[department!.parentDepartmentId] ??
                 department!.parentDepartmentId;
-    final titleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-        );
-    final bodyStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          fontSize: 16,
-          height: 1.5,
-        );
-    final helperStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 15,
-          height: 1.5,
-        );
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+    );
+    final bodyStyle = theme.textTheme.bodyLarge?.copyWith(
+      fontSize: 16,
+      height: 1.5,
+    );
+    final helperStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: 15,
+      height: 1.5,
+    );
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.panelBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: colors.panelShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Node 屬性',
-              style: titleStyle,
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: colors.headerBackground,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: colors.panelBackground,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(Icons.tune, color: colors.headerForeground),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Node 屬性',
+                          style: titleStyle?.copyWith(
+                            color: colors.headerForeground,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '選取節點後可設定上層部門或移除。',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.subtleText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             if (department == null)
@@ -84,7 +135,6 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
                       ),
                       valueStyle: bodyStyle?.copyWith(
                         fontSize: 18,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     _PropertyItem(
@@ -122,7 +172,6 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
                           labelStyle: helperStyle?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
-                          border: const OutlineInputBorder(),
                         ),
                         items: [
                           DropdownMenuItem<String>(
@@ -187,6 +236,8 @@ class _PropertyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<OrgTreeDesignThemeColors>()!;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -198,6 +249,7 @@ class _PropertyItem extends StatelessWidget {
                 ?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.bold,
+              color: colors.mutedText,
             ),
           ),
           const SizedBox(height: 4),

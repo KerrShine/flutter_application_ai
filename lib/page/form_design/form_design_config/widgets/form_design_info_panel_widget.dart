@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/info_row_widget.dart';
+import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class FormDesignInfoPanelWidget extends StatelessWidget {
   final FormDesignState state;
@@ -18,69 +19,207 @@ class FormDesignInfoPanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<FormDesignThemeColors>()!;
+    final totalItemCount = state.selectedSections.fold<int>(
+      0,
+      (sum, section) => sum + section.items.length,
+    );
+
     return Container(
       width: 240,
-      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      decoration: BoxDecoration(
+        color: colors.infoPanelBackground,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: colors.panelShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.zero,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colors.headerAccentBackground,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: colors.sectionIconBackground,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.dashboard_customize_outlined,
+                                color: colors.sectionIconColor,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                '表單資訊',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: colors.headerAccentForeground,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '快速檢視目前配置，並進行瀏覽、JSON 預覽與暫存。',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.subtleText,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _StatCard(
+                          label: '目前表單',
+                          value:
+                              state.formName.isEmpty ? '未命名表單' : state.formName,
+                          colors: colors,
+                        ),
+                        const SizedBox(height: 10),
+                        InfoRowWidget(label: '名稱', value: state.formName),
+                        const SizedBox(height: 8),
+                        InfoRowWidget(
+                          label: 'Section 數',
+                          value: '${state.selectedSections.length}',
+                        ),
+                        const SizedBox(height: 8),
+                        InfoRowWidget(
+                          label: '總元件數',
+                          value: '$totalItemCount',
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: onBrowse,
+                        icon: const Icon(Icons.preview_outlined),
+                        label: const Text('表單瀏覽'),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: onPreviewJson,
+                        icon: const Icon(Icons.data_object_outlined),
+                        label: const Text('Json 瀏覽'),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: onSaveDraft,
+                        icon: const Icon(Icons.save_as_outlined),
+                        label: const Text('表單暫存'),
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final FormDesignThemeColors colors;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.statsCardBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.statsCardBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Text('表單資訊', style: Theme.of(context).textTheme.titleSmall),
-          ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InfoRowWidget(label: '名稱', value: state.formName),
-                const SizedBox(height: 8),
-                InfoRowWidget(
-                  label: 'Section 數',
-                  value: '${state.selectedSections.length}',
-                ),
-                const SizedBox(height: 8),
-                InfoRowWidget(
-                  label: '總元件數',
-                  value:
-                      '${state.selectedSections.fold(0, (sum, section) => sum + section.items.length)}',
-                ),
-              ],
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colors.faintText,
             ),
           ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onBrowse,
-                icon: const Icon(Icons.preview_outlined),
-                label: const Text('表單瀏覽'),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onPreviewJson,
-                icon: const Icon(Icons.data_object_outlined),
-                label: const Text('Json 瀏覽'),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: onSaveDraft,
-                icon: const Icon(Icons.save_as_outlined),
-                label: const Text('表單暫存'),
-              ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

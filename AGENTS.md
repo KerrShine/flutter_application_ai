@@ -149,6 +149,7 @@ Future<void> initDI() async {
         - Bloc 透過get_it依賴注入
         - 發送 BLoC Event
         - 顯示 State 結果
+        - Stateless widgets 應該放入同層/widgets中
     - View 層不可以執行以下
         - API 呼叫
         - 資料計算
@@ -571,6 +572,7 @@ Theme 統一管理 UI 規格：
 - 只在 Theme 設定全域元件樣式（Button / Text / Color）
 - Widget 不得自訂與全域規格衝突的樣式（除非是設計特例且有註解）
 - Theme 不得依賴任何業務狀態
+- 資料夾/data/theme 中 放入
 ```
 
 class AppColors {

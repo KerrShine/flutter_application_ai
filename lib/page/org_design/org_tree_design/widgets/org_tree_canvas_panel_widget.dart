@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
 import 'package:flutter_application_ai/model/org_tree_canvas_node.dart';
+import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 
 part 'units/canvas_node_card.dart';
 part 'units/canvas_zoom_controls.dart';
@@ -51,12 +52,24 @@ class OrgTreeCanvasPanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
+    final colors = Theme.of(context).extension<OrgTreeDesignThemeColors>()!;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.panelBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: colors.panelShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          border: Border.all(color: Colors.grey.shade300),
+          color: colors.canvasOuterBackground,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -100,161 +113,181 @@ class OrgTreeCanvasPanelWidget extends StatelessWidget {
             return Stack(
               children: [
                 Positioned.fill(
-                  child: Builder(
-                    builder: (viewportContext) {
-                      return InteractiveViewer(
-                        transformationController: transformationController,
-                        minScale: 0.6,
-                        maxScale: 2.4,
-                        panEnabled: true,
-                        scaleEnabled: true,
-                        constrained: false,
-                        boundaryMargin: const EdgeInsets.all(800),
-                        child: DragTarget<String>(
-                          onAcceptWithDetails: (details) {
-                            final viewportBox =
-                                viewportContext.findRenderObject() as RenderBox;
-                            final viewportOffset =
-                                viewportBox.globalToLocal(details.offset);
-                            final sceneOffset = transformationController
-                                .toScene(viewportOffset);
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: ClipRect(
+                      child: Builder(
+                        builder: (viewportContext) {
+                          return InteractiveViewer(
+                            transformationController: transformationController,
+                            minScale: 0.6,
+                            maxScale: 2.4,
+                            panEnabled: true,
+                            scaleEnabled: true,
+                            constrained: false,
+                            boundaryMargin: const EdgeInsets.all(800),
+                            child: DragTarget<String>(
+                              onAcceptWithDetails: (details) {
+                                final viewportBox = viewportContext
+                                    .findRenderObject() as RenderBox;
+                                final viewportOffset =
+                                    viewportBox.globalToLocal(details.offset);
+                                final sceneOffset = transformationController
+                                    .toScene(viewportOffset);
 
-                            onDropDepartment(
-                              details.data,
-                              sceneOffset.dx - canvasInset - (nodeWidth / 2),
-                              sceneOffset.dy - canvasInset - (nodeHeight / 2),
-                            );
-                          },
-                          builder: (context, candidateData, rejectedData) {
-                            return SizedBox(
-                              width: canvasWidth,
-                              height: canvasHeight,
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: ColoredBox(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: canvasInset,
-                                    top: canvasInset,
-                                    width: actualCanvasWidth,
-                                    height: actualCanvasHeight,
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: Colors.grey.shade400,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.04,
-                                            ),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
+                                onDropDepartment(
+                                  details.data,
+                                  sceneOffset.dx -
+                                      canvasInset -
+                                      (nodeWidth / 2),
+                                  sceneOffset.dy -
+                                      canvasInset -
+                                      (nodeHeight / 2),
+                                );
+                              },
+                              builder: (context, candidateData, rejectedData) {
+                                return Align(
+                                  alignment: Alignment.topLeft,
+                                  child: SizedBox(
+                                    width: canvasWidth,
+                                    height: canvasHeight,
+                                    child: Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: ColoredBox(
+                                            color: colors.canvasOuterBackground,
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: canvasInset,
-                                    top: canvasInset,
-                                    width: actualCanvasWidth,
-                                    height: actualCanvasHeight,
-                                    child: CustomPaint(
-                                      painter: _GridPainter(),
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: CustomPaint(
-                                      painter: _ConnectionPainter(
-                                        canvasNodes: canvasNodes,
-                                        departments: departments,
-                                        nodeWidth: nodeWidth,
-                                        nodeHeight: nodeHeight,
-                                        canvasInset: canvasInset,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: canvasInset + 16,
-                                    top: canvasInset + 12,
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.92,
                                         ),
-                                        borderRadius:
-                                            BorderRadius.circular(999),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
+                                        Positioned(
+                                          left: canvasInset,
+                                          top: canvasInset,
+                                          width: actualCanvasWidth,
+                                          height: actualCanvasHeight,
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color: colors.canvasSurface,
+                                              border: Border.all(
+                                                color: colors.canvasBorder,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: colors.canvasShadow,
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
+                                        Positioned(
+                                          left: canvasInset,
+                                          top: canvasInset,
+                                          width: actualCanvasWidth,
+                                          height: actualCanvasHeight,
+                                          child: CustomPaint(
+                                            painter: _GridPainter(
+                                              minorColor: colors.gridMinor,
+                                              majorColor: colors.gridMajor,
+                                            ),
+                                          ),
                                         ),
-                                        child: Text(
-                                          '畫布區',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium,
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: _ConnectionPainter(
+                                              canvasNodes: canvasNodes,
+                                              departments: departments,
+                                              nodeWidth: nodeWidth,
+                                              nodeHeight: nodeHeight,
+                                              canvasInset: canvasInset,
+                                              lineColor: colors.connection,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                  ...canvasNodes.map((canvasNode) {
-                                    OrgDepartmentNode? department;
-                                    for (final item in departments) {
-                                      if (item.departmentId ==
-                                          canvasNode.departmentId) {
-                                        department = item;
-                                        break;
-                                      }
-                                    }
+                                        Positioned(
+                                          left: canvasInset + 16,
+                                          top: canvasInset + 12,
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  colors.canvasBadgeBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                              border: Border.all(
+                                                color: colors.canvasBadgeBorder,
+                                              ),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 6,
+                                              ),
+                                              child: Text(
+                                                '畫布區',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelMedium,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        ...canvasNodes.map((canvasNode) {
+                                          OrgDepartmentNode? department;
+                                          for (final item in departments) {
+                                            if (item.departmentId ==
+                                                canvasNode.departmentId) {
+                                              department = item;
+                                              break;
+                                            }
+                                          }
 
-                                    if (department == null) {
-                                      return const SizedBox.shrink();
-                                    }
+                                          if (department == null) {
+                                            return const SizedBox.shrink();
+                                          }
 
-                                    return Positioned(
-                                      left: canvasInset + canvasNode.offsetDx,
-                                      top: canvasInset + canvasNode.offsetDy,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          onSelectNode(canvasNode.departmentId);
-                                        },
-                                        onPanUpdate: (details) {
-                                          onMoveNode(
-                                            canvasNode.departmentId,
-                                            details.delta.dx,
-                                            details.delta.dy,
+                                          return Positioned(
+                                            left: canvasInset +
+                                                canvasNode.offsetDx,
+                                            top: canvasInset +
+                                                canvasNode.offsetDy,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                onSelectNode(
+                                                  canvasNode.departmentId,
+                                                );
+                                              },
+                                              onPanUpdate: (details) {
+                                                onMoveNode(
+                                                  canvasNode.departmentId,
+                                                  details.delta.dx,
+                                                  details.delta.dy,
+                                                );
+                                              },
+                                              child: _CanvasNodeCard(
+                                                department: department,
+                                                isSelected:
+                                                    department.departmentId ==
+                                                        selectedDepartmentId,
+                                                isHighlightedParent:
+                                                    highlightedParentDepartmentId
+                                                            .isNotEmpty &&
+                                                        department
+                                                                .departmentId ==
+                                                            highlightedParentDepartmentId,
+                                              ),
+                                            ),
                                           );
-                                        },
-                                        child: _CanvasNodeCard(
-                                          department: department,
-                                          isSelected: department.departmentId ==
-                                              selectedDepartmentId,
-                                          isHighlightedParent:
-                                              highlightedParentDepartmentId
-                                                      .isNotEmpty &&
-                                                  department.departmentId ==
-                                                      highlightedParentDepartmentId,
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(

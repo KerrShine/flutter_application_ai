@@ -9,10 +9,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc(this._loginService) : super(const LoginState()) {
     on<InitEvent>(_onInitEvent);
     on<LoginRequestEvent>(_onLoginEvent);
+    on<ChangeThemeModeEvent>(_onChangeThemeModeEvent);
   }
 
   void _onInitEvent(InitEvent event, Emitter<LoginState> emit) {
     emit(state.copyWith(status: LoginStatus.init));
+  }
+
+  void _onChangeThemeModeEvent(
+    ChangeThemeModeEvent event,
+    Emitter<LoginState> emit,
+  ) {
+    emit(state.copyWith(
+      status: LoginStatus.init,
+      themeMode: event.themeMode,
+    ));
   }
 
   Future<void> _onLoginEvent(

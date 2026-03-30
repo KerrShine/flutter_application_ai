@@ -6,6 +6,7 @@ class _ConnectionPainter extends CustomPainter {
   final double nodeWidth;
   final double nodeHeight;
   final double canvasInset;
+  final Color lineColor;
 
   const _ConnectionPainter({
     required this.canvasNodes,
@@ -13,12 +14,13 @@ class _ConnectionPainter extends CustomPainter {
     required this.nodeWidth,
     required this.nodeHeight,
     required this.canvasInset,
+    required this.lineColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blueGrey.withValues(alpha: 0.55)
+      ..color = lineColor
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 

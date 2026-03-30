@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
+import 'package:flutter_application_ai/theme/form_browse_preview_theme.dart';
 
 class FormWidgetFactory {
-  static Widget buildReadOnlyWidget(DesignerItem item) {
+  static Widget buildReadOnlyWidget(BuildContext context, DesignerItem item) {
     return Container(
       padding: EdgeInsets.all(item.padding),
       alignment: item.alignment.value,
-      child: _buildContent(item),
+      child: _buildContent(context, item),
     );
   }
 
-  static Widget _buildContent(DesignerItem item) {
+  static Widget _buildContent(BuildContext context, DesignerItem item) {
+    final theme = Theme.of(context);
+    final primaryTextColor =
+        theme.textTheme.bodyMedium?.color ?? Colors.black87;
+    final secondaryTextColor =
+        theme.textTheme.bodySmall?.color ?? Colors.black54;
     final placeholder = item.placeholder.trim();
     final maxLength = item.maxLength <= 0 ? null : item.maxLength;
+    final fieldBorder = FormBrowsePreviewTheme.fieldBorder(context);
+    final focusedFieldBorder =
+        FormBrowsePreviewTheme.focusedFieldBorder(context);
     switch (item.type) {
       case DesignerItemType.label:
         return Text(
@@ -20,6 +29,7 @@ class FormWidgetFactory {
           style: TextStyle(
             fontSize: item.fontSize,
             fontWeight: item.isBold ? FontWeight.bold : FontWeight.normal,
+            color: primaryTextColor,
           ),
           textAlign: _toTextAlign(item.alignment),
         );
@@ -28,15 +38,23 @@ class FormWidgetFactory {
           readOnly: false,
           enabled: true,
           maxLength: maxLength,
+          style: TextStyle(fontSize: item.fontSize, color: primaryTextColor),
           decoration: InputDecoration(
             labelText: item.text,
             hintText: placeholder.isNotEmpty
                 ? placeholder
                 : (item.fieldName.isEmpty ? null : item.fieldName),
-            labelStyle: TextStyle(fontSize: item.fontSize),
-            hintStyle: TextStyle(fontSize: item.fontSize),
-            border: const OutlineInputBorder(),
-            disabledBorder: const OutlineInputBorder(),
+            labelStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
+            hintStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
+            border: fieldBorder,
+            enabledBorder: fieldBorder,
+            focusedBorder: focusedFieldBorder,
           ),
         );
       case DesignerItemType.textArea:
@@ -49,25 +67,47 @@ class FormWidgetFactory {
             maxLines: null,
             expands: true,
             textAlignVertical: TextAlignVertical.top,
+            style: TextStyle(fontSize: item.fontSize, color: primaryTextColor),
             decoration: InputDecoration(
               alignLabelWithHint: true,
               labelText: item.text,
               hintText: placeholder.isNotEmpty
                   ? placeholder
                   : (item.fieldName.isEmpty ? null : item.fieldName),
-              labelStyle: TextStyle(fontSize: item.fontSize),
-              hintStyle: TextStyle(fontSize: item.fontSize),
-              border: const OutlineInputBorder(),
-              disabledBorder: const OutlineInputBorder(),
+              labelStyle: TextStyle(
+                fontSize: item.fontSize,
+                color: secondaryTextColor,
+              ),
+              hintStyle: TextStyle(
+                fontSize: item.fontSize,
+                color: secondaryTextColor,
+              ),
+              border: fieldBorder,
+              enabledBorder: fieldBorder,
+              focusedBorder: focusedFieldBorder,
             ),
           ),
         );
       case DesignerItemType.radio:
-        return _buildChoiceGroup(item: item, isRadio: true);
+        return _buildChoiceGroup(
+          item: item,
+          isRadio: true,
+          primaryTextColor: primaryTextColor,
+        );
       case DesignerItemType.checkbox:
-        return _buildChoiceGroup(item: item, isRadio: false);
+        return _buildChoiceGroup(
+          item: item,
+          isRadio: false,
+          primaryTextColor: primaryTextColor,
+        );
       case DesignerItemType.dropdown:
-        return _buildDropdown(item, placeholder);
+        return _buildDropdown(
+          context,
+          item,
+          placeholder,
+          primaryTextColor,
+          secondaryTextColor,
+        );
       case DesignerItemType.button:
         final button = ElevatedButton(
           onPressed: () {},
@@ -89,10 +129,14 @@ class FormWidgetFactory {
             hintText: placeholder.isNotEmpty
                 ? placeholder
                 : (item.fieldName.isEmpty ? item.dateFormat : item.fieldName),
-            labelStyle: TextStyle(fontSize: item.fontSize),
-            hintStyle: TextStyle(fontSize: item.fontSize),
-            border: const OutlineInputBorder(),
-            disabledBorder: const OutlineInputBorder(),
+            labelStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
+            hintStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
             suffixIcon: const Icon(Icons.calendar_today),
           ),
         );
@@ -134,14 +178,23 @@ class FormWidgetFactory {
             const SizedBox(height: 6),
             Text(
               hintText,
-              style: TextStyle(fontSize: item.fontSize - 2, color: Colors.grey),
+              style: TextStyle(
+                fontSize: item.fontSize - 2,
+                color: secondaryTextColor,
+              ),
             ),
           ],
         );
     }
   }
 
-  static Widget _buildDropdown(DesignerItem item, String placeholder) {
+  static Widget _buildDropdown(
+    BuildContext context,
+    DesignerItem item,
+    String placeholder,
+    Color primaryTextColor,
+    Color secondaryTextColor,
+  ) {
     final optionLabels = item.options.isEmpty ? const ['選項1'] : item.options;
     final hasRemoteSource = item.dataSourceUrl.trim().isNotEmpty;
     final hintParts = <String>[];
@@ -164,28 +217,40 @@ class FormWidgetFactory {
                   value: label,
                   child: Text(
                     label,
-                    style: TextStyle(fontSize: item.fontSize),
+                    style: TextStyle(
+                      fontSize: item.fontSize,
+                      color: primaryTextColor,
+                    ),
                   ),
                 ),
               )
               .toList(),
           onChanged: (_) {},
+          style: TextStyle(fontSize: item.fontSize, color: primaryTextColor),
+          dropdownColor: Theme.of(context).cardColor,
           decoration: InputDecoration(
             labelText: item.text,
             hintText: placeholder.isNotEmpty
                 ? placeholder
                 : (hasRemoteSource ? '將由遠端資料載入' : null),
-            labelStyle: TextStyle(fontSize: item.fontSize),
-            hintStyle: TextStyle(fontSize: item.fontSize),
-            border: const OutlineInputBorder(),
-            disabledBorder: const OutlineInputBorder(),
+            labelStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
+            hintStyle: TextStyle(
+              fontSize: item.fontSize,
+              color: secondaryTextColor,
+            ),
           ),
         ),
         if (hintParts.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(
             hintParts.join(' | '),
-            style: TextStyle(fontSize: item.fontSize - 2, color: Colors.grey),
+            style: TextStyle(
+              fontSize: item.fontSize - 2,
+              color: secondaryTextColor,
+            ),
           ),
         ],
       ],
@@ -195,6 +260,7 @@ class FormWidgetFactory {
   static Widget _buildChoiceGroup({
     required DesignerItem item,
     required bool isRadio,
+    required Color primaryTextColor,
   }) {
     final optionLabels = item.isGrouped ? item.options : [item.text];
     final title = item.isGrouped && item.text.isNotEmpty ? item.text : '';
@@ -208,6 +274,7 @@ class FormWidgetFactory {
             isRadio: isRadio,
             isChecked: isRadio ? entry.key == 0 : false,
             fontSize: item.fontSize,
+            textColor: primaryTextColor,
           ),
         )
         .toList();
@@ -218,8 +285,11 @@ class FormWidgetFactory {
         if (title.isNotEmpty) ...[
           Text(
             title,
-            style:
-                TextStyle(fontSize: item.fontSize, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: item.fontSize,
+              fontWeight: FontWeight.w600,
+              color: primaryTextColor,
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -251,6 +321,7 @@ class FormWidgetFactory {
     required bool isRadio,
     required bool isChecked,
     required double fontSize,
+    required Color textColor,
   }) {
     if (isRadio) {
       return Row(
@@ -262,7 +333,10 @@ class FormWidgetFactory {
             onChanged: (_) {},
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          Text(label, style: TextStyle(fontSize: fontSize)),
+          Text(
+            label,
+            style: TextStyle(fontSize: fontSize, color: textColor),
+          ),
         ],
       );
     }
@@ -275,7 +349,10 @@ class FormWidgetFactory {
           onChanged: (_) {},
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        Text(label, style: TextStyle(fontSize: fontSize)),
+        Text(
+          label,
+          style: TextStyle(fontSize: fontSize, color: textColor),
+        ),
       ],
     );
   }

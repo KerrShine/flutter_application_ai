@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
+import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
 class TrailingDropZoneWidget extends StatelessWidget {
   final int rowCount;
@@ -10,6 +11,9 @@ class TrailingDropZoneWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+
     return DragTarget<Object>(
       onWillAcceptWithDetails: (details) =>
           details.data is DesignerItemType || details.data is DesignerItem,
@@ -34,18 +38,20 @@ class TrailingDropZoneWidget extends StatelessWidget {
           margin: const EdgeInsets.only(top: 4),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isHovering ? Colors.blue : Colors.grey.shade300,
+              color: isHovering ? themeColors.hoverBorder : themeColors.border,
               width: isHovering ? 2 : 1,
             ),
-            borderRadius: BorderRadius.circular(8),
-            color:
-                isHovering ? Colors.blue.withOpacity(0.05) : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            color: isHovering
+                ? themeColors.hoverFill
+                : themeColors.emptyStateBackground,
           ),
           child: Center(
             child: Text(
               isHovering ? '放開以新增一列' : '拖曳到此處新增列',
               style: TextStyle(
-                color: isHovering ? Colors.blue : Colors.grey.shade400,
+                color:
+                    isHovering ? themeColors.hoverBorder : themeColors.hintText,
                 fontSize: 13,
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
+import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
 class DesignerItemRowWidget extends StatelessWidget {
   final DesignerItem item;
@@ -17,7 +18,10 @@ class DesignerItemRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isSelected ? Colors.blue : Colors.grey.shade300;
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+    final borderColor =
+        isSelected ? themeColors.selectedBorder : themeColors.border;
     final borderWidth = isSelected ? 2.0 : 1.0;
 
     return InkWell(
@@ -29,15 +33,26 @@ class DesignerItemRowWidget extends StatelessWidget {
         alignment: item.alignment.value,
         decoration: BoxDecoration(
           border: Border.all(color: borderColor, width: borderWidth),
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
+          borderRadius: BorderRadius.circular(6),
+          color: isSelected ? themeColors.selectedFill : themeColors.surface,
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? themeColors.selectedShadow
+                  : themeColors.panelShadow,
+              blurRadius: isSelected ? 12 : 6,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: _buildContent(),
+        child: _buildContent(context),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
     final placeholder = item.placeholder.trim();
     final maxLength = item.maxLength <= 0 ? null : item.maxLength;
     switch (item.type) {
@@ -57,7 +72,7 @@ class DesignerItemRowWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.drag_handle, color: Colors.black54),
+            Icon(Icons.drag_handle, color: themeColors.dragHandle),
           ],
         );
       case DesignerItemType.textField:
@@ -80,7 +95,7 @@ class DesignerItemRowWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.drag_handle, color: Colors.black54),
+            Icon(Icons.drag_handle, color: themeColors.dragHandle),
           ],
         );
       case DesignerItemType.textArea:
@@ -115,18 +130,18 @@ class DesignerItemRowWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 8),
-              child: Icon(Icons.drag_handle, color: Colors.black54),
+              child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
             ),
           ],
         );
       case DesignerItemType.radio:
-        return _buildChoiceRow(isRadio: true);
+        return _buildChoiceRow(context, isRadio: true);
       case DesignerItemType.checkbox:
-        return _buildChoiceRow(isRadio: false);
+        return _buildChoiceRow(context, isRadio: false);
       case DesignerItemType.dropdown:
-        return _buildDropdownRow();
+        return _buildDropdownRow(context);
       case DesignerItemType.datePicker:
         return Row(
           children: [
@@ -147,17 +162,19 @@ class DesignerItemRowWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.drag_handle, color: Colors.black54),
+            Icon(Icons.drag_handle, color: themeColors.dragHandle),
           ],
         );
       case DesignerItemType.fileUpload:
-        return _buildFileUploadRow();
+        return _buildFileUploadRow(context);
       case DesignerItemType.button:
-        return _buildButtonRow();
+        return _buildButtonRow(context);
     }
   }
 
-  Widget _buildDropdownRow() {
+  Widget _buildDropdownRow(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
     final placeholder = item.placeholder.trim();
     final optionLabels = item.options.isEmpty ? const ['選項1'] : item.options;
     final hasRemoteSource = item.dataSourceUrl.trim().isNotEmpty;
@@ -209,9 +226,9 @@ class DesignerItemRowWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 8),
-              child: Icon(Icons.drag_handle, color: Colors.black54),
+              child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
             ),
           ],
         ),
@@ -219,14 +236,19 @@ class DesignerItemRowWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             hintParts.join(' | '),
-            style: TextStyle(fontSize: item.fontSize - 2, color: Colors.grey),
+            style: TextStyle(
+              fontSize: item.fontSize - 2,
+              color: themeColors.textMuted,
+            ),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildFileUploadRow() {
+  Widget _buildFileUploadRow(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
     final normalizedTypes = item.allowedTypes
         .split(',')
         .map((e) => e.trim())
@@ -269,21 +291,26 @@ class DesignerItemRowWidget extends StatelessWidget {
             else
               buttonWidget,
             const SizedBox(width: 8),
-            const Icon(Icons.drag_handle, color: Colors.black54),
+            Icon(Icons.drag_handle, color: themeColors.dragHandle),
           ],
         ),
         if (hintText.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(
             hintText,
-            style: TextStyle(fontSize: item.fontSize - 2, color: Colors.grey),
+            style: TextStyle(
+              fontSize: item.fontSize - 2,
+              color: themeColors.textMuted,
+            ),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildButtonRow() {
+  Widget _buildButtonRow(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
     final button = ElevatedButton(
       onPressed: null,
       child: Text(item.text),
@@ -308,12 +335,15 @@ class DesignerItemRowWidget extends StatelessWidget {
         else
           buttonWidget,
         const SizedBox(width: 8),
-        const Icon(Icons.drag_handle, color: Colors.black54),
+        Icon(Icons.drag_handle, color: themeColors.dragHandle),
       ],
     );
   }
 
-  Widget _buildChoiceRow({required bool isRadio}) {
+  Widget _buildChoiceRow(BuildContext context, {required bool isRadio}) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,9 +357,9 @@ class DesignerItemRowWidget extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(child: _buildChoiceContent(isRadio: isRadio)),
         const SizedBox(width: 8),
-        const Padding(
-          padding: EdgeInsets.only(top: 2),
-          child: Icon(Icons.drag_handle, color: Colors.black54),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
         ),
       ],
     );

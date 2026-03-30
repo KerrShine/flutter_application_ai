@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/theme/app_colors.dart';
+import 'package:flutter_application_ai/theme/login_theme_colors.dart';
 
 class LoginFormWidget extends StatelessWidget {
-  final TextEditingController emailController;
+  final TextEditingController accountController;
   final TextEditingController passwordController;
   final bool isLoading;
   final VoidCallback onLogin;
 
   const LoginFormWidget({
     super.key,
-    required this.emailController,
+    required this.accountController,
     required this.passwordController,
     required this.isLoading,
     required this.onLogin,
@@ -16,18 +18,22 @@ class LoginFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dividerColor = Theme.of(context).dividerColor;
+    final colorScheme = Theme.of(context).colorScheme;
+    final loginThemeColors = Theme.of(context).extension<LoginThemeColors>()!;
+
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.grey[300]!,
+          color: dividerColor,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: loginThemeColors.panelShadowColor,
             blurRadius: 12,
             spreadRadius: 2,
           ),
@@ -37,12 +43,14 @@ class LoginFormWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildTextField(
-            controller: emailController,
+            context: context,
+            controller: accountController,
             label: 'Account',
             icon: Icons.email_outlined,
           ),
           const SizedBox(height: 16),
           _buildTextField(
+            context: context,
             controller: passwordController,
             label: 'Password',
             icon: Icons.lock_outline,
@@ -50,25 +58,16 @@ class LoginFormWidget extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           if (isLoading)
-            const CircularProgressIndicator(color: Color(0xFF1E3A5F))
+            const CircularProgressIndicator(color: AppColors.primary)
           else
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: onLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3A5F),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
                 child: const Text(
                   'LOGIN',
                   style: TextStyle(
-                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                   ),
@@ -81,29 +80,22 @@ class LoginFormWidget extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String label,
     required IconData icon,
     bool isObscure = false,
   }) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TextField(
       controller: controller,
       obscureText: isObscure,
-      style: const TextStyle(color: Colors.black),
+      style: textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.black87),
-        prefixIcon: Icon(icon, color: const Color(0xFF1E3A5F), size: 32),
-        filled: true,
-        fillColor: Colors.grey[100],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1E3A5F), width: 1.5),
-        ),
+        prefixIcon: Icon(icon, color: colorScheme.primary, size: 28),
       ),
     );
   }

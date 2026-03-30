@@ -9,6 +9,7 @@ import 'package:flutter_application_ai/page/form_design/form_design_config/widge
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_design_info_panel_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_section_canvas_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
+import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class FormDesignPage extends StatefulWidget {
   final String formId;
@@ -36,6 +37,8 @@ class _FormDesignPageState extends State<FormDesignPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<FormDesignThemeColors>()!;
+
     return BlocProvider.value(
       value: _bloc,
       child: MultiBlocListener(
@@ -152,83 +155,191 @@ class _FormDesignPageState extends State<FormDesignPage> {
         child: BlocBuilder<FormDesignBloc, FormDesignState>(
           builder: (context, state) {
             return Scaffold(
+              backgroundColor: Colors.transparent,
               appBar: AppBar(
-                title: Text(state.formName.isEmpty
-                    ? '表單設計'
-                    : '表單設計 — ${state.formName}'),
+                backgroundColor: colors.shellBackground.withValues(alpha: 0.92),
+                surfaceTintColor: Colors.transparent,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(state.formName.isEmpty ? '表單設計' : state.formName),
+                    Text(
+                      '編排 Section 順序、檢視結構並維持草稿狀態',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colors.faintText,
+                          ),
+                    ),
+                  ],
+                ),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () => context.go(RouteName.formManagePage),
                 ),
                 actions: [
-                  TextButton.icon(
-                    onPressed: () => _bloc.add(const SaveFormDesignEvent()),
-                    icon: const Icon(Icons.save_outlined, color: Colors.white),
-                    label:
-                        const Text('儲存', style: TextStyle(color: Colors.white)),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: FilledButton.icon(
+                      onPressed: () => _bloc.add(const SaveFormDesignEvent()),
+                      icon: const Icon(Icons.save_outlined),
+                      label: const Text('儲存表單'),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
               body: state.status == FormDesignStatus.loading
                   ? const Center(child: CircularProgressIndicator())
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AvailableSectionPanelWidget(
-                          state: state,
-                          onAddSection: (section) {
-                            _bloc.add(AddSectionToFormEvent(section));
-                          },
-                          onEditSection: (section) {
-                            _bloc.add(NavigateToEditSectionEvent(section.id));
-                          },
-                          onCreateSection: () {
-                            _bloc.add(const NavigateToCreateSectionEvent());
-                          },
-                          onDeleteSection: (section) {
-                            _bloc.add(
-                              RequestDeleteAvailableSectionEvent(section.id),
-                            );
-                          },
+                  : Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: colors.pageGradient,
                         ),
-                        const VerticalDivider(width: 1),
-                        Expanded(
-                          child: FormSectionCanvasWidget(
-                            state: state,
-                            onReorder: (oldIndex, newIndex) {
-                              _bloc.add(
-                                ReorderSectionEvent(oldIndex, newIndex),
-                              );
-                            },
-                            onRemoveSection: (sectionId) {
-                              _bloc.add(
-                                RemoveSectionFromFormEvent(sectionId),
-                              );
-                            },
-                            onBrowseSection: (section) {
-                              _bloc.add(
-                                NavigateToBrowseSectionEvent(section),
-                              );
-                            },
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: -90,
+                            left: -30,
+                            child: _GlowOrb(color: colors.heroGlow, size: 220),
                           ),
-                        ),
-                        const VerticalDivider(width: 1),
-                        FormDesignInfoPanelWidget(
-                          state: state,
-                          onSaveDraft: () {
-                            _bloc.add(const SaveFormDraftEvent());
-                          },
-                          onPreviewJson: () {
-                            _bloc.add(const PreviewFormJsonEvent());
-                          },
-                          onBrowse: () {
-                            _bloc.add(const NavigateToBrowseEvent());
-                          },
-                        ),
-                      ],
+                          Positioned(
+                            right: -60,
+                            bottom: -80,
+                            child: _GlowOrb(
+                              color: colors.heroGlow.withValues(alpha: 0.18),
+                              size: 240,
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: colors.shellBackground.withValues(
+                                  alpha: 0.9,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: colors.shellBorder),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colors.shellShadow,
+                                    blurRadius: 28,
+                                    offset: const Offset(0, 18),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AvailableSectionPanelWidget(
+                                      state: state,
+                                      onAddSection: (section) {
+                                        _bloc.add(
+                                          AddSectionToFormEvent(section),
+                                        );
+                                      },
+                                      onEditSection: (section) {
+                                        _bloc.add(
+                                          NavigateToEditSectionEvent(
+                                              section.id),
+                                        );
+                                      },
+                                      onCreateSection: () {
+                                        _bloc.add(
+                                          const NavigateToCreateSectionEvent(),
+                                        );
+                                      },
+                                      onDeleteSection: (section) {
+                                        _bloc.add(
+                                          RequestDeleteAvailableSectionEvent(
+                                            section.id,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: FormSectionCanvasWidget(
+                                        state: state,
+                                        onReorder: (oldIndex, newIndex) {
+                                          _bloc.add(
+                                            ReorderSectionEvent(
+                                              oldIndex,
+                                              newIndex,
+                                            ),
+                                          );
+                                        },
+                                        onRemoveSection: (sectionId) {
+                                          _bloc.add(
+                                            RemoveSectionFromFormEvent(
+                                                sectionId),
+                                          );
+                                        },
+                                        onBrowseSection: (section) {
+                                          _bloc.add(
+                                            NavigateToBrowseSectionEvent(
+                                                section),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    FormDesignInfoPanelWidget(
+                                      state: state,
+                                      onSaveDraft: () {
+                                        _bloc.add(const SaveFormDraftEvent());
+                                      },
+                                      onPreviewJson: () {
+                                        _bloc.add(const PreviewFormJsonEvent());
+                                      },
+                                      onBrowse: () {
+                                        _bloc
+                                            .add(const NavigateToBrowseEvent());
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _GlowOrb extends StatelessWidget {
+  final Color color;
+  final double size;
+
+  const _GlowOrb({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color,
+              color.withValues(alpha: 0),
+            ],
+          ),
         ),
       ),
     );

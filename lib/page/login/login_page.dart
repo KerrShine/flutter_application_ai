@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/main.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_bloc.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_event.dart';
 import 'package:flutter_application_ai/page/login/bloc/login_state.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/login/widgets/login_form_widget.dart';
+import 'package:flutter_application_ai/page/login/widgets/theme_mode_selector_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
+import 'package:flutter_application_ai/theme/app_colors.dart';
+import 'package:flutter_application_ai/theme/login_theme_colors.dart';
 import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,9 +20,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  static const Color _deepBlue = Color(0xFF1E3A5F);
   late final LoginBloc _bloc;
-  final TextEditingController _emailController =
+  final TextEditingController _accountController =
       TextEditingController(text: 'test001');
   final TextEditingController _passwordController =
       TextEditingController(text: '123456');
@@ -33,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     _bloc.close();
-    _emailController.dispose();
+    _accountController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -53,15 +56,15 @@ class _LoginPageState extends State<LoginPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.message),
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: Theme.of(context).colorScheme.error,
                     ),
                   );
                   break;
                 case LoginStatus.success:
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text('Login Success!'),
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppColors.success,
                     ),
                   );
                   context.go(RouteName.mainPage);
@@ -71,15 +74,32 @@ class _LoginPageState extends State<LoginPage> {
               }
             },
           ),
+          BlocListener<LoginBloc, LoginState>(
+            listenWhen: (previous, current) =>
+                previous.themeMode != current.themeMode,
+            listener: (context, state) {
+              appThemeController.setThemeMode(state.themeMode);
+            },
+          ),
         ],
         child: BlocBuilder<LoginBloc, LoginState>(
           builder: (context, state) {
+            final colorScheme = Theme.of(context).colorScheme;
+            final textTheme = Theme.of(context).textTheme;
+            final loginThemeColors =
+                Theme.of(context).extension<LoginThemeColors>()!;
+
             return Scaffold(
               body: Stack(
                 children: [
-                  // Background Color
                   Container(
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: loginThemeColors.backgroundGradient,
+                      ),
+                    ),
                   ),
                   Center(
                     child: SingleChildScrollView(
@@ -88,7 +108,20 @@ class _LoginPageState extends State<LoginPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // App Icon
+                            Text(
+                              'Theme',
+                              style: textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 12),
+                            ThemeModeSelectorWidget(
+                              selectedMode: state.themeMode,
+                              onChanged: (themeMode) {
+                                _bloc.add(
+                                  ChangeThemeModeEvent(themeMode: themeMode),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 28),
                             Container(
                               width: 120,
                               height: 120,
@@ -96,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.3),
+                                    color: loginThemeColors.heroShadowColor,
                                     blurRadius: 15,
                                     offset: const Offset(0, 5),
                                   ),
@@ -104,10 +137,10 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               child: ClipOval(
                                 child: Container(
-                                  color: Colors.white,
+                                  color: colorScheme.surface,
                                   child: ColorFiltered(
-                                    colorFilter: const ColorFilter.mode(
-                                      _deepBlue,
+                                    colorFilter: ColorFilter.mode(
+                                      colorScheme.primary,
                                       BlendMode.srcIn,
                                     ),
                                     child: Image.asset(
@@ -118,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                                         return const Icon(
                                           Icons.auto_awesome,
                                           size: 60,
-                                          color: _deepBlue,
+                                          color: AppColors.primary,
                                         );
                                       },
                                     ),
@@ -126,20 +159,24 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Wellan AI Platform',
+                              style: textTheme.headlineMedium,
+                            ),
                             const SizedBox(height: 40),
-                            // Login Form Widget
                             ConstrainedBox(
                               constraints: const BoxConstraints(
                                 maxWidth: 420,
                               ),
                               child: LoginFormWidget(
-                                emailController: _emailController,
+                                accountController: _accountController,
                                 passwordController: _passwordController,
                                 isLoading: state.status == LoginStatus.loading,
                                 onLogin: () {
                                   _bloc.add(
                                     LoginRequestEvent(
-                                      email: _emailController.text,
+                                      email: _accountController.text,
                                       password: _passwordController.text,
                                     ),
                                   );

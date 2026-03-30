@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
+import 'package:flutter_application_ai/theme/theme_controller.dart';
+import 'package:flutter_application_ai/theme/theme.dart';
+
+final ThemeController appThemeController = ThemeController();
 
 void main() {
   runZonedGuarded(
@@ -23,14 +27,18 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Flutter Demo',
-      routerConfig: AppRouter.router,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: appThemeController,
+      builder: (context, themeMode, child) {
+        return MaterialApp.router(
+          title: 'Flutter Demo',
+          routerConfig: AppRouter.router,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+        );
+      },
     );
   }
 }

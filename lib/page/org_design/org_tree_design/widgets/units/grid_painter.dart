@@ -1,13 +1,21 @@
 part of '../org_tree_canvas_panel_widget.dart';
 
 class _GridPainter extends CustomPainter {
+  final Color minorColor;
+  final Color majorColor;
+
+  const _GridPainter({
+    required this.minorColor,
+    required this.majorColor,
+  });
+
   @override
   void paint(Canvas canvas, Size size) {
     final minorPaint = Paint()
-      ..color = Colors.blueGrey.withValues(alpha: 0.18)
+      ..color = minorColor
       ..strokeWidth = 1;
     final majorPaint = Paint()
-      ..color = Colors.blueGrey.withValues(alpha: 0.34)
+      ..color = majorColor
       ..strokeWidth = 1.2;
 
     const spacing = 24.0;

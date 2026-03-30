@@ -6,6 +6,8 @@ import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_br
 import 'package:flutter_application_ai/page/form_design/form_browse/widgets/form_browse_property_panel_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/widgets/form_browse_section_list_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/widgets/section_preview_widget.dart';
+import 'package:flutter_application_ai/theme/form_browse_preview_theme.dart';
+import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 
 class FormBrowseBodyWidget extends StatelessWidget {
   final FormBrowseState state;
@@ -17,14 +19,27 @@ class FormBrowseBodyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<FormBrowseThemeColors>()!;
+
     if (state.status == FormBrowseStatus.loading) {
       return const Center(child: CircularProgressIndicator());
     }
     if (state.status == FormBrowseStatus.failure) {
-      return Center(child: Text(state.message));
+      return Center(
+        child: Text(
+          state.message,
+          style: theme.textTheme.bodyMedium?.copyWith(color: colors.mutedText),
+        ),
+      );
     }
     if (state.sections.isEmpty) {
-      return const Center(child: Text('目前沒有可瀏覽的 Section'));
+      return Center(
+        child: Text(
+          '目前沒有可瀏覽的 Section',
+          style: theme.textTheme.bodyMedium?.copyWith(color: colors.mutedText),
+        ),
+      );
     }
 
     // 根據 selectedSectionId 決定要顯示的 sections
@@ -39,22 +54,34 @@ class FormBrowseBodyWidget extends StatelessWidget {
           sections: state.sections,
           selectedSectionId: state.selectedSectionId,
         ),
-        const VerticalDivider(width: 1),
+        const SizedBox(width: 12),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(12),
-            child: displayedSections.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      '沒有可顯示的內容',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  )
-                : Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
+          child: Container(
+            decoration: BoxDecoration(
+              color: colors.previewFrameBackground,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: colors.previewFrameBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.previewFrameShadow,
+                  blurRadius: 18,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Theme(
+              data: FormBrowsePreviewTheme.resolve(theme),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: displayedSections.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          '沒有可顯示的內容',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: displayedSections.indexed.map((entry) {
                           final index = entry.$1;
@@ -64,7 +91,7 @@ class FormBrowseBodyWidget extends StatelessWidget {
                             padding: EdgeInsets.only(
                               bottom: index == displayedSections.length - 1
                                   ? 0
-                                  : 12,
+                                  : 18,
                             ),
                             child: SectionPreviewWidget(
                               section: section,
@@ -81,20 +108,17 @@ class FormBrowseBodyWidget extends StatelessWidget {
                           );
                         }).toList(),
                       ),
-                    ),
-                  ),
+              ),
+            ),
           ),
         ),
-        const VerticalDivider(width: 1),
+        const SizedBox(width: 12),
         SizedBox(
           width: 360,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: FormBrowsePropertyPanelWidget(
-              sections: displayedSections,
-              selectedFieldKey: state.selectedFieldKey,
-              expandedFieldKey: state.expandedFieldKey,
-            ),
+          child: FormBrowsePropertyPanelWidget(
+            sections: displayedSections,
+            selectedFieldKey: state.selectedFieldKey,
+            expandedFieldKey: state.expandedFieldKey,
           ),
         ),
       ],

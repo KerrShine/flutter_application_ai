@@ -4,6 +4,7 @@ import 'package:flutter_application_ai/model/form_browse_field_meta.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_event.dart';
+import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 
 class FormBrowsePropertyPanelWidget extends StatelessWidget {
   final List<SectionModel> sections;
@@ -19,160 +20,232 @@ class FormBrowsePropertyPanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<FormBrowseThemeColors>()!;
     final fields = _flattenFields(sections);
 
     if (fields.isEmpty) {
-      return const Center(
-        child: Text(
-          '無可檢視屬性',
-          style: TextStyle(color: Colors.black54),
+      return Container(
+        decoration: BoxDecoration(
+          color: colors.panelBackground,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: colors.panelBorder),
+          boxShadow: [
+            BoxShadow(
+              color: colors.panelShadow,
+              blurRadius: 18,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            '無可檢視屬性',
+            style:
+                theme.textTheme.bodyMedium?.copyWith(color: colors.mutedText),
+          ),
         ),
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text(
-          '欄位屬性',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '共 ${fields.length} 欄位',
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: Colors.black54),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: ListView.separated(
-            itemCount: fields.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final field = fields[index];
-              final fieldKey = '${field.section.id}::${field.item.id}';
-              final isSelected = selectedFieldKey == fieldKey;
-              final isExpanded = expandedFieldKey == fieldKey;
-
-              return Card(
-                color: isSelected ? Colors.blue.shade50 : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                    color: isSelected
-                        ? Colors.blue.shade200
-                        : Colors.grey.shade300,
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.panelBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: colors.panelShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.headerBackground,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(6)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: colors.panelBackground,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Icon(Icons.tune, color: colors.headerForeground),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '欄位屬性',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: colors.headerForeground,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '共 ${fields.length} 欄位，可展開查看完整設定。',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.subtleText,
                   ),
                 ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () {
-                    context.read<FormBrowseBloc>().add(
-                          ToggleFieldExpandEvent(
-                            sectionId: field.section.id,
-                            itemId: field.item.id,
-                          ),
-                        );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                field.item.text.isEmpty
-                                    ? '(未命名欄位)'
-                                    : field.item.text,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(12),
+              itemCount: fields.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final field = fields[index];
+                final fieldKey = '${field.section.id}::${field.item.id}';
+                final isSelected = selectedFieldKey == fieldKey;
+                final isExpanded = expandedFieldKey == fieldKey;
+
+                return Material(
+                  color: isSelected
+                      ? colors.propertyCardSelectedBackground
+                      : colors.propertyCardBackground,
+                  borderRadius: BorderRadius.circular(6),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: () {
+                      context.read<FormBrowseBloc>().add(
+                            ToggleFieldExpandEvent(
+                              sectionId: field.section.id,
+                              itemId: field.item.id,
+                            ),
+                          );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: isSelected
+                              ? colors.previewSelectedBorder
+                              : colors.panelBorder,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  field.item.text.isEmpty
+                                      ? '(未命名欄位)'
+                                      : field.item.text,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
+                              Text(
+                                field.item.type.name,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colors.mutedText,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Icon(
+                                isExpanded
+                                    ? Icons.expand_less
+                                    : Icons.expand_more,
+                                size: 18,
+                                color: colors.mutedText,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${field.section.name} / row ${field.item.rowIndex}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colors.mutedText,
                             ),
-                            Text(
-                              field.item.type.name,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.black54),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              isExpanded
-                                  ? Icons.expand_less
-                                  : Icons.expand_more,
-                              size: 18,
-                              color: Colors.black54,
-                            ),
+                          ),
+                          if (isExpanded) ...[
+                            const SizedBox(height: 8),
+                            _buildPropertyLine(context, 'id', field.item.id),
+                            _buildPropertyLine(
+                                context, 'fieldName', field.item.fieldName),
+                            _buildPropertyLine(
+                                context, 'placeholder', field.item.placeholder),
+                            _buildPropertyLine(context, 'required',
+                                field.item.required.toString()),
+                            _buildPropertyLine(context, 'readonly',
+                                field.item.readonly.toString()),
+                            _buildPropertyLine(context, 'widthPercentage',
+                                field.item.widthPercentage.toString()),
+                            _buildPropertyLine(context, 'alignment',
+                                field.item.alignment.name),
+                            _buildPropertyLine(context, 'padding',
+                                field.item.padding.toString()),
+                            _buildPropertyLine(context, 'fontSize',
+                                field.item.fontSize.toString()),
+                            _buildPropertyLine(context, 'maxLength',
+                                field.item.maxLength.toString()),
+                            _buildPropertyLine(context, 'inputType',
+                                field.item.inputType.name),
+                            _buildPropertyLine(
+                                context, 'dateFormat', field.item.dateFormat),
+                            _buildPropertyLine(context, 'options',
+                                field.item.options.join(', ')),
+                            _buildPropertyLine(context, 'isGrouped',
+                                field.item.isGrouped.toString()),
+                            _buildPropertyLine(context, 'optionLayout',
+                                field.item.optionLayout.name),
+                            _buildPropertyLine(context, 'optionSpacing',
+                                field.item.optionSpacing.toString()),
+                            _buildPropertyLine(context, 'buttonWidthMode',
+                                field.item.buttonWidthMode.name),
+                            _buildPropertyLine(context, 'buttonWidth',
+                                field.item.buttonWidth.toString()),
+                            _buildPropertyLine(context, 'textAreaHeight',
+                                field.item.textAreaHeight.toString()),
+                            _buildPropertyLine(context, 'allowedTypes',
+                                field.item.allowedTypes),
+                            _buildPropertyLine(context, 'maxSize',
+                                field.item.maxSize.toString()),
+                            _buildPropertyLine(context, 'dataSourceUrl',
+                                field.item.dataSourceUrl),
+                            _buildPropertyLine(context, 'dataSourceKey',
+                                field.item.dataSourceKey),
                           ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${field.section.name} / row ${field.item.rowIndex}',
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.black54),
-                        ),
-                        if (isExpanded) ...[
-                          const SizedBox(height: 8),
-                          _buildPropertyLine('id', field.item.id),
-                          _buildPropertyLine('fieldName', field.item.fieldName),
-                          _buildPropertyLine(
-                              'placeholder', field.item.placeholder),
-                          _buildPropertyLine(
-                              'required', field.item.required.toString()),
-                          _buildPropertyLine(
-                              'readonly', field.item.readonly.toString()),
-                          _buildPropertyLine('widthPercentage',
-                              field.item.widthPercentage.toString()),
-                          _buildPropertyLine(
-                              'alignment', field.item.alignment.name),
-                          _buildPropertyLine(
-                              'padding', field.item.padding.toString()),
-                          _buildPropertyLine(
-                              'fontSize', field.item.fontSize.toString()),
-                          _buildPropertyLine(
-                              'maxLength', field.item.maxLength.toString()),
-                          _buildPropertyLine(
-                              'inputType', field.item.inputType.name),
-                          _buildPropertyLine(
-                              'dateFormat', field.item.dateFormat),
-                          _buildPropertyLine(
-                              'options', field.item.options.join(', ')),
-                          _buildPropertyLine(
-                              'isGrouped', field.item.isGrouped.toString()),
-                          _buildPropertyLine(
-                              'optionLayout', field.item.optionLayout.name),
-                          _buildPropertyLine('optionSpacing',
-                              field.item.optionSpacing.toString()),
-                          _buildPropertyLine('buttonWidthMode',
-                              field.item.buttonWidthMode.name),
-                          _buildPropertyLine(
-                              'buttonWidth', field.item.buttonWidth.toString()),
-                          _buildPropertyLine('textAreaHeight',
-                              field.item.textAreaHeight.toString()),
-                          _buildPropertyLine(
-                              'allowedTypes', field.item.allowedTypes),
-                          _buildPropertyLine(
-                              'maxSize', field.item.maxSize.toString()),
-                          _buildPropertyLine(
-                              'dataSourceUrl', field.item.dataSourceUrl),
-                          _buildPropertyLine(
-                              'dataSourceKey', field.item.dataSourceKey),
                         ],
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildPropertyLine(String key, String value) {
+  Widget _buildPropertyLine(BuildContext context, String key, String value) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<FormBrowseThemeColors>()!;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
@@ -182,13 +255,15 @@ class FormBrowsePropertyPanelWidget extends StatelessWidget {
             width: 120,
             child: Text(
               key,
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.mutedText,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: const TextStyle(fontSize: 12),
+              style: theme.textTheme.bodySmall,
             ),
           ),
         ],

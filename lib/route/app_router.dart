@@ -10,6 +10,12 @@ import 'package:flutter_application_ai/page/form_design/form_browse/form_browse_
 import 'package:flutter_application_ai/page/org_design/org_manager/org_manager_page.dart';
 import 'package:flutter_application_ai/page/org_design/org_design_config/org_design_config_page.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/org_tree_design_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_agent/emp_agent_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_manager/emp_manager_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_dep/emp_dep_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_info/emp_info_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_manager/emp_manager_guide_page.dart';
+import 'package:flutter_application_ai/page/employee/emp_role/emp_role_page.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
 
 class RouteName {
@@ -17,6 +23,12 @@ class RouteName {
   static const String homePage = '/home';
   static const String mainPage = '/home/main';
   static const String orgManagerPage = '/home/org-manager';
+  static const String empManagerPage = '/home/emp-manager';
+  static const String empManagerGuidePage = '/home/emp-manager/guide';
+  static const String empAgentPage = '/home/emp-agent';
+  static const String empDepPage = '/home/emp-dep';
+  static const String empInfoPage = '/home/emp-info';
+  static const String empRolePage = '/home/emp-role';
   static const String orgDesignConfigPage =
       '/home/org-manager/org-design-config';
   static const String orgTreeDesignPage = '/home/org-manager/org-tree-design';
@@ -59,6 +71,36 @@ class AppRouter {
                 builder: (context, state) => const OrgTreeDesignPage(),
               ),
             ],
+          ),
+          GoRoute(
+            path: RouteName.empManagerPage,
+            builder: (context, state) => const EmpManagerPage(),
+            routes: [
+              GoRoute(
+                path: 'guide',
+                builder: (context, state) => const EmpManagerGuidePage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteName.empRolePage,
+            builder: (context, state) => const EmpRolePage(),
+          ),
+          GoRoute(
+            path: RouteName.empAgentPage,
+            builder: (context, state) => const EmpAgentPage(),
+          ),
+          GoRoute(
+            path: RouteName.empDepPage,
+            builder: (context, state) => EmpDepPage(
+              initialDepartmentId:
+                  state.uri.queryParameters['departmentId'] ?? '',
+              focusedEmployeeId: state.uri.queryParameters['employeeId'] ?? '',
+            ),
+          ),
+          GoRoute(
+            path: RouteName.empInfoPage,
+            builder: (context, state) => const EmpInfoPage(),
           ),
           GoRoute(
             path: RouteName.formSectionDesignPage,

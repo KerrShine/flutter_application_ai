@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/draggable_designer_item_widget.dart';
+import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
 /// 畫布中單一列，寬度依 [widthPercentage] 以列寬的絕對比例切分。
 /// 可接受來自元件庫（DesignerItemType）或其他列（DesignerItem）的拖曳。
@@ -20,6 +21,9 @@ class CanvasRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeColors =
+        Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+
     return DragTarget<Object>(
       onWillAcceptWithDetails: (details) =>
           details.data is DesignerItemType || details.data is DesignerItem,
@@ -43,12 +47,20 @@ class CanvasRowWidget extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 60),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isHovering ? Colors.blue : Colors.grey.shade200,
+              color: isHovering ? themeColors.hoverBorder : themeColors.border,
               width: isHovering ? 2 : 1,
             ),
-            borderRadius: BorderRadius.circular(8),
-            color:
-                isHovering ? Colors.blue.withOpacity(0.05) : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            color: isHovering ? themeColors.hoverFill : themeColors.surface,
+            boxShadow: [
+              BoxShadow(
+                color: isHovering
+                    ? themeColors.selectedShadow
+                    : themeColors.panelShadow,
+                blurRadius: isHovering ? 14 : 8,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: IntrinsicHeight(
             child: Row(
@@ -56,11 +68,13 @@ class CanvasRowWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: items.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Text(
                             '拖曳元件到此列',
-                            style:
-                                TextStyle(color: Colors.black38, fontSize: 13),
+                            style: TextStyle(
+                              color: themeColors.textFaint,
+                              fontSize: 13,
+                            ),
                           ),
                         )
                       : Builder(
@@ -98,7 +112,7 @@ class CanvasRowWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.remove_circle_outline,
-                    color: Colors.red.shade300,
+                    color: themeColors.destructiveSoft,
                     size: 20,
                   ),
                   tooltip: '刪除此列',

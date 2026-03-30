@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
+import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 
 class OrgTreeSourcePanelWidget extends StatelessWidget {
   final String orgName;
@@ -29,21 +30,91 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final orgTitleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          height: 1.2,
-        );
+    final theme = Theme.of(context);
+    final colors = theme.extension<OrgTreeDesignThemeColors>()!;
+    final orgTitleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      height: 1.2,
+    );
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.panelBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: colors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: colors.panelShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              orgName.isEmpty ? '簽核系統組織' : orgName,
-              style: orgTitleStyle,
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: colors.headerBackground,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: colors.panelBackground,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                      Icons.account_tree_outlined,
+                      color: colors.headerForeground,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          orgName.isEmpty ? '簽核系統組織' : orgName,
+                          style: orgTitleStyle?.copyWith(
+                            color: colors.headerForeground,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '從左側清單拖曳部門到中央畫布。',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.subtleText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.headerChipBackground,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${departments.length}',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: colors.headerChipForeground,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -59,7 +130,6 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
                         onPressed: onClearFilter,
                         icon: const Icon(Icons.close),
                       ),
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -69,7 +139,7 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
                   : ListView.separated(
                       itemCount: departments.length,
                       separatorBuilder: (context, index) =>
-                          const Divider(height: 1),
+                          const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final department = departments[index];
                         final isPlaced = placedDepartmentIds
@@ -85,7 +155,12 @@ class OrgTreeSourcePanelWidget extends StatelessWidget {
                             color: Colors.transparent,
                             child: SizedBox(
                               width: 220,
-                              child: Card(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: colors.panelBackground,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: colors.panelBorder),
+                                ),
                                 child: ListTile(
                                   leading:
                                       const Icon(Icons.account_tree_outlined),
@@ -149,31 +224,51 @@ class _DepartmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.extension<OrgTreeDesignThemeColors>()!;
+    final isSelected = department.departmentId == selectedDepartmentId;
+
     return MouseRegion(
       cursor: SystemMouseCursors.grab,
-      child: ListTile(
-        dense: true,
-        selected: department.departmentId == selectedDepartmentId,
-        leading: const Icon(Icons.account_tree_outlined),
-        title: Text(department.name),
-        subtitle: Text(
-          '代碼: ${department.departmentCode.isEmpty ? '-' : department.departmentCode}',
+      child: Material(
+        color: isSelected
+            ? colors.sourceSelectedBackground
+            : isPlaced
+                ? colors.sourcePlacedBackground
+                : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        child: ListTile(
+          dense: true,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+            side: BorderSide(
+              color: isSelected ? colors.panelBorder : Colors.transparent,
+            ),
+          ),
+          leading: const Icon(Icons.account_tree_outlined),
+          title: Text(department.name),
+          subtitle: Text(
+            '代碼: ${department.departmentCode.isEmpty ? '-' : department.departmentCode}',
+            style: theme.textTheme.bodySmall?.copyWith(color: colors.mutedText),
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(department.isActive ? '啟用' : '停用'),
+              if (isPlaced)
+                Text(
+                  '已加入',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colors.mutedText,
+                  ),
+                ),
+            ],
+          ),
+          onTap: () {
+            onTap(department.departmentId);
+          },
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(department.isActive ? '啟用' : '停用'),
-            if (isPlaced)
-              Text(
-                '已加入',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-          ],
-        ),
-        onTap: () {
-          onTap(department.departmentId);
-        },
       ),
     );
   }

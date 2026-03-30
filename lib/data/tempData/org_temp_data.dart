@@ -4,7 +4,7 @@ class TempOrgDataStorage {
   "orgId": "default_org",
   "orgName": "偉盟科技",
   "schemaVersion": 3,
-  "updatedAt": "2026-03-24T15:43:37.354",
+  "updatedAt": "2026-03-25T10:53:29.980",
   "departmentNodes": [
     {
       "department_id": "1774316002822000",
@@ -293,7 +293,7 @@ class TempOrgDataStorage {
     },
     {
       "departmentId": "1774315461085000",
-      "offsetDx": 1871.7740558752553,
+      "offsetDx": 1735.6629447641444,
       "offsetDy": 275.45016520925094
     },
     {
@@ -358,22 +358,22 @@ class TempOrgDataStorage {
     },
     {
       "departmentId": "1774322880067000",
-      "offsetDx": 1613.2311835861053,
-      "offsetDy": 417.1436978214967
+      "offsetDx": 1491.008961363883,
+      "offsetDy": 419.9214755992746
     },
     {
       "departmentId": "1774324341003000",
-      "offsetDx": 1613.1119687088174,
-      "offsetDy": 537.760053895138
+      "offsetDx": 1490.889746486595,
+      "offsetDy": 540.5378316729159
     },
     {
       "departmentId": "1774324353250000",
-      "offsetDx": 1614.7619592678607,
-      "offsetDy": 662.6805563862087
+      "offsetDx": 1492.5397370456383,
+      "offsetDy": 665.4583341639866
     },
     {
       "departmentId": "1774324382032000",
-      "offsetDx": 1871.7610644548272,
+      "offsetDx": 1735.6499533437163,
       "offsetDy": 410.34837827531595
     },
     {

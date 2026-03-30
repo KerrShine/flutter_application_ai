@@ -13,28 +13,28 @@ class _CanvasNodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).extension<OrgTreeDesignThemeColors>()!;
     final backgroundColor = isSelected
-        ? colorScheme.primaryContainer
+        ? colors.nodeSelectedBackground
         : isHighlightedParent
-            ? Colors.green.shade50
-            : Colors.white;
+            ? colors.nodeHighlightedBackground
+            : colors.nodeBackground;
     final borderColor = isSelected
-        ? colorScheme.primary
+        ? colors.nodeSelectedBorder
         : isHighlightedParent
-            ? Colors.green.shade600
-            : Colors.grey.shade400;
+            ? colors.nodeHighlightedBorder
+            : colors.nodeBorder;
     final borderWidth = isSelected || isHighlightedParent ? 2.2 : 1.0;
     final titleColor = isSelected
-        ? colorScheme.onPrimaryContainer
+        ? colors.nodeSelectedTitle
         : isHighlightedParent
-            ? Colors.green.shade900
-            : Colors.black87;
+            ? colors.nodeHighlightedTitle
+            : colors.nodeTitle;
     final subtitleColor = isSelected
-        ? colorScheme.onPrimaryContainer.withValues(alpha: 0.82)
+        ? colors.nodeSelectedSubtitle
         : isHighlightedParent
-            ? Colors.green.shade800
-            : Theme.of(context).textTheme.bodySmall?.color;
+            ? colors.nodeHighlightedSubtitle
+            : colors.nodeSubtitle;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
@@ -43,7 +43,7 @@ class _CanvasNodeCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: borderColor,
           width: borderWidth,
@@ -51,8 +51,8 @@ class _CanvasNodeCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isHighlightedParent
-                ? Colors.green.withValues(alpha: 0.16)
-                : Colors.black.withValues(alpha: 0.06),
+                ? colors.nodeHighlightedShadow
+                : colors.nodeShadow,
             blurRadius: isHighlightedParent ? 14 : 8,
             offset: const Offset(0, 4),
           ),

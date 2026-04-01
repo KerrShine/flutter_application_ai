@@ -5,6 +5,7 @@ import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/service/form_design_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/available_section_panel_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_design_info_panel_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_section_canvas_widget.dart';
@@ -207,12 +208,12 @@ class _FormDesignPageState extends State<FormDesignPage> {
                           Positioned(
                             top: -90,
                             left: -30,
-                            child: _GlowOrb(color: colors.heroGlow, size: 220),
+                            child: GlowOrbWidget(color: colors.heroGlow, size: 220),
                           ),
                           Positioned(
                             right: -60,
                             bottom: -80,
-                            child: _GlowOrb(
+                            child: GlowOrbWidget(
                               color: colors.heroGlow.withValues(alpha: 0.18),
                               size: 240,
                             ),
@@ -314,32 +315,6 @@ class _FormDesignPageState extends State<FormDesignPage> {
                     ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const _GlowOrb({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color,
-              color.withValues(alpha: 0),
-            ],
-          ),
         ),
       ),
     );

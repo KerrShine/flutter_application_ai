@@ -14,7 +14,7 @@ class WebTempDataStorage implements TempDataStorage {
 
   @override
   Future<String?> readJson(String fileName) async {
-    return web.window.sessionStorage.getItem('$_tempDataPrefix$fileName');
+    return web.window.localStorage.getItem('$_tempDataPrefix$fileName');
   }
 
   @override
@@ -22,11 +22,11 @@ class WebTempDataStorage implements TempDataStorage {
     required String fileName,
     required String content,
   }) async {
-    web.window.sessionStorage.setItem('$_tempDataPrefix$fileName', content);
+    web.window.localStorage.setItem('$_tempDataPrefix$fileName', content);
   }
 
   @override
   Future<void> deleteJson(String fileName) async {
-    web.window.sessionStorage.removeItem('$_tempDataPrefix$fileName');
+    web.window.localStorage.removeItem('$_tempDataPrefix$fileName');
   }
 }

@@ -116,3 +116,7 @@ class SearchKeywordChangedEvent extends EmpInfoEvent {
   @override
   List<Object> get props => [keyword];
 }
+
+class RequestExportJsonEvent extends EmpInfoEvent {
+  const RequestExportJsonEvent();
+}

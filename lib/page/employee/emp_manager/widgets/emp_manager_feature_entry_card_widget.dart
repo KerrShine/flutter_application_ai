@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/theme/emp_manager_theme_colors.dart';
 
 class EmpManagerFeatureEntryCardWidget extends StatelessWidget {
   final String title;
@@ -16,6 +17,8 @@ class EmpManagerFeatureEntryCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<EmpManagerThemeColors>()!;
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -30,10 +33,10 @@ class EmpManagerFeatureEntryCardWidget extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: colors.iconContainerBackground,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(icon),
+                    child: Icon(icon, color: colors.iconColor),
                   ),
                 ],
               ),

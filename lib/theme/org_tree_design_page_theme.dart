@@ -29,6 +29,11 @@ class OrgTreeDesignPageTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          foregroundColor:
+              baseTheme.brightness == Brightness.dark ? Colors.white : null,
+          side: baseTheme.brightness == Brightness.dark
+              ? const BorderSide(color: Colors.white54)
+              : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
           ),

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/theme/emp_info_theme_colors.dart';
 
 class EmpInfoHeaderWidget extends StatelessWidget {
   final VoidCallback onCreateEmployee;
+  final VoidCallback onExportJson;
 
   const EmpInfoHeaderWidget({
     super.key,
     required this.onCreateEmployee,
+    required this.onExportJson,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<EmpInfoThemeColors>()!;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,7 +25,7 @@ class EmpInfoHeaderWidget extends StatelessWidget {
               Text(
                 '職員設定 / 職員資料',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF616161),
+                      color: colors.breadcrumbText,
                       letterSpacing: 0.2,
                     ),
               ),
@@ -28,7 +33,7 @@ class EmpInfoHeaderWidget extends StatelessWidget {
               Text(
                 '職員資料管理',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: const Color(0xFF111111),
+                      color: colors.headlineText,
                       fontWeight: FontWeight.w700,
                     ),
               ),
@@ -36,10 +41,23 @@ class EmpInfoHeaderWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
+        OutlinedButton.icon(
+          onPressed: onExportJson,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: colors.actionColor,
+            side: BorderSide(color: colors.actionColor.withValues(alpha: 0.5)),
+          ),
+          icon: Icon(Icons.data_object_outlined, color: colors.actionColor),
+          label: Text(
+            '匯出Json',
+            style: TextStyle(color: colors.actionColor),
+          ),
+        ),
+        const SizedBox(width: 8),
         FilledButton.icon(
           onPressed: onCreateEmployee,
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF111111),
+            backgroundColor: colors.actionColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/theme/emp_manager_theme_colors.dart';
 
 class EmpManagerSectionTitleWidget extends StatelessWidget {
   final String title;
@@ -12,6 +13,8 @@ class EmpManagerSectionTitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<EmpManagerThemeColors>()!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,7 +28,7 @@ class EmpManagerSectionTitleWidget extends StatelessWidget {
         Text(
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.black54,
+                color: colors.subtitleText,
               ),
         ),
       ],

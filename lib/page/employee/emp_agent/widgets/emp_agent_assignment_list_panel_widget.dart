@@ -56,19 +56,11 @@ class EmpAgentAssignmentListPanelWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Row(
-            children: const [
-              Expanded(child: _FakeFilterField(label: '所有部門')),
-              SizedBox(width: 12),
-              Expanded(child: _FakeFilterField(label: '有效中')),
-            ],
-          ),
-          const SizedBox(height: 16),
           Expanded(
             child: assignmentRows.isEmpty
                 ? Center(
                     child: Text(
-                      '目前尚無代理人設定',
+                      '請先選擇被代理人以顯示代理清單',
                       style: TextStyle(
                         color: themeColors.mutedText,
                         fontSize: 14,
@@ -142,56 +134,12 @@ class EmpAgentAssignmentListPanelWidget extends StatelessWidget {
                     },
                   ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: const [
-              _FooterGhostButton(label: '上一步'),
-              Spacer(),
-              _FooterPrimaryButton(label: '完成設定'),
-            ],
-          ),
         ],
       ),
     );
   }
 }
 
-class _FakeFilterField extends StatelessWidget {
-  final String label;
-
-  const _FakeFilterField({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeColors = Theme.of(context).extension<EmpAgentThemeColors>()!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: themeColors.dropdownBackground,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: themeColors.dropdownBorder),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: themeColors.inputText,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Icon(
-            Icons.keyboard_arrow_down,
-            color: themeColors.filterIcon,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _AssignmentActorCard extends StatelessWidget {
   final String name;
@@ -273,54 +221,3 @@ class _AssignmentActorCard extends StatelessWidget {
   }
 }
 
-class _FooterGhostButton extends StatelessWidget {
-  final String label;
-
-  const _FooterGhostButton({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeColors = Theme.of(context).extension<EmpAgentThemeColors>()!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: themeColors.footerGhostBorder),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: themeColors.inputText,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _FooterPrimaryButton extends StatelessWidget {
-  final String label;
-
-  const _FooterPrimaryButton({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeColors = Theme.of(context).extension<EmpAgentThemeColors>()!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: themeColors.footerPrimaryBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: themeColors.inputText,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}

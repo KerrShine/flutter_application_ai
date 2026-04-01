@@ -149,6 +149,7 @@ class EmpAgentService {
             assignments: sortedAssignments,
             departments: sortedDepartments,
             employees: sortedEmployees,
+            principalEmployeeId: resolvedPrincipalEmployeeId,
           ),
         ),
       );
@@ -310,8 +311,14 @@ class EmpAgentService {
     required List<EmpAgentAssignmentModel> assignments,
     required List<OrgDepartmentNode> departments,
     required List<EmployeeModel> employees,
+    String principalEmployeeId = '',
   }) {
-    return assignments.map((assignment) {
+    final filtered = principalEmployeeId.isEmpty
+        ? <EmpAgentAssignmentModel>[]
+        : assignments
+            .where((a) => a.principalEmployeeId == principalEmployeeId)
+            .toList();
+    return filtered.map((assignment) {
       final principalEmployee = _findEmployee(
         employees: employees,
         employeeId: assignment.principalEmployeeId,

@@ -208,29 +208,36 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        // 第二層：HR資料
-                        ExpansionTile(
-                          title: const Padding(
-                            padding: EdgeInsets.only(left: 16.0),
-                            child: Text('HR資料'),
-                          ),
-                          children: [
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('項目'),
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                        // 日記帳測試
+                        // 登出
                         ListTile(
                           contentPadding: const EdgeInsets.only(left: 32.0),
-                          leading: const Icon(Icons.book),
-                          title: const Text('日記帳測試'),
+                          leading: const Icon(Icons.logout),
+                          title: const Text('登出'),
                           onTap: () {
-                            Navigator.pop(context); // 關閉 Drawer
+                            Navigator.pop(context);
+                            showDialog<bool>(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('登出'),
+                                content: const Text('確定要登出嗎？'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(dialogContext).pop(false),
+                                    child: const Text('取消'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () =>
+                                        Navigator.of(dialogContext).pop(true),
+                                    child: const Text('登出'),
+                                  ),
+                                ],
+                              ),
+                            ).then((confirmed) {
+                              if (confirmed == true && context.mounted) {
+                                context.go(RouteName.loginPage);
+                              }
+                            });
                           },
                         ),
                       ],

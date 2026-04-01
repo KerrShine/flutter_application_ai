@@ -72,16 +72,26 @@ class EmpAgentAgentSectionWidget extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
-        Text(
-          '選擇代理人（僅顯示在職員工）*',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: themeColors.inputText,
-          ),
+        DropdownButtonFormField<String>(
+          value: agentEmployeeId.isEmpty ? null : agentEmployeeId,
+          dropdownColor: themeColors.dropdownBackground,
+          style: TextStyle(color: themeColors.inputText),
+          decoration: _inputDecoration(context, '代理人*'),
+          items: agentCandidates
+              .map(
+                (employee) => DropdownMenuItem<String>(
+                  value: employee.employeeId,
+                  child: Text(
+                    _buildEmployeeLabel(employee),
+                    style: TextStyle(color: themeColors.inputText),
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            onSelectEmployee(value ?? '');
+          },
         ),
-        const SizedBox(height: 12),
-        _buildCandidatePanel(context),
         const SizedBox(height: 16),
         EmpAgentEmployeeSummaryWidget(
           employee: selectedAgentEmployee,
@@ -111,115 +121,9 @@ class EmpAgentAgentSectionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCandidatePanel(BuildContext context) {
-    final themeColors = Theme.of(context).extension<EmpAgentThemeColors>()!;
-
-    if (agentCandidates.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: themeColors.dropdownBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: themeColors.dropdownBorder),
-        ),
-        child: Text(
-          '此部門目前沒有可選擇的在職員工',
-          style: TextStyle(color: themeColors.mutedText),
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 220),
-      padding: const EdgeInsets.all(2),
-      child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: agentCandidates
-              .map((employee) => _buildCandidateTile(context, employee))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCandidateTile(BuildContext context, EmployeeModel employee) {
-    final themeColors = Theme.of(context).extension<EmpAgentThemeColors>()!;
-    final isSelected = employee.employeeId == agentEmployeeId;
+  String _buildEmployeeLabel(EmployeeModel employee) {
     final roleName = employee.roleName.isEmpty ? '未指定角色' : employee.roleName;
-
-    return InkWell(
-      onTap: () => onSelectEmployee(employee.employeeId),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 138,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? themeColors.candidateSelectedBackground
-              : themeColors.candidateBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? themeColors.candidateSelectedBorder
-                : themeColors.candidateBorder,
-          ),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: isSelected
-                  ? themeColors.candidateSelectedAvatarBackground
-                  : themeColors.candidateAvatarBackground,
-              child: Text(
-                employee.employeeName.isEmpty
-                    ? '?'
-                    : employee.employeeName.characters.first,
-                style: TextStyle(
-                  color: themeColors.inputText,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    employee.employeeName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isSelected
-                          ? themeColors.candidateSelectedName
-                          : themeColors.inputText,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    roleName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isSelected
-                          ? themeColors.candidateSelectedRole
-                          : themeColors.mutedText,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return '${employee.employeeName}（$roleName）';
   }
 
   InputDecoration _inputDecoration(BuildContext context, String label) {

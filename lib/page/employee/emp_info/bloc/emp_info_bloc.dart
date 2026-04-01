@@ -28,6 +28,7 @@ class EmpInfoBloc extends Bloc<EmpInfoEvent, EmpInfoState> {
     on<OpenEmpDepPageEvent>(_onOpenEmpDepPageEvent);
     on<OpenEditEmployeeDialogEvent>(_onOpenEditEmployeeDialogEvent);
     on<SearchKeywordChangedEvent>(_onSearchKeywordChangedEvent);
+    on<RequestExportJsonEvent>(_onRequestExportJsonEvent);
   }
 
   Future<void> _onInitEvent(
@@ -295,6 +296,34 @@ class EmpInfoBloc extends Bloc<EmpInfoEvent, EmpInfoState> {
     emit(state.copyWith(
       deleteTargetEmployee: employee,
       deleteDialogRequestId: state.deleteDialogRequestId + 1,
+    ));
+  }
+
+  Future<void> _onRequestExportJsonEvent(
+    RequestExportJsonEvent event,
+    Emitter<EmpInfoState> emit,
+  ) async {
+    if (state.employees.isEmpty) {
+      emit(state.copyWith(
+        message: '目前沒有資料',
+        messageRequestId: state.messageRequestId + 1,
+      ));
+      return;
+    }
+
+    final result = await _service.buildExportJson();
+    if (result.isSuccess) {
+      emit(state.copyWith(
+        exportJson: result.data ?? '',
+        exportDialogRequestId: state.exportDialogRequestId + 1,
+      ));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: EmpInfoStatus.failure,
+      message: result.error ?? '職員 JSON 匯出失敗',
+      messageRequestId: state.messageRequestId + 1,
     ));
   }
 

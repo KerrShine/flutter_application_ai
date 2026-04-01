@@ -28,6 +28,8 @@ class EmpInfoState extends Equatable {
   final int employeeDialogRequestId;
   final EmployeeModel deleteTargetEmployee;
   final int deleteDialogRequestId;
+  final String exportJson;
+  final int exportDialogRequestId;
 
   const EmpInfoState({
     this.status = EmpInfoStatus.init,
@@ -44,6 +46,8 @@ class EmpInfoState extends Equatable {
     this.employeeDialogRequestId = 0,
     this.deleteTargetEmployee = const EmployeeModel(),
     this.deleteDialogRequestId = 0,
+    this.exportJson = '',
+    this.exportDialogRequestId = 0,
   });
 
   bool get isEditDialog => dialogMode == EmpInfoDialogMode.edit;
@@ -63,6 +67,8 @@ class EmpInfoState extends Equatable {
     int? employeeDialogRequestId,
     EmployeeModel? deleteTargetEmployee,
     int? deleteDialogRequestId,
+    String? exportJson,
+    int? exportDialogRequestId,
   }) {
     return EmpInfoState(
       status: status ?? this.status,
@@ -81,6 +87,9 @@ class EmpInfoState extends Equatable {
       deleteTargetEmployee: deleteTargetEmployee ?? this.deleteTargetEmployee,
       deleteDialogRequestId:
           deleteDialogRequestId ?? this.deleteDialogRequestId,
+      exportJson: exportJson ?? this.exportJson,
+      exportDialogRequestId:
+          exportDialogRequestId ?? this.exportDialogRequestId,
     );
   }
 
@@ -100,5 +109,7 @@ class EmpInfoState extends Equatable {
         employeeDialogRequestId,
         deleteTargetEmployee,
         deleteDialogRequestId,
+        exportJson,
+        exportDialogRequestId,
       ];
 }

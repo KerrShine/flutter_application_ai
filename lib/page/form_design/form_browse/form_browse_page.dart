@@ -6,6 +6,7 @@ import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_event.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/bloc/form_browse_state.dart';
+import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/widgets/form_browse_body_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/service/form_browse_service.dart';
@@ -92,12 +93,12 @@ class _FormBrowsePageState extends State<FormBrowsePage> {
                   Positioned(
                     top: -90,
                     left: -30,
-                    child: _GlowOrb(color: colors.heroGlow, size: 220),
+                    child: GlowOrbWidget(color: colors.heroGlow, size: 220),
                   ),
                   Positioned(
                     right: -60,
                     bottom: -80,
-                    child: _GlowOrb(
+                    child: GlowOrbWidget(
                       color: colors.heroGlow.withValues(alpha: 0.18),
                       size: 240,
                     ),
@@ -126,29 +127,6 @@ class _FormBrowsePageState extends State<FormBrowsePage> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const _GlowOrb({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-          ),
-        ),
       ),
     );
   }

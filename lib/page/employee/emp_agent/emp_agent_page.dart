@@ -104,7 +104,7 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
       padding: const EdgeInsets.all(24),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isCompact = constraints.maxWidth < 1180;
+          final isCompact = constraints.maxWidth < 960;
 
           final principalCard = _buildPanel(
             child: EmpAgentPrincipalSectionWidget(
@@ -178,16 +178,9 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      principalCard,
-                      const SizedBox(height: 20),
-                      agentCard,
-                    ],
-                  ),
-                ),
+              SizedBox(
+                width: 280,
+                child: SingleChildScrollView(child: principalCard),
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -195,6 +188,11 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
                   height: constraints.maxHeight,
                   child: assignmentPanel,
                 ),
+              ),
+              const SizedBox(width: 20),
+              SizedBox(
+                width: 280,
+                child: SingleChildScrollView(child: agentCard),
               ),
             ],
           );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/model/emp_role_model.dart';
 import 'package:flutter_application_ai/page/employee/emp_info/bloc/emp_info_bloc.dart';
@@ -75,6 +76,15 @@ class _EmpInfoPageState extends State<EmpInfoPage> {
               context.read<EmpInfoBloc>().add(const NavigationHandledEvent());
             },
           ),
+          BlocListener<EmpInfoBloc, EmpInfoState>(
+            listenWhen: (previous, current) =>
+                previous.exportDialogRequestId !=
+                    current.exportDialogRequestId &&
+                current.exportJson.isNotEmpty,
+            listener: (context, state) {
+              _showExportJsonDialog(context, state.exportJson);
+            },
+          ),
         ],
         child: BlocBuilder<EmpInfoBloc, EmpInfoState>(
           builder: (context, state) {
@@ -85,6 +95,23 @@ class _EmpInfoPageState extends State<EmpInfoPage> {
               body: _buildBody(context, state),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showExportJsonDialog(BuildContext context, String exportJson) {
+    return showScrollableMessageDialog(
+      context: context,
+      title: '職員資料 JSON',
+      width: 860,
+      rightText: '關閉',
+      child: SelectableText(
+        exportJson,
+        style: const TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 13,
+          height: 1.45,
         ),
       ),
     );
@@ -338,6 +365,9 @@ class _EmpInfoPageState extends State<EmpInfoPage> {
               context.read<EmpInfoBloc>().add(
                     const OpenCreateEmployeeDialogEvent(),
                   );
+            },
+            onExportJson: () {
+              context.read<EmpInfoBloc>().add(const RequestExportJsonEvent());
             },
           ),
           const SizedBox(height: 20),

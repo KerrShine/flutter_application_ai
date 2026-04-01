@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
+import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/units/property_item_widget.dart';
 import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 
 class OrgTreePropertyPanelWidget extends StatelessWidget {
@@ -126,7 +127,7 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
               Expanded(
                 child: ListView(
                   children: [
-                    _PropertyItem(
+                    PropertyItemWidget(
                       label: '部門名稱',
                       value: department!.name,
                       labelStyle: helperStyle?.copyWith(
@@ -137,7 +138,7 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    _PropertyItem(
+                    PropertyItemWidget(
                       label: '部門代碼',
                       value: department!.departmentCode.isEmpty
                           ? '-'
@@ -145,13 +146,13 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
                       labelStyle: helperStyle,
                       valueStyle: bodyStyle,
                     ),
-                    _PropertyItem(
+                    PropertyItemWidget(
                       label: '啟用狀態',
                       value: department!.isActive ? '啟用' : '停用',
                       labelStyle: helperStyle,
                       valueStyle: bodyStyle,
                     ),
-                    _PropertyItem(
+                    PropertyItemWidget(
                       label: '上級部門',
                       value: currentParentName,
                       labelStyle: helperStyle,
@@ -216,52 +217,6 @@ class OrgTreePropertyPanelWidget extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PropertyItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle? labelStyle;
-  final TextStyle? valueStyle;
-
-  const _PropertyItem({
-    required this.label,
-    required this.value,
-    this.labelStyle,
-    this.valueStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<OrgTreeDesignThemeColors>()!;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: (labelStyle ?? Theme.of(context).textTheme.labelLarge)
-                ?.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: colors.mutedText,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style:
-                (valueStyle ?? Theme.of(context).textTheme.bodyLarge)?.copyWith(
-              fontSize: 16,
-              height: 1.5,
-            ),
-          ),
-        ],
       ),
     );
   }

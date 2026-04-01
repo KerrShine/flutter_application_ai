@@ -49,54 +49,6 @@ class FormDesignInfoPanelWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colors.headerAccentBackground,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(8),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: colors.sectionIconBackground,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Icon(
-                                Icons.dashboard_customize_outlined,
-                                color: colors.sectionIconColor,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                '表單資訊',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  color: colors.headerAccentForeground,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          '快速檢視目前配置，並進行瀏覽、JSON 預覽與暫存。',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colors.subtleText,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(

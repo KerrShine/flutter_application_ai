@@ -35,46 +35,85 @@ class AppColors {
   static const Color loginSelectorBackgroundDark = Color(0xD61E1E1E);
   static const Color loginSelectorBackgroundLight = Color(0xD6FFFFFF);
 
-  // EmpAgentPage 與其 widgets 使用
-  static const Color empAgentPageBackground = Color(0xFF141414);
-  static const Color empAgentPanelBackground = Color(0xFF2A2A2A);
-  static const Color empAgentPanelBorder = Color(0xFF4B4B4B);
-  static const Color empAgentPanelShadow = Color(0x22000000);
-  static const Color empAgentStepTitle = Color(0xFFD8C18C);
-  static const Color empAgentDivider = Color(0xFF4A4A4A);
-  static const Color empAgentDropdownBackground = Color(0xFF353535);
-  static const Color empAgentDropdownBorder = Color(0xFF4D4D4D);
-  static const Color empAgentDropdownLabel = Color(0xFFBDBDBD);
-  static const Color empAgentDropdownFocus = Color(0xFF6C8DFF);
-  static const Color empAgentInputText = Color(0xFFFFFFFF);
-  static const Color empAgentMutedText = Color(0xFFBEBEBE);
-  static const Color empAgentSubtleText = Color(0xFF9E9E9E);
-  static const Color empAgentCandidateBackground = Color(0xFF2F2F2F);
-  static const Color empAgentCandidateSelectedBackground = Color(0xFFE7F0FF);
-  static const Color empAgentCandidateBorder = Color(0xFF4D4D4D);
-  static const Color empAgentCandidateSelectedBorder = Color(0xFF6EA3FF);
-  static const Color empAgentCandidateAvatarBackground = Color(0xFF253F74);
-  static const Color empAgentCandidateSelectedAvatarBackground =
+  // EmpAgentPage 與其 widgets 使用（Dark）
+  static const Color empAgentPageBackgroundDark = Color(0xFF141414);
+  static const Color empAgentPanelBackgroundDark = Color(0xFF2A2A2A);
+  static const Color empAgentPanelBorderDark = Color(0xFF4B4B4B);
+  static const Color empAgentPanelShadowDark = Color(0x22000000);
+  static const Color empAgentStepTitleDark = Color(0xFFD8C18C);
+  static const Color empAgentDividerDark = Color(0xFF4A4A4A);
+  static const Color empAgentDropdownBackgroundDark = Color(0xFF353535);
+  static const Color empAgentDropdownBorderDark = Color(0xFF4D4D4D);
+  static const Color empAgentDropdownLabelDark = Color(0xFFBDBDBD);
+  static const Color empAgentDropdownFocusDark = Color(0xFF6C8DFF);
+  static const Color empAgentInputTextDark = Color(0xFFFFFFFF);
+  static const Color empAgentMutedTextDark = Color(0xFFBEBEBE);
+  static const Color empAgentSubtleTextDark = Color(0xFF9E9E9E);
+  static const Color empAgentCandidateBackgroundDark = Color(0xFF2F2F2F);
+  static const Color empAgentCandidateSelectedBackgroundDark =
+      Color(0xFFE7F0FF);
+  static const Color empAgentCandidateBorderDark = Color(0xFF4D4D4D);
+  static const Color empAgentCandidateSelectedBorderDark = Color(0xFF6EA3FF);
+  static const Color empAgentCandidateAvatarBackgroundDark = Color(0xFF253F74);
+  static const Color empAgentCandidateSelectedAvatarBackgroundDark =
       Color(0xFF4E78C7);
-  static const Color empAgentCandidateSelectedName = Color(0xFF1A1A1A);
-  static const Color empAgentCandidateSelectedRole = Color(0xFF35507B);
-  static const Color empAgentSummaryBackground = Color(0xFF222222);
-  static const Color empAgentSummaryBorder = Color(0xFF3E3E3E);
-  static const Color empAgentSummaryAvatarBackground = Color(0xFFDDEBFF);
-  static const Color empAgentSummaryAvatarText = Color(0xFF33548A);
+  static const Color empAgentCandidateSelectedNameDark = Color(0xFF1A1A1A);
+  static const Color empAgentCandidateSelectedRoleDark = Color(0xFF35507B);
+  static const Color empAgentSummaryBackgroundDark = Color(0xFF222222);
+  static const Color empAgentSummaryBorderDark = Color(0xFF3E3E3E);
+  static const Color empAgentSummaryAvatarBackgroundDark = Color(0xFFDDEBFF);
+  static const Color empAgentSummaryAvatarTextDark = Color(0xFF33548A);
+  static const Color empAgentArrowAccentDark = Color(0xFFF2D39A);
+  static const Color empAgentDeleteTextDark = Color(0xFFFF7D7D);
+  static const Color empAgentDeleteBorderDark = Color(0xFFB84E4E);
+  static const Color empAgentFilterIconDark = Color(0xFFD5D5D5);
+  static const Color empAgentFooterGhostBorderDark = Color(0xFF757575);
+  static const Color empAgentInfoBlockTitleDark = Color(0xFF616161);
+  static const Color empAgentInfoBlockTextDark = Color(0xFF111111);
+
+  // EmpAgentPage 與其 widgets 使用（Light）
+  static const Color empAgentPageBackgroundLight = Color(0xFFF6F8FB);
+  static const Color empAgentPanelBackgroundLight = Color(0xFFFFFFFF);
+  static const Color empAgentPanelBorderLight = Color(0xFFD7E2F2);
+  static const Color empAgentPanelShadowLight = Color(0x140F172A);
+  static const Color empAgentStepTitleLight = Color(0xFF8A5A12);
+  static const Color empAgentDividerLight = Color(0xFFE2E8F0);
+  static const Color empAgentDropdownBackgroundLight = Color(0xFFF1F5F9);
+  static const Color empAgentDropdownBorderLight = Color(0xFFCBD5E1);
+  static const Color empAgentDropdownLabelLight = Color(0xFF6B7280);
+  static const Color empAgentDropdownFocusLight = Color(0xFF2962F1);
+  static const Color empAgentInputTextLight = Color(0xFF111827);
+  static const Color empAgentMutedTextLight = Color(0xFF6B7280);
+  static const Color empAgentSubtleTextLight = Color(0xFF94A3B8);
+  static const Color empAgentCandidateBackgroundLight = Color(0xFFF8FAFC);
+  static const Color empAgentCandidateSelectedBackgroundLight =
+      Color(0xFFEAF1FF);
+  static const Color empAgentCandidateBorderLight = Color(0xFFE2E8F0);
+  static const Color empAgentCandidateSelectedBorderLight = Color(0xFF4E7FE0);
+  static const Color empAgentCandidateAvatarBackgroundLight = Color(0xFFEAF1FF);
+  static const Color empAgentCandidateSelectedAvatarBackgroundLight =
+      Color(0xFF295BBD);
+  static const Color empAgentCandidateSelectedNameLight = Color(0xFF111827);
+  static const Color empAgentCandidateSelectedRoleLight = Color(0xFF244B94);
+  static const Color empAgentSummaryBackgroundLight = Color(0xFFF7FAFF);
+  static const Color empAgentSummaryBorderLight = Color(0xFFDCE6F4);
+  static const Color empAgentSummaryAvatarBackgroundLight = Color(0xFFEAF1FF);
+  static const Color empAgentSummaryAvatarTextLight = Color(0xFF244B94);
+  static const Color empAgentArrowAccentLight = Color(0xFF8A5A12);
+  static const Color empAgentDeleteTextLight = Color(0xFFDC2626);
+  static const Color empAgentDeleteBorderLight = Color(0xFFDC2626);
+  static const Color empAgentFilterIconLight = Color(0xFF6B7280);
+  static const Color empAgentFooterGhostBorderLight = Color(0xFF9CA3AF);
+  static const Color empAgentInfoBlockTitleLight = Color(0xFF5B6472);
+  static const Color empAgentInfoBlockTextLight = Color(0xFF111827);
+
+  // EmpAgentPage 共用（Light/Dark 相同）
   static const Color empAgentStatusActiveBackground = Color(0xFFE6FAEC);
   static const Color empAgentStatusInactiveBackground = Color(0xFFF0F0F0);
   static const Color empAgentStatusActiveText = Color(0xFF0F8A40);
   static const Color empAgentStatusInactiveText = Color(0xFF777777);
   static const Color empAgentPrimaryAction = Color(0xFF295BBD);
-  static const Color empAgentArrowAccent = Color(0xFFF2D39A);
-  static const Color empAgentDeleteText = Color(0xFFFF7D7D);
-  static const Color empAgentDeleteBorder = Color(0xFFB84E4E);
-  static const Color empAgentFilterIcon = Color(0xFFD5D5D5);
-  static const Color empAgentFooterGhostBorder = Color(0xFF757575);
   static const Color empAgentFooterPrimaryBackground = Color(0xFF2C7A1F);
-  static const Color empAgentInfoBlockTitle = Color(0xFF616161);
-  static const Color empAgentInfoBlockText = Color(0xFF111111);
 
   // FormSectionDesignPage 與其 widgets 使用
   static const Color formSectionPaletteBackgroundLight = Color(0xFFF5F5F5);
@@ -243,6 +282,22 @@ class AppColors {
   static const Color formBrowsePropertyCardBackgroundDark = Color(0xFF1A293A);
   static const Color formBrowsePropertyCardSelectedLight = Color(0xFFEAF1FF);
   static const Color formBrowsePropertyCardSelectedDark = Color(0xFF243756);
+
+  // EmpInfoPage 與其 widgets 使用（頁面背景固定淺色，故 dark/light 色值相同）
+  static const Color empInfoActionColorLight = Color(0xFF111111);
+  static const Color empInfoActionColorDark = Color(0xFF111111);
+  static const Color empInfoBreadcrumbTextLight = Color(0xFF616161);
+  static const Color empInfoBreadcrumbTextDark = Color(0xFF616161);
+  static const Color empInfoHeadlineTextLight = Color(0xFF111111);
+  static const Color empInfoHeadlineTextDark = Color(0xFF111111);
+
+  // EmpManagerPage 與其 widgets 使用
+  static const Color empManagerIconContainerBackgroundLight = Color(0xFFEAF1FF);
+  static const Color empManagerIconContainerBackgroundDark = Color(0xFF243756);
+  static const Color empManagerIconColorLight = Color(0xFF295BBD);
+  static const Color empManagerIconColorDark = Color(0xFFD8E7FF);
+  static const Color empManagerSubtitleTextLight = Color(0xFF5B6472);
+  static const Color empManagerSubtitleTextDark = Color(0xFFA8B6C8);
 
   // OrgTreeDesignPage 與其 widgets 使用
   static const Color orgTreeGradientStartLight = Color(0xFFF3F7FF);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_application_ai/model/employee_model.dart';
 import 'package:flutter_application_ai/model/emp_role_model.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
@@ -225,6 +227,27 @@ class EmpInfoService {
       return initData();
     } catch (ex) {
       return Result.failure('職員資料儲存失敗: ${ex.toString()}');
+    }
+  }
+
+  Future<Result<String>> buildExportJson() async {
+    try {
+      final employeesResult = await _repository.loadEmployees();
+      if (!employeesResult.isSuccess) {
+        return Result.failure(employeesResult.error ?? '職員資料讀取失敗');
+      }
+
+      final payload = {
+        'table': 'emp_info',
+        'total': employeesResult.data!.length,
+        'items': employeesResult.data!.map((e) => e.toMap()).toList(),
+      };
+
+      return Result.success(
+        const JsonEncoder.withIndent('  ').convert(payload),
+      );
+    } catch (ex) {
+      return Result.failure('職員 JSON 匯出失敗: ${ex.toString()}');
     }
   }
 

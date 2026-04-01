@@ -8,6 +8,7 @@ import 'package:flutter_application_ai/page/form_design/form_section_design/widg
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/empty_drop_zone_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/palette_item_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/properties_panel_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_section_design/widget/panel_header_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/trailing_drop_zone_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/theme/form_section_design_page_theme.dart';
@@ -143,7 +144,7 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _buildPanelHeader(
+                                PanelHeaderWidget(
                                   icon: Icons.widgets_outlined,
                                   title: '元件庫',
                                   subtitle: '拖曳到畫布快速組裝',
@@ -260,7 +261,7 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: _buildPanelHeader(
+                                      child: PanelHeaderWidget(
                                         icon: Icons.space_dashboard_outlined,
                                         title: '畫布',
                                         subtitle: '調整列與欄位版型',
@@ -391,15 +392,6 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _buildPanelHeader(
-                                  icon: Icons.tune,
-                                  title: '屬性面板',
-                                  subtitle: '調整選取項目的內容與排版',
-                                  backgroundColor:
-                                      themeColors.propertiesHeaderBackground,
-                                  foregroundColor: themeColors.textPrimary,
-                                ),
-                                const SizedBox(height: 14),
                                 Expanded(
                                   child: PropertiesPanelWidget(state: state),
                                 ),
@@ -417,56 +409,4 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
         ));
   }
 
-  Widget _buildPanelHeader({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color backgroundColor,
-    required Color foregroundColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: foregroundColor.withAlpha(28),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(icon, color: foregroundColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: foregroundColor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: foregroundColor.withAlpha(190),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -34,9 +34,7 @@ class FormSectionDesignService {
       final draftMap = jsonDecode(rawDraft) as Map<String, dynamic>;
       final draft = FormSectionDesignDraftModel.fromMap(draftMap);
 
-      if (sectionId.isNotEmpty &&
-          draft.sectionId.isNotEmpty &&
-          draft.sectionId != sectionId) {
+      if (sectionId.isNotEmpty && draft.sectionId != sectionId) {
         return Result.success(null);
       }
 

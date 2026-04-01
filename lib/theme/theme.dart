@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/theme/app_colors.dart';
 import 'package:flutter_application_ai/theme/emp_agent_theme_colors.dart';
+import 'package:flutter_application_ai/theme/emp_info_theme_colors.dart';
+import 'package:flutter_application_ai/theme/emp_manager_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
@@ -25,6 +27,34 @@ class AppTheme {
     final textSecondary =
         isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
     final border = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+
+    // EmpInfoPage、EmpInfoHeaderWidget 使用
+    final empInfoThemeColors = isDark
+        ? const EmpInfoThemeColors(
+            actionColor: AppColors.empInfoActionColorDark,
+            breadcrumbText: AppColors.empInfoBreadcrumbTextDark,
+            headlineText: AppColors.empInfoHeadlineTextDark,
+          )
+        : const EmpInfoThemeColors(
+            actionColor: AppColors.empInfoActionColorLight,
+            breadcrumbText: AppColors.empInfoBreadcrumbTextLight,
+            headlineText: AppColors.empInfoHeadlineTextLight,
+          );
+
+    // EmpManagerPage、EmpManagerFeatureEntryCardWidget、EmpManagerSectionTitleWidget 使用
+    final empManagerThemeColors = isDark
+        ? const EmpManagerThemeColors(
+            iconContainerBackground:
+                AppColors.empManagerIconContainerBackgroundDark,
+            iconColor: AppColors.empManagerIconColorDark,
+            subtitleText: AppColors.empManagerSubtitleTextDark,
+          )
+        : const EmpManagerThemeColors(
+            iconContainerBackground:
+                AppColors.empManagerIconContainerBackgroundLight,
+            iconColor: AppColors.empManagerIconColorLight,
+            subtitleText: AppColors.empManagerSubtitleTextLight,
+          );
 
     // LoginPage、LoginFormWidget、ThemeModeSelectorWidget 使用
     final loginThemeColors = isDark
@@ -51,48 +81,99 @@ class AppTheme {
 
     // EmpAgentPage、EmpAgentPrincipalSectionWidget、EmpAgentAgentSectionWidget、
     // EmpAgentEmployeeSummaryWidget、EmpAgentAssignmentListPanelWidget 使用
-    const empAgentThemeColors = EmpAgentThemeColors(
-      pageBackground: AppColors.empAgentPageBackground,
-      panelBackground: AppColors.empAgentPanelBackground,
-      panelBorder: AppColors.empAgentPanelBorder,
-      panelShadow: AppColors.empAgentPanelShadow,
-      stepTitle: AppColors.empAgentStepTitle,
-      divider: AppColors.empAgentDivider,
-      dropdownBackground: AppColors.empAgentDropdownBackground,
-      dropdownBorder: AppColors.empAgentDropdownBorder,
-      dropdownLabel: AppColors.empAgentDropdownLabel,
-      dropdownFocus: AppColors.empAgentDropdownFocus,
-      inputText: AppColors.empAgentInputText,
-      mutedText: AppColors.empAgentMutedText,
-      subtleText: AppColors.empAgentSubtleText,
-      candidateBackground: AppColors.empAgentCandidateBackground,
-      candidateSelectedBackground:
-          AppColors.empAgentCandidateSelectedBackground,
-      candidateBorder: AppColors.empAgentCandidateBorder,
-      candidateSelectedBorder: AppColors.empAgentCandidateSelectedBorder,
-      candidateAvatarBackground: AppColors.empAgentCandidateAvatarBackground,
-      candidateSelectedAvatarBackground:
-          AppColors.empAgentCandidateSelectedAvatarBackground,
-      candidateSelectedName: AppColors.empAgentCandidateSelectedName,
-      candidateSelectedRole: AppColors.empAgentCandidateSelectedRole,
-      summaryBackground: AppColors.empAgentSummaryBackground,
-      summaryBorder: AppColors.empAgentSummaryBorder,
-      summaryAvatarBackground: AppColors.empAgentSummaryAvatarBackground,
-      summaryAvatarText: AppColors.empAgentSummaryAvatarText,
-      statusActiveBackground: AppColors.empAgentStatusActiveBackground,
-      statusInactiveBackground: AppColors.empAgentStatusInactiveBackground,
-      statusActiveText: AppColors.empAgentStatusActiveText,
-      statusInactiveText: AppColors.empAgentStatusInactiveText,
-      primaryAction: AppColors.empAgentPrimaryAction,
-      arrowAccent: AppColors.empAgentArrowAccent,
-      deleteText: AppColors.empAgentDeleteText,
-      deleteBorder: AppColors.empAgentDeleteBorder,
-      filterIcon: AppColors.empAgentFilterIcon,
-      footerGhostBorder: AppColors.empAgentFooterGhostBorder,
-      footerPrimaryBackground: AppColors.empAgentFooterPrimaryBackground,
-      infoBlockTitle: AppColors.empAgentInfoBlockTitle,
-      infoBlockText: AppColors.empAgentInfoBlockText,
-    );
+    final empAgentThemeColors = isDark
+        ? const EmpAgentThemeColors(
+            pageBackground: AppColors.empAgentPageBackgroundDark,
+            panelBackground: AppColors.empAgentPanelBackgroundDark,
+            panelBorder: AppColors.empAgentPanelBorderDark,
+            panelShadow: AppColors.empAgentPanelShadowDark,
+            stepTitle: AppColors.empAgentStepTitleDark,
+            divider: AppColors.empAgentDividerDark,
+            dropdownBackground: AppColors.empAgentDropdownBackgroundDark,
+            dropdownBorder: AppColors.empAgentDropdownBorderDark,
+            dropdownLabel: AppColors.empAgentDropdownLabelDark,
+            dropdownFocus: AppColors.empAgentDropdownFocusDark,
+            inputText: AppColors.empAgentInputTextDark,
+            mutedText: AppColors.empAgentMutedTextDark,
+            subtleText: AppColors.empAgentSubtleTextDark,
+            candidateBackground: AppColors.empAgentCandidateBackgroundDark,
+            candidateSelectedBackground:
+                AppColors.empAgentCandidateSelectedBackgroundDark,
+            candidateBorder: AppColors.empAgentCandidateBorderDark,
+            candidateSelectedBorder:
+                AppColors.empAgentCandidateSelectedBorderDark,
+            candidateAvatarBackground:
+                AppColors.empAgentCandidateAvatarBackgroundDark,
+            candidateSelectedAvatarBackground:
+                AppColors.empAgentCandidateSelectedAvatarBackgroundDark,
+            candidateSelectedName: AppColors.empAgentCandidateSelectedNameDark,
+            candidateSelectedRole: AppColors.empAgentCandidateSelectedRoleDark,
+            summaryBackground: AppColors.empAgentSummaryBackgroundDark,
+            summaryBorder: AppColors.empAgentSummaryBorderDark,
+            summaryAvatarBackground:
+                AppColors.empAgentSummaryAvatarBackgroundDark,
+            summaryAvatarText: AppColors.empAgentSummaryAvatarTextDark,
+            statusActiveBackground: AppColors.empAgentStatusActiveBackground,
+            statusInactiveBackground:
+                AppColors.empAgentStatusInactiveBackground,
+            statusActiveText: AppColors.empAgentStatusActiveText,
+            statusInactiveText: AppColors.empAgentStatusInactiveText,
+            primaryAction: AppColors.empAgentPrimaryAction,
+            arrowAccent: AppColors.empAgentArrowAccentDark,
+            deleteText: AppColors.empAgentDeleteTextDark,
+            deleteBorder: AppColors.empAgentDeleteBorderDark,
+            filterIcon: AppColors.empAgentFilterIconDark,
+            footerGhostBorder: AppColors.empAgentFooterGhostBorderDark,
+            footerPrimaryBackground: AppColors.empAgentFooterPrimaryBackground,
+            infoBlockTitle: AppColors.empAgentInfoBlockTitleDark,
+            infoBlockText: AppColors.empAgentInfoBlockTextDark,
+          )
+        : const EmpAgentThemeColors(
+            pageBackground: AppColors.empAgentPageBackgroundLight,
+            panelBackground: AppColors.empAgentPanelBackgroundLight,
+            panelBorder: AppColors.empAgentPanelBorderLight,
+            panelShadow: AppColors.empAgentPanelShadowLight,
+            stepTitle: AppColors.empAgentStepTitleLight,
+            divider: AppColors.empAgentDividerLight,
+            dropdownBackground: AppColors.empAgentDropdownBackgroundLight,
+            dropdownBorder: AppColors.empAgentDropdownBorderLight,
+            dropdownLabel: AppColors.empAgentDropdownLabelLight,
+            dropdownFocus: AppColors.empAgentDropdownFocusLight,
+            inputText: AppColors.empAgentInputTextLight,
+            mutedText: AppColors.empAgentMutedTextLight,
+            subtleText: AppColors.empAgentSubtleTextLight,
+            candidateBackground: AppColors.empAgentCandidateBackgroundLight,
+            candidateSelectedBackground:
+                AppColors.empAgentCandidateSelectedBackgroundLight,
+            candidateBorder: AppColors.empAgentCandidateBorderLight,
+            candidateSelectedBorder:
+                AppColors.empAgentCandidateSelectedBorderLight,
+            candidateAvatarBackground:
+                AppColors.empAgentCandidateAvatarBackgroundLight,
+            candidateSelectedAvatarBackground:
+                AppColors.empAgentCandidateSelectedAvatarBackgroundLight,
+            candidateSelectedName: AppColors.empAgentCandidateSelectedNameLight,
+            candidateSelectedRole: AppColors.empAgentCandidateSelectedRoleLight,
+            summaryBackground: AppColors.empAgentSummaryBackgroundLight,
+            summaryBorder: AppColors.empAgentSummaryBorderLight,
+            summaryAvatarBackground:
+                AppColors.empAgentSummaryAvatarBackgroundLight,
+            summaryAvatarText: AppColors.empAgentSummaryAvatarTextLight,
+            statusActiveBackground: AppColors.empAgentStatusActiveBackground,
+            statusInactiveBackground:
+                AppColors.empAgentStatusInactiveBackground,
+            statusActiveText: AppColors.empAgentStatusActiveText,
+            statusInactiveText: AppColors.empAgentStatusInactiveText,
+            primaryAction: AppColors.empAgentPrimaryAction,
+            arrowAccent: AppColors.empAgentArrowAccentLight,
+            deleteText: AppColors.empAgentDeleteTextLight,
+            deleteBorder: AppColors.empAgentDeleteBorderLight,
+            filterIcon: AppColors.empAgentFilterIconLight,
+            footerGhostBorder: AppColors.empAgentFooterGhostBorderLight,
+            footerPrimaryBackground: AppColors.empAgentFooterPrimaryBackground,
+            infoBlockTitle: AppColors.empAgentInfoBlockTitleLight,
+            infoBlockText: AppColors.empAgentInfoBlockTextLight,
+          );
 
     // FormSectionDesignPage、PropertiesPanelWidget、CanvasRowWidget、
     // DesignerItemRowWidget、PaletteItemWidget、PaletteTileWidget、
@@ -558,6 +639,8 @@ class AppTheme {
       ),
       extensions: [
         loginThemeColors,
+        empInfoThemeColors,
+        empManagerThemeColors,
         empAgentThemeColors,
         formBrowseThemeColors,
         orgTreeDesignThemeColors,

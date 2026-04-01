@@ -6,6 +6,7 @@ import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/bloc/org_tree_design_bloc.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_canvas_panel_widget.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_property_panel_widget.dart';
+import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
 import 'package:flutter_application_ai/page/org_design/org_tree_design/widgets/org_tree_source_panel_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/theme/org_tree_design_page_theme.dart';
@@ -261,12 +262,12 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
                       Positioned(
                         top: -90,
                         left: -30,
-                        child: _GlowOrb(color: colors.heroGlow, size: 220),
+                        child: GlowOrbWidget(color: colors.heroGlow, size: 220),
                       ),
                       Positioned(
                         right: -60,
                         bottom: -80,
-                        child: _GlowOrb(
+                        child: GlowOrbWidget(
                           color: colors.heroGlow.withValues(alpha: 0.18),
                           size: 240,
                         ),
@@ -454,29 +455,6 @@ class _OrgTreeDesignPageState extends State<OrgTreeDesignPage> {
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const _GlowOrb({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-          ),
         ),
       ),
     );

@@ -5,15 +5,13 @@ import 'package:flutter_application_ai/page/form_design/form_section_design/bloc
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
 class DragTargetFrameWidget extends StatelessWidget {
-  final int index;
-  final Widget child;
-  final double widthFactor;
+  final int rowIndex;
+  final int insertIndex;
 
   const DragTargetFrameWidget({
     super.key,
-    required this.index,
-    required this.child,
-    required this.widthFactor,
+    required this.rowIndex,
+    required this.insertIndex,
   });
 
   @override
@@ -21,44 +19,36 @@ class DragTargetFrameWidget extends StatelessWidget {
     final themeColors =
         Theme.of(context).extension<FormSectionDesignThemeColors>()!;
 
-    return FractionallySizedBox(
-      widthFactor: widthFactor,
-      child: DragTarget<Object>(
-        builder: (context, candidateData, rejectedData) {
-          final isHovering = candidateData.isNotEmpty;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8, right: 8),
-            decoration: isHovering
-                ? BoxDecoration(
-                    border:
-                        Border.all(color: themeColors.hoverBorder, width: 2),
-                    borderRadius: BorderRadius.circular(6),
-                    color: themeColors.hoverFill,
-                    boxShadow: [
-                      BoxShadow(
-                        color: themeColors.selectedShadow,
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  )
+    return DragTarget<DesignerItem>(
+      onWillAcceptWithDetails: (details) => details.data.rowIndex == rowIndex,
+      onAcceptWithDetails: (details) {
+        context.read<FormSectionDesignBloc>().add(
+              MoveDesignerItemEvent(details.data.id, insertIndex),
+            );
+      },
+      builder: (context, candidateData, rejectedData) {
+        final isHovering = candidateData.isNotEmpty;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: isHovering ? 18 : 12,
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            color: isHovering
+                ? themeColors.hoverBorder
+                : themeColors.border.withValues(alpha: 0.18),
+            boxShadow: isHovering
+                ? [
+                    BoxShadow(
+                      color: themeColors.selectedShadow,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : null,
-            child: child,
-          );
-        },
-        onAcceptWithDetails: (details) {
-          final data = details.data;
-          if (data is DesignerItemType) {
-            context
-                .read<FormSectionDesignBloc>()
-                .add(InsertDesignerItemEvent(data, index));
-          } else if (data is DesignerItem) {
-            context
-                .read<FormSectionDesignBloc>()
-                .add(MoveDesignerItemEvent(data.id, index));
-          }
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

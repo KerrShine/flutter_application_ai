@@ -204,6 +204,29 @@ class UpdateDesignerItemButtonWidthEvent extends FormSectionDesignEvent {
   List<Object> get props => [id, buttonWidth];
 }
 
+class UpdateDesignerItemButtonColorEvent extends FormSectionDesignEvent {
+  final String id;
+  final String buttonColorHex;
+
+  const UpdateDesignerItemButtonColorEvent(this.id, this.buttonColorHex);
+
+  @override
+  List<Object> get props => [id, buttonColorHex];
+}
+
+class UpdateDesignerItemButtonTextColorEvent extends FormSectionDesignEvent {
+  final String id;
+  final String buttonTextColorHex;
+
+  const UpdateDesignerItemButtonTextColorEvent(
+    this.id,
+    this.buttonTextColorHex,
+  );
+
+  @override
+  List<Object> get props => [id, buttonTextColorHex];
+}
+
 class UpdateDesignerItemTextAreaHeightEvent extends FormSectionDesignEvent {
   final String id;
   final double textAreaHeight;
@@ -310,11 +333,12 @@ class SaveDraftEvent extends FormSectionDesignEvent {
 
 class SubmitSaveDraftEvent extends FormSectionDesignEvent {
   final String formName;
+  final String description;
 
-  const SubmitSaveDraftEvent(this.formName);
+  const SubmitSaveDraftEvent(this.formName, this.description);
 
   @override
-  List<Object> get props => [formName];
+  List<Object> get props => [formName, description];
 }
 
 class CompleteSaveDraftPromptEvent extends FormSectionDesignEvent {

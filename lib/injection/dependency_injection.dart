@@ -25,7 +25,7 @@ import 'package:flutter_application_ai/page/form_design/form_manage/bloc/form_ma
 import 'package:flutter_application_ai/repositories/interface/section_repository.dart';
 import 'package:flutter_application_ai/repositories/section_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_design_service.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
 import 'package:flutter_application_ai/repositories/interface/form_browse_repository.dart';
 import 'package:flutter_application_ai/repositories/form_browse_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_browse_service.dart';

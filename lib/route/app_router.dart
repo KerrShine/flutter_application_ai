@@ -5,7 +5,7 @@ import 'package:flutter_application_ai/page/main/main_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/form_section_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_create/form_create_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_manage/form_manage_page.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/form_design_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/form_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/form_browse_page.dart';
 import 'package:flutter_application_ai/page/org_design/org_manager/org_manager_page.dart';
 import 'package:flutter_application_ai/page/org_design/org_design_config/org_design_config_page.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_application_ai/model/org_department_node.dart';
 import 'package:flutter_application_ai/model/org_design_config_model.dart';
 import 'package:flutter_application_ai/model/org_tree_canvas_node.dart';
 import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class OrgDesignService {
   final OrgDesignRepository _orgDesignRepository;

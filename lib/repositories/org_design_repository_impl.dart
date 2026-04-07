@@ -4,7 +4,7 @@ import 'package:flutter_application_ai/data/local/local_storage.dart';
 import 'package:flutter_application_ai/data/tempData/temp_data_storage.dart';
 import 'package:flutter_application_ai/model/org_design_config_model.dart';
 import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class OrgDesignRepositoryImpl implements OrgDesignRepository {
   static const String _orgDesignConfigKey = 'org_design_config_key';

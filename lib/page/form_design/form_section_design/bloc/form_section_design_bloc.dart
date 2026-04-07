@@ -10,6 +10,8 @@ part 'form_section_design_state.dart';
 
 class FormSectionDesignBloc
     extends Bloc<FormSectionDesignEvent, FormSectionDesignState> {
+  static const int sectionDescriptionMaxLength = 50;
+
   final FormSectionDesignService formSectionDesignService;
 
   FormSectionDesignBloc(this.formSectionDesignService)
@@ -40,6 +42,12 @@ class FormSectionDesignBloc
     );
     on<UpdateDesignerItemButtonWidthEvent>(
         _onUpdateDesignerItemButtonWidthEvent);
+    on<UpdateDesignerItemButtonColorEvent>(
+      _onUpdateDesignerItemButtonColorEvent,
+    );
+    on<UpdateDesignerItemButtonTextColorEvent>(
+      _onUpdateDesignerItemButtonTextColorEvent,
+    );
     on<UpdateDesignerItemTextAreaHeightEvent>(
       _onUpdateDesignerItemTextAreaHeightEvent,
     );
@@ -112,6 +120,7 @@ class FormSectionDesignBloc
         items: draft.items,
         rowCount: draft.rowCount < 1 ? 1 : draft.rowCount,
         draftName: draft.formName,
+        draftDescription: draft.description,
         editingSectionId: draft.sectionId,
       ));
       return;
@@ -138,6 +147,7 @@ class FormSectionDesignBloc
       items: section.items,
       rowCount: maxRow + 1,
       draftName: section.name,
+      draftDescription: section.description,
       editingSectionId: section.id,
     ));
   }
@@ -384,6 +394,28 @@ class FormSectionDesignBloc
     })));
   }
 
+  void _onUpdateDesignerItemButtonColorEvent(
+    UpdateDesignerItemButtonColorEvent event,
+    Emitter<FormSectionDesignState> emit,
+  ) {
+    emit(state.copyWith(
+        items: _updateItem(event.id, (item) {
+      return item.copyWith(buttonColorHex: event.buttonColorHex.trim());
+    })));
+  }
+
+  void _onUpdateDesignerItemButtonTextColorEvent(
+    UpdateDesignerItemButtonTextColorEvent event,
+    Emitter<FormSectionDesignState> emit,
+  ) {
+    emit(state.copyWith(
+        items: _updateItem(event.id, (item) {
+      return item.copyWith(
+        buttonTextColorHex: event.buttonTextColorHex.trim(),
+      );
+    })));
+  }
+
   void _onUpdateDesignerItemTextAreaHeightEvent(
     UpdateDesignerItemTextAreaHeightEvent event,
     Emitter<FormSectionDesignState> emit,
@@ -548,10 +580,19 @@ class FormSectionDesignBloc
     Emitter<FormSectionDesignState> emit,
   ) async {
     final formName = event.formName.trim();
+    final description = event.description.trim();
     if (formName.isEmpty) {
       emit(state.copyWith(
         status: FormSectionDesignStatus.failure,
-        message: 'Please input form name',
+        message: '請輸入欄位名稱',
+      ));
+      return;
+    }
+
+    if (description.length > sectionDescriptionMaxLength) {
+      emit(state.copyWith(
+        status: FormSectionDesignStatus.failure,
+        message: '欄位介紹最多只能輸入 $sectionDescriptionMaxLength 個字',
       ));
       return;
     }
@@ -559,6 +600,7 @@ class FormSectionDesignBloc
     final result = await formSectionDesignService.saveDraft(
       state.editingSectionId,
       formName,
+      description,
       state.items,
       state.rowCount,
     );
@@ -566,6 +608,7 @@ class FormSectionDesignBloc
       emit(state.copyWith(
         status: FormSectionDesignStatus.savedDraft,
         draftName: formName,
+        draftDescription: description,
         editingSectionId: state.editingSectionId,
       ));
       emit(state.copyWith(status: FormSectionDesignStatus.success));

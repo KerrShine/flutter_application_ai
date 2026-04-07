@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_application_ai/data/local/local_storage.dart';
 import 'package:flutter_application_ai/model/employee_model.dart';
 import 'package:flutter_application_ai/repositories/interface/emp_info_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class EmpInfoRepositoryImpl implements EmpInfoRepository {
   static const String _employeesKey = 'employees_key';

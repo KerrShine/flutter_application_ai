@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_application_ai/data/local/local_storage.dart';
 import 'package:flutter_application_ai/model/emp_agent_assignment_model.dart';
 import 'package:flutter_application_ai/repositories/interface/emp_agent_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class EmpAgentRepositoryImpl implements EmpAgentRepository {
   static const String _assignmentsKey = 'emp_agent_assignments_key';

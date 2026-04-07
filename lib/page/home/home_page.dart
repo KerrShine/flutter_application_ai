@@ -105,14 +105,6 @@ class _HomePageState extends State<HomePage> {
                             child: Text('表單管理'),
                           ),
                           children: [
-                            // 第三層：權限設定
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('權限設定'),
-                              onTap: () {
-                                Navigator.pop(context); // 關閉 Drawer
-                              },
-                            ),
                             // 第三層：表單管理 ( Form Manage List )
                             ListTile(
                               selected: currentPath
@@ -123,6 +115,14 @@ class _HomePageState extends State<HomePage> {
                                 Navigator.pop(context); // 關閉 Drawer
                                 _bloc.add(const HomeNavigateEvent(
                                     RouteName.formManagePage));
+                              },
+                            ),
+                            // 第三層：權限設定
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(left: 48.0),
+                              title: const Text('表單權限設定'),
+                              onTap: () {
+                                Navigator.pop(context); // 關閉 Drawer
                               },
                             ),
                           ],
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                         ExpansionTile(
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
-                            child: Text('出勤管理'),
+                            child: Text('簽核設定'),
                           ),
                           children: [
                             ListTile(
@@ -180,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                         ExpansionTile(
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
-                            child: Text('認證與學習'),
+                            child: Text('待辦事項'),
                           ),
                           children: [
                             ListTile(
@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                         ExpansionTile(
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
-                            child: Text('管理資料'),
+                            child: Text('歷史查詢'),
                           ),
                           children: [
                             ListTile(

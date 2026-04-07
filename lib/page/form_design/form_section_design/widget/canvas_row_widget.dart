@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_section_design/widget/drag_target_frame_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/draggable_designer_item_widget.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 
@@ -9,12 +10,14 @@ import 'package:flutter_application_ai/theme/form_section_design_theme_colors.da
 /// 可接受來自元件庫（DesignerItemType）或其他列（DesignerItem）的拖曳。
 class CanvasRowWidget extends StatelessWidget {
   final int rowIndex;
+  final List<DesignerItem> allItems;
   final List<DesignerItem> items;
   final String selectedItemId;
 
   const CanvasRowWidget({
     super.key,
     required this.rowIndex,
+    required this.allItems,
     required this.items,
     required this.selectedItemId,
   });
@@ -85,20 +88,48 @@ class CanvasRowWidget extends StatelessWidget {
                                   sum + (item.widthPercentage * 100).round(),
                             );
                             final remaining = 100 - totalFlex;
+                            final rowChildren = <Widget>[];
+
+                            for (final entry in items.asMap().entries) {
+                              final item = entry.value;
+                              final globalIndex = allItems.indexWhere(
+                                (candidate) => candidate.id == item.id,
+                              );
+
+                              if (entry.key == 0 && globalIndex != -1) {
+                                rowChildren.add(
+                                  DragTargetFrameWidget(
+                                    rowIndex: rowIndex,
+                                    insertIndex: globalIndex,
+                                  ),
+                                );
+                              }
+
+                              rowChildren.add(
+                                Expanded(
+                                  flex: (item.widthPercentage * 100).round(),
+                                  child: DraggableDesignerItemWidget(
+                                    item: item,
+                                    index: entry.key,
+                                    isSelected: item.id == selectedItemId,
+                                  ),
+                                ),
+                              );
+
+                              if (globalIndex != -1) {
+                                rowChildren.add(
+                                  DragTargetFrameWidget(
+                                    rowIndex: rowIndex,
+                                    insertIndex: globalIndex + 1,
+                                  ),
+                                );
+                              }
+                            }
+
                             return Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                ...items.asMap().entries.map((entry) {
-                                  final item = entry.value;
-                                  return Expanded(
-                                    flex: (item.widthPercentage * 100).round(),
-                                    child: DraggableDesignerItemWidget(
-                                      item: item,
-                                      index: entry.key,
-                                      isSelected: item.id == selectedItemId,
-                                    ),
-                                  );
-                                }),
+                                ...rowChildren,
                                 if (remaining > 0)
                                   Expanded(
                                     flex: remaining,

@@ -271,17 +271,42 @@ class AppColors {
   static const Color formBrowseSubtleTextDark = Color(0xFF7F93AB);
   static const Color formBrowseListSelectedLight = Color(0xFFEAF1FF);
   static const Color formBrowseListSelectedDark = Color(0xFF243756);
-  static const Color formBrowsePreviewFrameBackground = Color(0xFFFFFFFF);
-  static const Color formBrowsePreviewFrameBorder = Color(0xFF9AAEC7);
-  static const Color formBrowsePreviewFrameShadow = Color(0x120F172A);
-  static const Color formBrowsePreviewSurface = Color(0xFFFFFFFF);
-  static const Color formBrowsePreviewSubtle = Color(0xFF6B7280);
-  static const Color formBrowsePreviewSelected = Color(0xFFEAF1FF);
-  static const Color formBrowsePreviewSelectedBorder = Color(0xFF4E7FE0);
+  static const Color formBrowsePreviewFrameBackgroundLight = Color(0xFFFFFFFF);
+  static const Color formBrowsePreviewFrameBackgroundDark = Color(0xFF162234);
+  static const Color formBrowsePreviewFrameBorderLight = Color(0xFF9AAEC7);
+  static const Color formBrowsePreviewFrameBorderDark = Color(0xFF36516F);
+  static const Color formBrowsePreviewFrameShadowLight = Color(0x120F172A);
+  static const Color formBrowsePreviewFrameShadowDark = Color(0x26000000);
+  static const Color formBrowsePreviewSurfaceLight = Color(0xFFFFFFFF);
+  static const Color formBrowsePreviewSurfaceDark = Color(0xFF101A28);
+  static const Color formBrowsePreviewSubtleLight = Color(0xFF6B7280);
+  static const Color formBrowsePreviewSubtleDark = Color(0xFF8FA3BA);
+  static const Color formBrowsePreviewSelectedLight = Color(0xFFEAF1FF);
+  static const Color formBrowsePreviewSelectedDark = Color(0xFF20354E);
+  static const Color formBrowsePreviewSelectedBorderLight = Color(0xFF4E7FE0);
+  static const Color formBrowsePreviewSelectedBorderDark = Color(0xFF77A9FF);
   static const Color formBrowsePropertyCardBackgroundLight = Color(0xFFF8FBFF);
   static const Color formBrowsePropertyCardBackgroundDark = Color(0xFF1A293A);
   static const Color formBrowsePropertyCardSelectedLight = Color(0xFFEAF1FF);
   static const Color formBrowsePropertyCardSelectedDark = Color(0xFF243756);
+
+  // Dynamic form field 共用樣式
+  static const Color dynamicFormFieldLabelLight = Color(0xFF334155);
+  static const Color dynamicFormFieldLabelDark = Color(0xFFE5E7EB);
+  static const Color dynamicFormFieldRequiredLight = Color(0xFFDC2626);
+  static const Color dynamicFormFieldRequiredDark = Color(0xFFFCA5A5);
+  static const Color dynamicFormFieldFillLight = Color(0xFFF8FAFC);
+  static const Color dynamicFormFieldFillDark = Color(0xFF2B2A26);
+  static const Color dynamicFormFieldBorderLight = Color(0xFFCBD5E1);
+  static const Color dynamicFormFieldBorderDark = Color(0xFF4B4A45);
+  static const Color dynamicFormFieldFocusedBorderLight = Color(0xFF2962F1);
+  static const Color dynamicFormFieldFocusedBorderDark = Color(0xFF7B90C8);
+  static const Color dynamicFormFieldTextLight = Color(0xFF0F172A);
+  static const Color dynamicFormFieldTextDark = Color(0xFFF7F4EC);
+  static const Color dynamicFormFieldHintLight = Color(0xFF64748B);
+  static const Color dynamicFormFieldHintDark = Color(0xFFAEA8A0);
+  static const Color dynamicFormFieldIconLight = Color(0xFF64748B);
+  static const Color dynamicFormFieldIconDark = Color(0xFFD7D0C2);
 
   // EmpInfoPage 與其 widgets 使用（頁面背景固定淺色，故 dark/light 色值相同）
   static const Color empInfoActionColorLight = Color(0xFF111111);

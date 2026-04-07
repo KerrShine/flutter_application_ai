@@ -1,6 +1,6 @@
 import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/repositories/interface/form_browse_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class FormBrowseService {
   final FormBrowseRepository _formBrowseRepository;

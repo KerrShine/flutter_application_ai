@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/section_card_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/widgets/section_card_widget.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class AvailableSectionPanelWidget extends StatelessWidget {
   final FormDesignState state;
   final ValueChanged<SectionModel> onAddSection;
+  final ValueChanged<SectionModel> onBrowseSection;
   final ValueChanged<SectionModel> onEditSection;
   final VoidCallback onCreateSection;
   final ValueChanged<SectionModel> onDeleteSection;
@@ -15,6 +17,7 @@ class AvailableSectionPanelWidget extends StatelessWidget {
     super.key,
     required this.state,
     required this.onAddSection,
+    required this.onBrowseSection,
     required this.onEditSection,
     required this.onCreateSection,
     required this.onDeleteSection,
@@ -26,7 +29,7 @@ class AvailableSectionPanelWidget extends StatelessWidget {
     final colors = theme.extension<FormDesignThemeColors>()!;
 
     return Container(
-      width: 260,
+      width: 300,
       decoration: BoxDecoration(
         color: colors.sectionPanelBackground,
         borderRadius: BorderRadius.circular(8),
@@ -66,36 +69,53 @@ class AvailableSectionPanelWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '可用 Section',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: colors.headerAccentForeground,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '維護與加入可重複使用的區塊',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.subtleText,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    '可用 Section',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: colors.headerAccentForeground,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                _HeaderCountChip(
-                  text: '${state.availableSections.length}',
-                  backgroundColor: colors.headerChipBackground,
-                  foregroundColor: colors.headerChipText,
                 ),
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: TextField(
+              controller: TextEditingController(
+                text: state.availableSectionSearchQuery,
+              )..selection = TextSelection.collapsed(
+                  offset: state.availableSectionSearchQuery.length,
+                ),
+              decoration: InputDecoration(
+                hintText: '搜尋已有 Section',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: state.availableSectionSearchQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          context.read<FormDesignBloc>().add(
+                                const UpdateAvailableSectionSearchEvent(''),
+                              );
+                        },
+                        icon: const Icon(Icons.close),
+                        tooltip: '清除搜尋',
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                isDense: true,
+              ),
+              onChanged: (value) {
+                context.read<FormDesignBloc>().add(
+                      UpdateAvailableSectionSearchEvent(value),
+                    );
+              },
+            ),
+          ),
           Expanded(
-            child: state.availableSections.isEmpty
+            child: state.filteredAvailableSections.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(16),
                     child: Container(
@@ -123,12 +143,16 @@ class AvailableSectionPanelWidget extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              '尚無 Section',
+                              state.availableSectionSearchQuery.isEmpty
+                                  ? '尚無 Section'
+                                  : '找不到符合條件的 Section',
                               style: theme.textTheme.titleSmall,
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '先建立一個區塊，再加入到表單畫布。',
+                              state.availableSectionSearchQuery.isEmpty
+                                  ? '先建立一個區塊，再加入到表單畫布。'
+                                  : '請調整搜尋條件或清除後重新查看。',
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: colors.faintText,
@@ -141,12 +165,13 @@ class AvailableSectionPanelWidget extends StatelessWidget {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(12),
-                    itemCount: state.availableSections.length,
+                    itemCount: state.filteredAvailableSections.length,
                     itemBuilder: (context, index) {
-                      final section = state.availableSections[index];
+                      final section = state.filteredAvailableSections[index];
                       return SectionCardWidget(
                         section: section,
                         onAdd: () => onAddSection(section),
+                        onBrowse: () => onBrowseSection(section),
                         onEdit: () => onEditSection(section),
                         onDelete: () => onDeleteSection(section),
                       );
@@ -170,36 +195,6 @@ class AvailableSectionPanelWidget extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeaderCountChip extends StatelessWidget {
-  final String text;
-  final Color backgroundColor;
-  final Color foregroundColor;
-
-  const _HeaderCountChip({
-    required this.text,
-    required this.backgroundColor,
-    required this.foregroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: foregroundColor,
-              fontWeight: FontWeight.w700,
-            ),
       ),
     );
   }

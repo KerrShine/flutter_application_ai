@@ -377,13 +377,15 @@ class AppTheme {
             mutedText: AppColors.formBrowseMutedTextDark,
             subtleText: AppColors.formBrowseSubtleTextDark,
             listSelectedBackground: AppColors.formBrowseListSelectedDark,
-            previewFrameBackground: AppColors.formBrowsePreviewFrameBackground,
-            previewFrameBorder: AppColors.formBrowsePreviewFrameBorder,
-            previewFrameShadow: AppColors.formBrowsePreviewFrameShadow,
-            previewSurface: AppColors.formBrowsePreviewSurface,
-            previewSubtleText: AppColors.formBrowsePreviewSubtle,
-            previewSelectedBackground: AppColors.formBrowsePreviewSelected,
-            previewSelectedBorder: AppColors.formBrowsePreviewSelectedBorder,
+            previewFrameBackground:
+                AppColors.formBrowsePreviewFrameBackgroundDark,
+            previewFrameBorder: AppColors.formBrowsePreviewFrameBorderDark,
+            previewFrameShadow: AppColors.formBrowsePreviewFrameShadowDark,
+            previewSurface: AppColors.formBrowsePreviewSurfaceDark,
+            previewSubtleText: AppColors.formBrowsePreviewSubtleDark,
+            previewSelectedBackground: AppColors.formBrowsePreviewSelectedDark,
+            previewSelectedBorder:
+                AppColors.formBrowsePreviewSelectedBorderDark,
             propertyCardBackground:
                 AppColors.formBrowsePropertyCardBackgroundDark,
             propertyCardSelectedBackground:
@@ -409,13 +411,15 @@ class AppTheme {
             mutedText: AppColors.formBrowseMutedTextLight,
             subtleText: AppColors.formBrowseSubtleTextLight,
             listSelectedBackground: AppColors.formBrowseListSelectedLight,
-            previewFrameBackground: AppColors.formBrowsePreviewFrameBackground,
-            previewFrameBorder: AppColors.formBrowsePreviewFrameBorder,
-            previewFrameShadow: AppColors.formBrowsePreviewFrameShadow,
-            previewSurface: AppColors.formBrowsePreviewSurface,
-            previewSubtleText: AppColors.formBrowsePreviewSubtle,
-            previewSelectedBackground: AppColors.formBrowsePreviewSelected,
-            previewSelectedBorder: AppColors.formBrowsePreviewSelectedBorder,
+            previewFrameBackground:
+                AppColors.formBrowsePreviewFrameBackgroundLight,
+            previewFrameBorder: AppColors.formBrowsePreviewFrameBorderLight,
+            previewFrameShadow: AppColors.formBrowsePreviewFrameShadowLight,
+            previewSurface: AppColors.formBrowsePreviewSurfaceLight,
+            previewSubtleText: AppColors.formBrowsePreviewSubtleLight,
+            previewSelectedBackground: AppColors.formBrowsePreviewSelectedLight,
+            previewSelectedBorder:
+                AppColors.formBrowsePreviewSelectedBorderLight,
             propertyCardBackground:
                 AppColors.formBrowsePropertyCardBackgroundLight,
             propertyCardSelectedBackground:

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ai/theme/app_colors.dart';
 import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 
 class FormBrowsePreviewTheme {
@@ -25,20 +24,28 @@ class FormBrowsePreviewTheme {
   }
 
   static ThemeData resolve(ThemeData baseTheme) {
+    final colors = baseTheme.extension<FormBrowseThemeColors>();
     final borderlessInputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(6),
       borderSide: BorderSide.none,
     );
+    final primaryTextColor = baseTheme.textTheme.bodyMedium?.color ??
+        baseTheme.colorScheme.onSurface;
+    final subtleTextColor = colors?.previewSubtleText ??
+        baseTheme.textTheme.bodySmall?.color ??
+        baseTheme.colorScheme.onSurfaceVariant;
+    final previewSurface =
+        colors?.previewSurface ?? baseTheme.colorScheme.surface;
 
     return baseTheme.copyWith(
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: AppColors.formBrowsePreviewFrameBackground,
-      cardColor: AppColors.formBrowsePreviewFrameBackground,
+      scaffoldBackgroundColor: previewSurface,
+      cardColor: previewSurface,
+      canvasColor: previewSurface,
       inputDecorationTheme: baseTheme.inputDecorationTheme.copyWith(
         filled: false,
         fillColor: Colors.transparent,
-        labelStyle: const TextStyle(color: AppColors.lightTextSecondary),
-        hintStyle: const TextStyle(color: AppColors.formBrowsePreviewSubtle),
+        labelStyle: TextStyle(color: subtleTextColor),
+        hintStyle: TextStyle(color: subtleTextColor),
         border: borderlessInputBorder,
         enabledBorder: borderlessInputBorder,
         focusedBorder: borderlessInputBorder,
@@ -57,8 +64,8 @@ class FormBrowsePreviewTheme {
         ),
       ),
       textTheme: baseTheme.textTheme.apply(
-        bodyColor: AppColors.lightTextPrimary,
-        displayColor: AppColors.lightTextPrimary,
+        bodyColor: primaryTextColor,
+        displayColor: primaryTextColor,
       ),
     );
   }

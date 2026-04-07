@@ -18,6 +18,7 @@ class FormSectionDesignState extends Equatable {
   final String selectedItemId;
   final int rowCount;
   final String draftName;
+  final String draftDescription;
   final String editingSectionId;
 
   const FormSectionDesignState({
@@ -28,6 +29,7 @@ class FormSectionDesignState extends Equatable {
     this.selectedItemId = '',
     this.rowCount = 1,
     this.draftName = '',
+    this.draftDescription = '',
     this.editingSectionId = '',
   });
 
@@ -39,6 +41,7 @@ class FormSectionDesignState extends Equatable {
     String? selectedItemId,
     int? rowCount,
     String? draftName,
+    String? draftDescription,
     String? editingSectionId,
   }) {
     return FormSectionDesignState(
@@ -49,6 +52,7 @@ class FormSectionDesignState extends Equatable {
       selectedItemId: selectedItemId ?? this.selectedItemId,
       rowCount: rowCount ?? this.rowCount,
       draftName: draftName ?? this.draftName,
+      draftDescription: draftDescription ?? this.draftDescription,
       editingSectionId: editingSectionId ?? this.editingSectionId,
     );
   }
@@ -62,6 +66,7 @@ class FormSectionDesignState extends Equatable {
         selectedItemId,
         rowCount,
         draftName,
+        draftDescription,
         editingSectionId,
       ];
 }

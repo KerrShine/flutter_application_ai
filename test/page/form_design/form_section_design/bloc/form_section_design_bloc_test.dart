@@ -3,7 +3,7 @@ import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/model/form_section_design_draft_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
 import 'package:flutter_application_ai/service/form_section_design_service.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

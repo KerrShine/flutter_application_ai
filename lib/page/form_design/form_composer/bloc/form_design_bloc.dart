@@ -22,6 +22,7 @@ class FormDesignBloc extends Bloc<FormDesignEvent, FormDesignState> {
     on<NavigateToBrowseSectionEvent>(_onNavigateToBrowseSection);
     on<NavigateToCreateSectionEvent>(_onNavigateToCreateSection);
     on<NavigateToEditSectionEvent>(_onNavigateToEditSection);
+    on<UpdateAvailableSectionSearchEvent>(_onUpdateAvailableSectionSearch);
     on<RequestDeleteAvailableSectionEvent>(_onRequestDeleteAvailableSection);
     on<ConfirmDeleteAvailableSectionEvent>(_onConfirmDeleteAvailableSection);
     on<CancelConfirmDeleteSectionEvent>(_onCancelConfirmDeleteSection);
@@ -59,6 +60,8 @@ class FormDesignBloc extends Bloc<FormDesignEvent, FormDesignState> {
       formId: form.id,
       formName: form.name,
       availableSections: allSections,
+      filteredAvailableSections: allSections,
+      availableSectionSearchQuery: '',
       selectedSections: selectedSections,
     ));
   }
@@ -193,6 +196,19 @@ class FormDesignBloc extends Bloc<FormDesignEvent, FormDesignState> {
     emit(state.copyWith(status: FormDesignStatus.success));
   }
 
+  void _onUpdateAvailableSectionSearch(
+    UpdateAvailableSectionSearchEvent event,
+    Emitter<FormDesignState> emit,
+  ) {
+    emit(state.copyWith(
+      availableSectionSearchQuery: event.searchQuery,
+      filteredAvailableSections: _filterAvailableSections(
+        state.availableSections,
+        event.searchQuery,
+      ),
+    ));
+  }
+
   /// 觸發確認 Dialog，不進行二次 emit，
   /// 等使用者回應後由 Confirm/Cancel 事件各自轉態。
   void _onRequestDeleteAvailableSection(
@@ -227,6 +243,10 @@ class FormDesignBloc extends Bloc<FormDesignEvent, FormDesignState> {
     emit(state.copyWith(
       status: FormDesignStatus.success,
       availableSections: updatedAvailable,
+      filteredAvailableSections: _filterAvailableSections(
+        updatedAvailable,
+        state.availableSectionSearchQuery,
+      ),
       selectedSections: updatedSelected,
       pendingDeleteSectionId: '',
       isDeleteSectionInUse: false,
@@ -242,5 +262,19 @@ class FormDesignBloc extends Bloc<FormDesignEvent, FormDesignState> {
       pendingDeleteSectionId: '',
       isDeleteSectionInUse: false,
     ));
+  }
+
+  List<SectionModel> _filterAvailableSections(
+    List<SectionModel> sections,
+    String searchQuery,
+  ) {
+    final normalizedQuery = searchQuery.trim().toLowerCase();
+    if (normalizedQuery.isEmpty) {
+      return sections;
+    }
+
+    return sections.where((section) {
+      return section.name.toLowerCase().contains(normalizedQuery);
+    }).toList();
   }
 }

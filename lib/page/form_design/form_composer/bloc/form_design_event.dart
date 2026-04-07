@@ -62,6 +62,15 @@ class SaveFormDraftEvent extends FormDesignEvent {
   const SaveFormDraftEvent();
 }
 
+class UpdateAvailableSectionSearchEvent extends FormDesignEvent {
+  final String searchQuery;
+
+  const UpdateAvailableSectionSearchEvent(this.searchQuery);
+
+  @override
+  List<Object> get props => [searchQuery];
+}
+
 class PreviewFormJsonEvent extends FormDesignEvent {
   const PreviewFormJsonEvent();
 }

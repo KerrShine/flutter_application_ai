@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/service/form_design_service.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
 import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/available_section_panel_widget.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_design_info_panel_widget.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/form_section_canvas_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/widgets/available_section_panel_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/widgets/form_design_info_panel_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/widgets/form_section_canvas_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
@@ -208,7 +208,8 @@ class _FormDesignPageState extends State<FormDesignPage> {
                           Positioned(
                             top: -90,
                             left: -30,
-                            child: GlowOrbWidget(color: colors.heroGlow, size: 220),
+                            child: GlowOrbWidget(
+                                color: colors.heroGlow, size: 220),
                           ),
                           Positioned(
                             right: -60,
@@ -246,6 +247,11 @@ class _FormDesignPageState extends State<FormDesignPage> {
                                           AddSectionToFormEvent(section),
                                         );
                                       },
+                                      onBrowseSection: (section) {
+                                        _bloc.add(
+                                          NavigateToBrowseSectionEvent(section),
+                                        );
+                                      },
                                       onEditSection: (section) {
                                         _bloc.add(
                                           NavigateToEditSectionEvent(
@@ -281,12 +287,6 @@ class _FormDesignPageState extends State<FormDesignPage> {
                                           _bloc.add(
                                             RemoveSectionFromFormEvent(
                                                 sectionId),
-                                          );
-                                        },
-                                        onBrowseSection: (section) {
-                                          _bloc.add(
-                                            NavigateToBrowseSectionEvent(
-                                                section),
                                           );
                                         },
                                       ),

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_application_ai/repositories/interface/form_repository.dart';
 import 'package:flutter_application_ai/model/form_model.dart';
 import 'package:flutter_application_ai/data/local/local_storage.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class FormRepositoryImpl implements FormRepository {
   final LocalStorage localStorage;
@@ -17,17 +17,18 @@ class FormRepositoryImpl implements FormRepository {
       final formsResult = await loadDraftForms();
       List<FormModel> currentForms = [];
       if (formsResult.isSuccess) {
-         currentForms = formsResult.data ?? [];
+        currentForms = formsResult.data ?? [];
       }
-      
+
       // Update or completely new
-      final index = currentForms.indexWhere((element) => element.id == model.id);
+      final index =
+          currentForms.indexWhere((element) => element.id == model.id);
       if (index != -1) {
-         currentForms[index] = model;
+        currentForms[index] = model;
       } else {
-         currentForms.add(model);
+        currentForms.add(model);
       }
-      
+
       final jsonList = currentForms.map((e) => e.toMap()).toList();
       await localStorage.setString(_draftFormsKey, jsonEncode(jsonList));
       return Result.success(true);
@@ -43,9 +44,11 @@ class FormRepositoryImpl implements FormRepository {
       if (jsonString == null || jsonString.isEmpty) {
         return Result.success([]);
       }
-      
+
       final List<dynamic> jsonList = jsonDecode(jsonString);
-      final list = jsonList.map((e) => FormModel.fromMap(e as Map<String, dynamic>)).toList();
+      final list = jsonList
+          .map((e) => FormModel.fromMap(e as Map<String, dynamic>))
+          .toList();
       return Result.success(list);
     } catch (e) {
       return Result.failure(e.toString());
@@ -84,9 +87,9 @@ class FormRepositoryImpl implements FormRepository {
       final formsResult = await loadDraftForms();
       if (!formsResult.isSuccess) return Result.success(null);
       final found = formsResult.data!.cast<FormModel?>().firstWhere(
-        (f) => f?.id == formId,
-        orElse: () => null,
-      );
+            (f) => f?.id == formId,
+            orElse: () => null,
+          );
       return Result.success(found);
     } catch (e) {
       return Result.failure(e.toString());

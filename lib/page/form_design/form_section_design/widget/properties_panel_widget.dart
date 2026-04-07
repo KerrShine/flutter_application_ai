@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/dialog/colorpicker_dialog.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/constant/form_section_design_constants.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/constant/form_section_design_label_mapper.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
+import 'package:flutter_application_ai/unit/color_hex_utils.dart';
 
 class PropertiesPanelWidget extends StatelessWidget {
   final FormSectionDesignState state;
@@ -264,6 +266,35 @@ class _PropertiesTab extends StatelessWidget {
             }
           },
         ),
+        if (isButtonItem) ...[
+          const SizedBox(height: 12),
+          _ColorValueField(
+            fieldKey: ValueKey('${selectedItem.id}_button_color_hex'),
+            label: '按鈕顏色',
+            hintText: '留空使用系統預設顏色',
+            value: selectedItem.buttonColorHex,
+            onChanged: (value) {
+              context.read<FormSectionDesignBloc>().add(
+                    UpdateDesignerItemButtonColorEvent(selectedItem.id, value),
+                  );
+            },
+          ),
+          const SizedBox(height: 12),
+          _ColorValueField(
+            fieldKey: ValueKey('${selectedItem.id}_button_text_color_hex'),
+            label: '字體顏色',
+            hintText: '留空使用系統預設顏色',
+            value: selectedItem.buttonTextColorHex,
+            onChanged: (value) {
+              context.read<FormSectionDesignBloc>().add(
+                    UpdateDesignerItemButtonTextColorEvent(
+                      selectedItem.id,
+                      value,
+                    ),
+                  );
+            },
+          ),
+        ],
         if (isLabelItem) ...[
           const SizedBox(height: 12),
           DropdownButtonFormField<bool>(
@@ -545,6 +576,118 @@ class _PropertiesTab extends StatelessWidget {
       case TextInputTypeMode.phone:
         return '電話號碼';
     }
+  }
+}
+
+class _ColorValueField extends StatefulWidget {
+  final Key fieldKey;
+  final String label;
+  final String hintText;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  const _ColorValueField({
+    required this.fieldKey,
+    required this.label,
+    required this.hintText,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  State<_ColorValueField> createState() => _ColorValueFieldState();
+}
+
+class _ColorValueFieldState extends State<_ColorValueField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ColorValueField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value && _controller.text != widget.value) {
+      _controller.text = widget.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final previewColor = ColorHexUtils.parse(_controller.text);
+
+    return TextField(
+      key: widget.fieldKey,
+      controller: _controller,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        border: const OutlineInputBorder(),
+        hintText: widget.hintText,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: previewColor ?? Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Theme.of(context).dividerColor),
+            ),
+            child:
+                previewColor == null ? const Icon(Icons.block, size: 12) : null,
+          ),
+        ),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: _handlePickColor,
+              icon: const Icon(Icons.colorize_outlined),
+              tooltip: '選擇顏色',
+            ),
+            if (_controller.text.trim().isNotEmpty)
+              IconButton(
+                onPressed: () {
+                  _controller.clear();
+                  widget.onChanged('');
+                  setState(() {});
+                },
+                icon: const Icon(Icons.close),
+                tooltip: '清除顏色',
+              ),
+          ],
+        ),
+      ),
+      textCapitalization: TextCapitalization.characters,
+      onChanged: (value) {
+        widget.onChanged(value.trim());
+        setState(() {});
+      },
+    );
+  }
+
+  Future<void> _handlePickColor() async {
+    final selectedHex = await showColorPickerDialog(
+      context: context,
+      initialHex: _controller.text,
+    );
+
+    if (!mounted || selectedHex == null) {
+      return;
+    }
+
+    _controller.text = selectedHex;
+    widget.onChanged(selectedHex);
+    setState(() {});
   }
 }
 

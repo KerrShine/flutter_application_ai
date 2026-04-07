@@ -4,22 +4,26 @@ import 'package:flutter_application_ai/model/designer_item.dart';
 class SectionModel extends Equatable {
   final String id;
   final String name;
+  final String description;
   final List<DesignerItem> items;
 
   const SectionModel({
     required this.id,
     required this.name,
+    this.description = '',
     this.items = const [],
   });
 
   SectionModel copyWith({
     String? id,
     String? name,
+    String? description,
     List<DesignerItem>? items,
   }) {
     return SectionModel(
       id: id ?? this.id,
       name: name ?? this.name,
+      description: description ?? this.description,
       items: items ?? this.items,
     );
   }
@@ -28,6 +32,7 @@ class SectionModel extends Equatable {
     return {
       'id': id,
       'name': name,
+      'description': description,
       'items': items.map((e) => e.toMap()).toList(),
     };
   }
@@ -37,6 +42,7 @@ class SectionModel extends Equatable {
     return SectionModel(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
+      description: map['description'] ?? '',
       items: rawItems.map((e) {
         final m = e as Map<String, dynamic>;
         final rawOptions = m['options'] as List<dynamic>? ?? const [];
@@ -83,11 +89,13 @@ class SectionModel extends Equatable {
           ),
           dataSourceUrl: m['dataSourceUrl'] ?? '',
           dataSourceKey: m['dataSourceKey'] ?? '',
+          buttonColorHex: m['buttonColorHex'] ?? '',
+          buttonTextColorHex: m['buttonTextColorHex'] ?? '',
         );
       }).toList(),
     );
   }
 
   @override
-  List<Object> get props => [id, name, items];
+  List<Object> get props => [id, name, description, items];
 }

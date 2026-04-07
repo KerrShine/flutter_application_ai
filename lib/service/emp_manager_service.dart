@@ -1,4 +1,4 @@
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class EmpManagerService {
   EmpManagerService();

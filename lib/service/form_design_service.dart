@@ -2,7 +2,7 @@ import 'package:flutter_application_ai/repositories/interface/section_repository
 import 'package:flutter_application_ai/repositories/interface/form_repository.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/model/form_model.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class FormDesignService {
   final SectionRepository _sectionRepository;

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
+import 'package:flutter_application_ai/theme/dynamic_form_field_theme.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
+import 'package:flutter_application_ai/unit/color_hex_utils.dart';
 
 class DesignerItemRowWidget extends StatelessWidget {
   final DesignerItem item;
@@ -77,25 +79,34 @@ class DesignerItemRowWidget extends StatelessWidget {
         );
       case DesignerItemType.textField:
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.text_fields, size: 18),
+            const Padding(
+              padding: EdgeInsets.only(top: 34),
+              child: Icon(Icons.text_fields, size: 18),
+            ),
             const SizedBox(width: 8),
             Expanded(
-              child: TextField(
-                enabled: false,
-                maxLength: maxLength,
-                decoration: InputDecoration(
-                  isDense: true,
-                  labelText: item.text,
-                  hintText: placeholder.isEmpty ? null : placeholder,
-                  hintStyle: TextStyle(fontSize: item.fontSize),
-                  labelStyle: TextStyle(fontSize: item.fontSize),
-                  border: const OutlineInputBorder(),
+              child: DynamicFormFieldTheme.buildFieldShell(
+                context: context,
+                item: item,
+                child: TextField(
+                  enabled: false,
+                  maxLength: maxLength,
+                  style: DynamicFormFieldTheme.inputTextStyle(context, item),
+                  decoration: DynamicFormFieldTheme.decoration(
+                    context: context,
+                    item: item,
+                    hintText: placeholder.isEmpty ? null : placeholder,
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            Padding(
+              padding: const EdgeInsets.only(top: 34),
+              child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            ),
           ],
         );
       case DesignerItemType.textArea:
@@ -108,23 +119,26 @@ class DesignerItemRowWidget extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: SizedBox(
-                height: item.textAreaHeight,
-                child: TextField(
-                  enabled: false,
-                  maxLength: maxLength,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    alignLabelWithHint: true,
-                    labelText: item.text,
-                    hintText: placeholder.isNotEmpty
-                        ? placeholder
-                        : (item.fieldName.isEmpty ? null : item.fieldName),
-                    labelStyle: TextStyle(fontSize: item.fontSize),
-                    hintStyle: TextStyle(fontSize: item.fontSize),
-                    border: const OutlineInputBorder(),
+              child: DynamicFormFieldTheme.buildFieldShell(
+                context: context,
+                item: item,
+                child: SizedBox(
+                  height: item.textAreaHeight,
+                  child: TextField(
+                    enabled: false,
+                    maxLength: maxLength,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    style: DynamicFormFieldTheme.inputTextStyle(context, item),
+                    decoration: DynamicFormFieldTheme.decoration(
+                      context: context,
+                      item: item,
+                      hintText: placeholder.isNotEmpty
+                          ? placeholder
+                          : (item.fieldName.isEmpty ? null : item.fieldName),
+                      isMultiline: true,
+                    ),
                   ),
                 ),
               ),
@@ -144,25 +158,35 @@ class DesignerItemRowWidget extends StatelessWidget {
         return _buildDropdownRow(context);
       case DesignerItemType.datePicker:
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.calendar_today, size: 18),
+            const Padding(
+              padding: EdgeInsets.only(top: 34),
+              child: Icon(Icons.calendar_today, size: 18),
+            ),
             const SizedBox(width: 8),
             Expanded(
-              child: TextField(
-                enabled: false,
-                decoration: InputDecoration(
-                  isDense: true,
-                  labelText: item.text,
-                  hintText:
-                      placeholder.isNotEmpty ? placeholder : item.dateFormat,
-                  labelStyle: TextStyle(fontSize: item.fontSize),
-                  hintStyle: TextStyle(fontSize: item.fontSize),
-                  border: const OutlineInputBorder(),
+              child: DynamicFormFieldTheme.buildFieldShell(
+                context: context,
+                item: item,
+                child: TextField(
+                  enabled: false,
+                  style: DynamicFormFieldTheme.inputTextStyle(context, item),
+                  decoration: DynamicFormFieldTheme.decoration(
+                    context: context,
+                    item: item,
+                    hintText:
+                        placeholder.isNotEmpty ? placeholder : item.dateFormat,
+                    suffixIcon: const Icon(Icons.calendar_today),
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            Padding(
+              padding: const EdgeInsets.only(top: 34),
+              child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            ),
           ],
         );
       case DesignerItemType.fileUpload:
@@ -194,40 +218,45 @@ class DesignerItemRowWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8),
+              padding: EdgeInsets.only(top: 34),
               child: Icon(Icons.arrow_drop_down_circle_outlined, size: 18),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: DropdownButtonFormField<String>(
-                value: null,
-                items: optionLabels
-                    .map(
-                      (label) => DropdownMenuItem<String>(
-                        value: label,
-                        child: Text(
-                          label,
-                          style: TextStyle(fontSize: item.fontSize),
+              child: DynamicFormFieldTheme.buildFieldShell(
+                context: context,
+                item: item,
+                child: DropdownButtonFormField<String>(
+                  value: null,
+                  items: optionLabels
+                      .map(
+                        (label) => DropdownMenuItem<String>(
+                          value: label,
+                          child: Text(
+                            label,
+                            style: DynamicFormFieldTheme.inputTextStyle(
+                              context,
+                              item,
+                            ),
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: null,
-                decoration: InputDecoration(
-                  isDense: true,
-                  labelText: item.text,
-                  hintText: placeholder.isNotEmpty
-                      ? placeholder
-                      : (hasRemoteSource ? '將由遠端資料載入' : null),
-                  labelStyle: TextStyle(fontSize: item.fontSize),
-                  hintStyle: TextStyle(fontSize: item.fontSize),
-                  border: const OutlineInputBorder(),
+                      )
+                      .toList(),
+                  onChanged: null,
+                  style: DynamicFormFieldTheme.inputTextStyle(context, item),
+                  decoration: DynamicFormFieldTheme.decoration(
+                    context: context,
+                    item: item,
+                    hintText: placeholder.isNotEmpty
+                        ? placeholder
+                        : (hasRemoteSource ? '將由遠端資料載入' : null),
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             Padding(
-              padding: EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 34),
               child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
             ),
           ],
@@ -236,10 +265,7 @@ class DesignerItemRowWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             hintParts.join(' | '),
-            style: TextStyle(
-              fontSize: item.fontSize - 2,
-              color: themeColors.textMuted,
-            ),
+            style: DynamicFormFieldTheme.metaTextStyle(context, item),
           ),
         ],
       ],
@@ -266,10 +292,8 @@ class DesignerItemRowWidget extends StatelessWidget {
     final uploadButton = OutlinedButton.icon(
       onPressed: null,
       icon: const Icon(Icons.attach_file, size: 16),
-      label: Text(item.text.isEmpty ? '選擇檔案' : item.text),
-      style: OutlinedButton.styleFrom(
-        textStyle: TextStyle(fontSize: item.fontSize),
-      ),
+      label: Text(item.fieldName.isEmpty ? '選擇檔案' : item.fieldName),
+      style: DynamicFormFieldTheme.uploadButtonStyle(context, item),
     );
 
     final buttonWidget = item.buttonWidthMode == ButtonWidthMode.fill
@@ -280,28 +304,45 @@ class DesignerItemRowWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: item.buttonWidthMode == ButtonWidthMode.fill
               ? MainAxisSize.max
               : MainAxisSize.min,
           children: [
-            const Icon(Icons.upload_file, size: 18),
+            const Padding(
+              padding: EdgeInsets.only(top: 34),
+              child: Icon(Icons.upload_file, size: 18),
+            ),
             const SizedBox(width: 8),
             if (item.buttonWidthMode == ButtonWidthMode.fill)
-              Expanded(child: buttonWidget)
+              Expanded(
+                child: DynamicFormFieldTheme.buildFieldShell(
+                  context: context,
+                  item: item,
+                  child: buttonWidget,
+                ),
+              )
             else
-              buttonWidget,
+              Flexible(
+                child: DynamicFormFieldTheme.buildFieldShell(
+                  context: context,
+                  item: item,
+                  child: buttonWidget,
+                ),
+              ),
             const SizedBox(width: 8),
-            Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(top: 34),
+              child: Icon(Icons.drag_handle, color: themeColors.dragHandle),
+            ),
           ],
         ),
         if (hintText.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(
             hintText,
-            style: TextStyle(
-              fontSize: item.fontSize - 2,
-              color: themeColors.textMuted,
-            ),
+            style: DynamicFormFieldTheme.metaTextStyle(context, item),
           ),
         ],
       ],
@@ -311,10 +352,14 @@ class DesignerItemRowWidget extends StatelessWidget {
   Widget _buildButtonRow(BuildContext context) {
     final themeColors =
         Theme.of(context).extension<FormSectionDesignThemeColors>()!;
+    final buttonBackgroundColor = ColorHexUtils.parse(item.buttonColorHex);
+    final buttonForegroundColor = ColorHexUtils.parse(item.buttonTextColorHex);
     final button = ElevatedButton(
-      onPressed: null,
+      onPressed: () {},
       child: Text(item.text),
       style: ElevatedButton.styleFrom(
+        backgroundColor: buttonBackgroundColor,
+        foregroundColor: buttonForegroundColor,
         textStyle: TextStyle(fontSize: item.fontSize),
       ),
     );
@@ -331,9 +376,9 @@ class DesignerItemRowWidget extends StatelessWidget {
         const Icon(Icons.touch_app, size: 18),
         const SizedBox(width: 8),
         if (item.buttonWidthMode == ButtonWidthMode.fill)
-          Expanded(child: buttonWidget)
+          Expanded(child: IgnorePointer(child: buttonWidget))
         else
-          buttonWidget,
+          IgnorePointer(child: buttonWidget),
         const SizedBox(width: 8),
         Icon(Icons.drag_handle, color: themeColors.dragHandle),
       ],

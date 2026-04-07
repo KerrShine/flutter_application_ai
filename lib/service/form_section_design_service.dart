@@ -4,7 +4,7 @@ import 'package:flutter_application_ai/model/form_section_design_draft_model.dar
 import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/repositories/interface/form_section_design_repository.dart';
 import 'package:flutter_application_ai/repositories/interface/section_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class FormSectionDesignService {
   final FormSectionDesignRepository formSectionDesignRepository;
@@ -47,6 +47,7 @@ class FormSectionDesignService {
   Future<Result<void>> saveDraft(
     String sectionId,
     String formName,
+    String description,
     List<DesignerItem> items,
     int rowCount,
   ) async {
@@ -54,6 +55,7 @@ class FormSectionDesignService {
       final payload = jsonEncode({
         'sectionId': sectionId,
         'formName': formName,
+        'description': description,
         'rowCount': rowCount,
         'items': items.map((e) => e.toMap()).toList(),
       });
@@ -70,6 +72,7 @@ class FormSectionDesignService {
             ? sectionId
             : 'section_${DateTime.now().microsecondsSinceEpoch}',
         name: formName,
+        description: description,
         items: items,
       );
 

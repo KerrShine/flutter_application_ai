@@ -39,6 +39,8 @@ class DesignerItem extends Equatable {
   final TextInputTypeMode inputType;
   final String dataSourceUrl;
   final String dataSourceKey;
+  final String buttonColorHex;
+  final String buttonTextColorHex;
 
   const DesignerItem({
     required this.id,
@@ -68,6 +70,8 @@ class DesignerItem extends Equatable {
     this.inputType = TextInputTypeMode.text,
     this.dataSourceUrl = '',
     this.dataSourceKey = '',
+    this.buttonColorHex = '',
+    this.buttonTextColorHex = '',
   });
 
   DesignerItem copyWith({
@@ -98,6 +102,8 @@ class DesignerItem extends Equatable {
     TextInputTypeMode? inputType,
     String? dataSourceUrl,
     String? dataSourceKey,
+    String? buttonColorHex,
+    String? buttonTextColorHex,
   }) {
     return DesignerItem(
       id: id ?? this.id,
@@ -127,6 +133,8 @@ class DesignerItem extends Equatable {
       inputType: inputType ?? this.inputType,
       dataSourceUrl: dataSourceUrl ?? this.dataSourceUrl,
       dataSourceKey: dataSourceKey ?? this.dataSourceKey,
+      buttonColorHex: buttonColorHex ?? this.buttonColorHex,
+      buttonTextColorHex: buttonTextColorHex ?? this.buttonTextColorHex,
     );
   }
 
@@ -159,6 +167,8 @@ class DesignerItem extends Equatable {
       'inputType': inputType.name,
       'dataSourceUrl': dataSourceUrl,
       'dataSourceKey': dataSourceKey,
+      'buttonColorHex': buttonColorHex,
+      'buttonTextColorHex': buttonTextColorHex,
     };
   }
 
@@ -191,5 +201,7 @@ class DesignerItem extends Equatable {
         inputType,
         dataSourceUrl,
         dataSourceKey,
+        buttonColorHex,
+        buttonTextColorHex,
       ];
 }

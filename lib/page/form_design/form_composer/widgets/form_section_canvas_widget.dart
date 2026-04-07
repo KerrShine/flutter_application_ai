@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class FormSectionCanvasWidget extends StatelessWidget {
   final FormDesignState state;
   final void Function(int oldIndex, int newIndex) onReorder;
   final ValueChanged<String> onRemoveSection;
-  final ValueChanged<SectionModel> onBrowseSection;
 
   const FormSectionCanvasWidget({
     super.key,
     required this.state,
     required this.onReorder,
     required this.onRemoveSection,
-    required this.onBrowseSection,
   });
 
   @override
@@ -170,7 +168,6 @@ class FormSectionCanvasWidget extends StatelessWidget {
                   section: section,
                   orderLabel: '${index + 1}'.padLeft(2, '0'),
                   onRemove: () => onRemoveSection(section.id),
-                  onBrowse: () => onBrowseSection(section),
                 );
               },
             ),
@@ -185,14 +182,12 @@ class _SectionCanvasCardWidget extends StatelessWidget {
   final SectionModel section;
   final String orderLabel;
   final VoidCallback onRemove;
-  final VoidCallback onBrowse;
 
   const _SectionCanvasCardWidget({
     super.key,
     required this.section,
     required this.orderLabel,
     required this.onRemove,
-    required this.onBrowse,
   });
 
   @override
@@ -256,14 +251,18 @@ class _SectionCanvasCardWidget extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '包含 ${section.items.length} 個元件，可進一步預覽內容或從表單移除。',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.subtleText,
-                      height: 1.4,
+                  if (section.description.trim().isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      section.description.trim(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.subtleText,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -271,11 +270,6 @@ class _SectionCanvasCardWidget extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.visibility_outlined),
-                  tooltip: '瀏覽 Section',
-                  onPressed: onBrowse,
-                ),
                 IconButton(
                   icon: Icon(
                     Icons.remove_circle_outline,

@@ -21,6 +21,8 @@ class FormDesignState extends Equatable {
 
   /// 左側：所有已儲存的 Section
   final List<SectionModel> availableSections;
+  final List<SectionModel> filteredAvailableSections;
+  final String availableSectionSearchQuery;
 
   /// 中間畫布：已加入表單的 Section（依序）
   final List<SectionModel> selectedSections;
@@ -38,6 +40,8 @@ class FormDesignState extends Equatable {
     this.formId = '',
     this.formName = '',
     this.availableSections = const [],
+    this.filteredAvailableSections = const [],
+    this.availableSectionSearchQuery = '',
     this.selectedSections = const [],
     this.browseSections = const [],
     this.editingSectionId = '',
@@ -52,6 +56,8 @@ class FormDesignState extends Equatable {
     String? formId,
     String? formName,
     List<SectionModel>? availableSections,
+    List<SectionModel>? filteredAvailableSections,
+    String? availableSectionSearchQuery,
     List<SectionModel>? selectedSections,
     List<SectionModel>? browseSections,
     String? editingSectionId,
@@ -65,6 +71,10 @@ class FormDesignState extends Equatable {
       formId: formId ?? this.formId,
       formName: formName ?? this.formName,
       availableSections: availableSections ?? this.availableSections,
+      filteredAvailableSections:
+          filteredAvailableSections ?? this.filteredAvailableSections,
+      availableSectionSearchQuery:
+          availableSectionSearchQuery ?? this.availableSectionSearchQuery,
       selectedSections: selectedSections ?? this.selectedSections,
       browseSections: browseSections ?? this.browseSections,
       editingSectionId: editingSectionId ?? this.editingSectionId,
@@ -82,6 +92,8 @@ class FormDesignState extends Equatable {
         formId,
         formName,
         availableSections,
+        filteredAvailableSections,
+        availableSectionSearchQuery,
         selectedSections,
         browseSections,
         editingSectionId,

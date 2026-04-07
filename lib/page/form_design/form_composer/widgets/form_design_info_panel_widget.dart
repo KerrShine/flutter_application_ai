@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/bloc/form_design_bloc.dart';
-import 'package:flutter_application_ai/page/form_design/form_design_config/widgets/info_row_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_composer/widgets/info_row_widget.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class FormDesignInfoPanelWidget extends StatelessWidget {
@@ -61,8 +61,6 @@ class FormDesignInfoPanelWidget extends StatelessWidget {
                           colors: colors,
                         ),
                         const SizedBox(height: 10),
-                        InfoRowWidget(label: '名稱', value: state.formName),
-                        const SizedBox(height: 8),
                         InfoRowWidget(
                           label: 'Section 數',
                           value: '${state.selectedSections.length}',

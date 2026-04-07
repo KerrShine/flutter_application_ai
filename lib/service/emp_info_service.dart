@@ -6,7 +6,7 @@ import 'package:flutter_application_ai/model/org_department_node.dart';
 import 'package:flutter_application_ai/repositories/interface/emp_info_repository.dart';
 import 'package:flutter_application_ai/repositories/interface/emp_role_repository.dart';
 import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
-import 'package:flutter_application_ai/unit/result.dart';
+import 'package:flutter_application_ai/unit/base/result.dart';
 
 class EmpInfoService {
   final EmpInfoRepository _repository;

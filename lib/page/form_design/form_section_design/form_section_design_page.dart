@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
@@ -33,6 +34,8 @@ class FormSectionDesignPage extends StatefulWidget {
 class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
   late final FormSectionDesignBloc _bloc;
   final TextEditingController _draftNameController = TextEditingController();
+  final TextEditingController _draftDescriptionController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
   @override
   void dispose() {
     _draftNameController.dispose();
+    _draftDescriptionController.dispose();
     _bloc.close();
     super.dispose();
   }
@@ -76,22 +80,77 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
                   } else if (state.status ==
                       FormSectionDesignStatus.promptDraftName) {
                     _draftNameController.text = state.draftName;
-                    showTextInputDialog(
+                    _draftDescriptionController.text =
+                        _clampDraftDescription(state.draftDescription);
+                    showDialog<void>(
                       context: context,
-                      title: '輸入表單名稱',
-                      controller: _draftNameController,
-                      labelText: '表單名稱',
-                      onCancel: () {
-                        _bloc.add(const CompleteSaveDraftPromptEvent());
-                      },
-                      onConfirm: (value) {
-                        _bloc.add(SubmitSaveDraftEvent(value));
+                      barrierDismissible: false,
+                      builder: (dialogContext) {
+                        return AlertDialog(
+                          title: const Text('輸入欄位名稱'),
+                          content: SizedBox(
+                            width: 420,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: _draftNameController,
+                                  autofocus: true,
+                                  decoration: const InputDecoration(
+                                    labelText: '欄位名稱',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  onSubmitted: (_) => _submitDraftMetadata(
+                                    dialogContext,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextField(
+                                  controller: _draftDescriptionController,
+                                  maxLines: 3,
+                                  maxLength: FormSectionDesignBloc
+                                      .sectionDescriptionMaxLength,
+                                  maxLengthEnforcement:
+                                      MaxLengthEnforcement.enforced,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(
+                                      FormSectionDesignBloc
+                                          .sectionDescriptionMaxLength,
+                                    ),
+                                  ],
+                                  decoration: const InputDecoration(
+                                    labelText: '欄位介紹',
+                                    hintText: '可簡短說明此欄位用途',
+                                    alignLabelWithHint: true,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                                _bloc.add(
+                                  const CompleteSaveDraftPromptEvent(),
+                                );
+                              },
+                              child: const Text('取消'),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  _submitDraftMetadata(dialogContext),
+                              child: const Text('確認'),
+                            ),
+                          ],
+                        );
                       },
                     );
                   } else if (state.status ==
                       FormSectionDesignStatus.savedDraft) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('已保存草稿：${state.draftName}')),
+                      SnackBar(content: Text('已保存欄位：${state.draftName}')),
                     );
                   }
                 },
@@ -309,6 +368,7 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
                                             state.rowCount,
                                             (rowIdx) => CanvasRowWidget(
                                               rowIndex: rowIdx,
+                                              allItems: state.items,
                                               items: state.items
                                                   .where(
                                                     (e) => e.rowIndex == rowIdx,
@@ -409,4 +469,24 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
         ));
   }
 
+  void _submitDraftMetadata(BuildContext dialogContext) {
+    Navigator.of(dialogContext).pop();
+    _bloc.add(
+      SubmitSaveDraftEvent(
+        _draftNameController.text,
+        _clampDraftDescription(_draftDescriptionController.text),
+      ),
+    );
+  }
+
+  String _clampDraftDescription(String value) {
+    final trimmed = value.trim();
+    if (trimmed.length <= FormSectionDesignBloc.sectionDescriptionMaxLength) {
+      return trimmed;
+    }
+    return trimmed.substring(
+      0,
+      FormSectionDesignBloc.sectionDescriptionMaxLength,
+    );
+  }
 }

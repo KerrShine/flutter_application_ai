@@ -4,6 +4,9 @@ import 'package:flutter_application_ai/page/home/home_page.dart';
 import 'package:flutter_application_ai/page/main/main_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/form_section_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_create/form_create_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_select/form_select_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_data_binding/form_data_binding_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_data_manager/form_data_manager_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_manage/form_manage_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_composer/form_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_browse/form_browse_page.dart';
@@ -35,6 +38,11 @@ class RouteName {
   static const String formSectionDesignPage = '/home/form-section-design';
   static const String formManagePage = '/home/form-manage';
   static const String formCreatePage = '/home/form-manage/form-create';
+  static const String formSelectPage = '/home/form-manage/form-select';
+  static const String formDataBindingPage =
+      '/home/form-manage/form-data-binding';
+  static const String formDataManagerPage =
+      '/home/form-manage/form-data-manager';
   static const String formDesignPage = '/home/form-manage/form-design';
   static const String formBrowsePage = '/home/form-browse';
 }
@@ -140,6 +148,32 @@ class AppRouter {
                 path: 'form-create',
                 builder: (context, state) =>
                     FormCreatePage(formModel: state.extra as dynamic),
+              ),
+              GoRoute(
+                path: 'form-select',
+                builder: (context, state) => const FormSelectPage(),
+              ),
+              GoRoute(
+                path: 'form-data-binding',
+                builder: (context, state) {
+                  final extra = state.extra;
+                  if (extra is Map<String, dynamic>) {
+                    return FormDataBindingPage(
+                      formId: extra['formId'] as String? ?? '',
+                      bindingId: extra['bindingId'] as String? ?? '',
+                    );
+                  }
+
+                  return FormDataBindingPage(
+                    formId: extra as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'form-data-manager',
+                builder: (context, state) => FormDataManagerPage(
+                  formId: state.extra as String? ?? '',
+                ),
               ),
               GoRoute(
                 path: 'form-design',

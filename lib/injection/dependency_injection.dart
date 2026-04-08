@@ -17,7 +17,9 @@ import 'package:flutter_application_ai/data/tempData/temp_data_storage.dart';
 import 'package:flutter_application_ai/data/tempData/temp_data_storage_factory.dart';
 
 import 'package:flutter_application_ai/repositories/interface/form_repository.dart';
+import 'package:flutter_application_ai/repositories/interface/form_data_binding_repository.dart';
 import 'package:flutter_application_ai/repositories/form_repository_impl.dart';
+import 'package:flutter_application_ai/repositories/form_data_binding_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_create_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_create/bloc/form_create_bloc.dart';
 import 'package:flutter_application_ai/service/form_manage_service.dart';
@@ -26,6 +28,12 @@ import 'package:flutter_application_ai/repositories/interface/section_repository
 import 'package:flutter_application_ai/repositories/section_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_design_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_composer/bloc/form_design_bloc.dart';
+import 'package:flutter_application_ai/service/form_select_service.dart';
+import 'package:flutter_application_ai/page/form_design/form_select/bloc/form_select_bloc.dart';
+import 'package:flutter_application_ai/service/form_data_binding_service.dart';
+import 'package:flutter_application_ai/page/form_design/form_data_binding/bloc/form_data_binding_bloc.dart';
+import 'package:flutter_application_ai/service/form_data_manager_service.dart';
+import 'package:flutter_application_ai/page/form_design/form_data_manager/bloc/form_data_manager_bloc.dart';
 import 'package:flutter_application_ai/repositories/interface/form_browse_repository.dart';
 import 'package:flutter_application_ai/repositories/form_browse_repository_impl.dart';
 import 'package:flutter_application_ai/service/form_browse_service.dart';
@@ -77,6 +85,8 @@ Future<void> initDI() async {
       () => FormSectionDesignRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<FormRepository>(
       () => FormRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<FormDataBindingRepository>(
+      () => FormDataBindingRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<SectionRepository>(
       () => SectionRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<FormBrowseRepository>(
@@ -104,6 +114,18 @@ Future<void> initDI() async {
       () => FormManageService(sl<FormRepository>()));
   sl.registerFactory<FormDesignService>(
       () => FormDesignService(sl<SectionRepository>(), sl<FormRepository>()));
+  sl.registerFactory<FormSelectService>(
+      () => FormSelectService(sl<FormRepository>()));
+  sl.registerFactory<FormDataBindingService>(() => FormDataBindingService(
+        sl<FormRepository>(),
+        sl<SectionRepository>(),
+        sl<FormDataBindingRepository>(),
+      ));
+  sl.registerFactory<FormDataManagerService>(() => FormDataManagerService(
+        sl<FormRepository>(),
+        sl<FormDataBindingRepository>(),
+        sl<FormDataBindingService>(),
+      ));
   sl.registerFactory<FormBrowseService>(
       () => FormBrowseService(sl<FormBrowseRepository>()));
   sl.registerFactory<OrgDesignService>(
@@ -136,6 +158,12 @@ Future<void> initDI() async {
       () => FormManageBloc(sl<FormManageService>()));
   sl.registerFactory<FormDesignBloc>(
       () => FormDesignBloc(sl<FormDesignService>()));
+  sl.registerFactory<FormSelectBloc>(
+      () => FormSelectBloc(sl<FormSelectService>()));
+  sl.registerFactory<FormDataBindingBloc>(
+      () => FormDataBindingBloc(sl<FormDataBindingService>()));
+  sl.registerFactory<FormDataManagerBloc>(
+      () => FormDataManagerBloc(sl<FormDataManagerService>()));
   sl.registerFactory<FormBrowseBloc>(
       () => FormBrowseBloc(sl<FormBrowseService>()));
   sl.registerFactory<OrgManagerBloc>(

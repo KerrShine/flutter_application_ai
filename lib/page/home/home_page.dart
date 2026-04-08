@@ -117,6 +117,18 @@ class _HomePageState extends State<HomePage> {
                                     RouteName.formManagePage));
                               },
                             ),
+                            ListTile(
+                              selected: currentPath ==
+                                      RouteName.formSelectPage ||
+                                  currentPath == RouteName.formDataManagerPage,
+                              contentPadding: const EdgeInsets.only(left: 48.0),
+                              title: const Text('綁定資料管理'),
+                              onTap: () {
+                                Navigator.pop(context); // 關閉 Drawer
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.formSelectPage));
+                              },
+                            ),
                             // 第三層：權限設定
                             ListTile(
                               contentPadding: const EdgeInsets.only(left: 48.0),

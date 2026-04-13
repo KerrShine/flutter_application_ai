@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_manager/bloc/form_data_manager_bloc.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
+import 'binding_empty_content_widget.dart';
+import 'binding_header_row_widget.dart';
+import 'binding_info_badge_widget.dart';
+import 'binding_mapping_row_widget.dart';
+
 class BindingMappingTableWidget extends StatelessWidget {
   final FormDataManagerState state;
   final VoidCallback onPreviewApiExport;
@@ -29,7 +34,7 @@ class BindingMappingTableWidget extends StatelessWidget {
     }
 
     final Widget tableContent = grouped.isEmpty
-        ? _EmptyBindingContent(formName: state.formName)
+        ? BindingEmptyContentWidget(formName: state.formName)
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: grouped.entries.map((entry) {
@@ -49,8 +54,10 @@ class BindingMappingTableWidget extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          const _HeaderRow(),
-                          ...entry.value.map(_MappingRow.new),
+                          const BindingHeaderRowWidget(),
+                          ...entry.value.map(
+                            (item) => BindingMappingRowWidget(item: item),
+                          ),
                         ],
                       ),
                     ),
@@ -114,7 +121,9 @@ class BindingMappingTableWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     FilledButton.icon(
-                      onPressed: binding == null ? null : onPreviewApiExport,
+                      onPressed: binding == null || !binding.isEnabled
+                          ? null
+                          : onPreviewApiExport,
                       icon: const Icon(Icons.file_download_outlined),
                       label: const Text('預覽API匯出'),
                     ),
@@ -125,18 +134,24 @@ class BindingMappingTableWidget extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    _InfoBadge(
+                    BindingInfoBadgeWidget(
                       label: '模板版本',
                       value: state.latestTemplateVersion > 0
                           ? 'v${state.latestTemplateVersion}'
                           : '-',
                     ),
-                    _InfoBadge(
+                    BindingInfoBadgeWidget(
                       label: '綁定版本',
                       value:
                           binding == null ? '-' : 'v${binding.templateVersion}',
                     ),
-                    _InfoBadge(
+                    BindingInfoBadgeWidget(
+                      label: '啟用狀態',
+                      value: binding == null
+                          ? '-'
+                          : (binding.isEnabled ? '啟用' : '停用'),
+                    ),
+                    BindingInfoBadgeWidget(
                       label: '相容狀態',
                       value: _resolveCompatibility(binding?.healthStatus),
                     ),
@@ -167,204 +182,5 @@ class BindingMappingTableWidget extends StatelessWidget {
       case null:
         return '-';
     }
-  }
-}
-
-class _EmptyBindingContent extends StatelessWidget {
-  final String formName;
-
-  const _EmptyBindingContent({required this.formName});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.extension<FormDesignThemeColors>()!;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colors.emptyStateBackground,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.emptyStateBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('目前尚無綁定資料', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 10),
-          Text(
-            formName.isEmpty
-                ? '此表單尚未建立任何資料綁定設定。'
-                : '「$formName」目前尚未建立任何資料綁定設定。',
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '可從左側新增綁定，完成暫存後回到此頁檢視欄位對應內容。',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.faintText,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderRow extends StatelessWidget {
-  const _HeaderRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<FormDesignThemeColors>()!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.infoRowBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-      ),
-      child: const Row(
-        children: [
-          _HeaderCell(flex: 36, text: '欄位名稱'),
-          _HeaderCell(flex: 12, text: '型別'),
-          _HeaderCell(flex: 30, text: '輸出 key'),
-          _HeaderCell(flex: 22, text: '空值策略'),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderCell extends StatelessWidget {
-  final int flex;
-  final String text;
-
-  const _HeaderCell({required this.flex, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: flex,
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
-}
-
-class _MappingRow extends StatelessWidget {
-  final FieldBindingItem item;
-
-  const _MappingRow(this.item);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.extension<FormDesignThemeColors>()!;
-    final isDark = theme.brightness == Brightness.dark;
-    final rowColor = switch (item.issueStatus) {
-      FieldBindingIssueStatus.mapped => Colors.transparent,
-      FieldBindingIssueStatus.unmapped =>
-        colors.headerChipBackground.withValues(
-          alpha: isDark ? 0.16 : 0.1,
-        ),
-      FieldBindingIssueStatus.versionMismatch =>
-        theme.colorScheme.error.withValues(alpha: isDark ? 0.16 : 0.1),
-    };
-    final hintColor = switch (item.issueStatus) {
-      FieldBindingIssueStatus.mapped => colors.faintText,
-      FieldBindingIssueStatus.unmapped =>
-        isDark ? const Color(0xFFF7C97A) : const Color(0xFFB56A07),
-      FieldBindingIssueStatus.versionMismatch =>
-        isDark ? const Color(0xFFFFB4AB) : theme.colorScheme.error,
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: rowColor,
-        border: Border(
-          top: BorderSide(color: colors.panelBorder.withValues(alpha: 0.7)),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 36,
-            child: Text(
-              item.label,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: item.issueStatus == FieldBindingIssueStatus.mapped
-                    ? null
-                    : hintColor,
-              ),
-            ),
-          ),
-          Expanded(flex: 12, child: Text(item.fieldType)),
-          Expanded(
-            flex: 30,
-            child: Text(
-              item.outputKey.isEmpty ? '尚未設定...' : item.outputKey,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: item.outputKey.isEmpty ? hintColor : null,
-                fontWeight:
-                    item.outputKey.isEmpty ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(flex: 22, child: Text(item.nullStrategy)),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoBadge extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoBadge({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.extension<FormDesignThemeColors>()!;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: colors.headerChipBackground.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: colors.headerChipText.withValues(alpha: 0.18),
-        ),
-      ),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.subtleText,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            TextSpan(
-              text: value,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: colors.headerAccentForeground,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

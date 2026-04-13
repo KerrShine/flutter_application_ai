@@ -67,6 +67,7 @@ Repository
 Database / API
 
 ```
+
 ## Route 配置
 路由必須集中管理：
 - 使用原生 go_router 進行管理

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_manager/bloc/form_data_manager_bloc.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
+import 'binding_status_chip_widget.dart';
+
 class BindingSidebarWidget extends StatelessWidget {
   final FormDataManagerState state;
   final VoidCallback onAddBinding;
   final ValueChanged<String> onSelectBinding;
   final ValueChanged<String> onEditBinding;
+  final ValueChanged<String> onDeleteBinding;
 
   const BindingSidebarWidget({
     super.key,
@@ -14,6 +17,7 @@ class BindingSidebarWidget extends StatelessWidget {
     required this.onAddBinding,
     required this.onSelectBinding,
     required this.onEditBinding,
+    required this.onDeleteBinding,
   });
 
   @override
@@ -77,7 +81,9 @@ class BindingSidebarWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          _BindingStatusChip(status: binding.healthStatus),
+                          BindingStatusChipWidget(
+                            isEnabled: binding.isEnabled,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -115,13 +121,29 @@ class BindingSidebarWidget extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: OutlinedButton.icon(
-                          onPressed: () => onEditBinding(binding.id),
-                          icon: const Icon(Icons.edit_outlined),
-                          label: const Text('編輯'),
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              binding.isEnabled ? '目前啟用中' : '目前停用中',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: colors.faintText,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => onEditBinding(binding.id),
+                            icon: const Icon(Icons.edit_outlined),
+                            label: const Text('編輯'),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton.outlined(
+                            tooltip: '刪除',
+                            onPressed: () => onDeleteBinding(binding.id),
+                            icon: const Icon(Icons.delete_outline),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -240,53 +262,6 @@ class BindingSidebarWidget extends StatelessWidget {
           ),
           Expanded(child: bindingsContent),
         ],
-      ),
-    );
-  }
-}
-
-class _BindingStatusChip extends StatelessWidget {
-  final BindingHealthStatus status;
-
-  const _BindingStatusChip({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    late final String text;
-    late final Color foreground;
-    late final Color background;
-
-    switch (status) {
-      case BindingHealthStatus.healthy:
-        text = '正常';
-        foreground = isDark ? const Color(0xFF8BD3A8) : const Color(0xFF1E7A45);
-        background = foreground.withValues(alpha: isDark ? 0.16 : 0.12);
-        break;
-      case BindingHealthStatus.warning:
-        text = '需檢查';
-        foreground = isDark ? const Color(0xFFF7C97A) : const Color(0xFFB56A07);
-        background = foreground.withValues(alpha: isDark ? 0.16 : 0.12);
-        break;
-      case BindingHealthStatus.outdated:
-        text = '版本落後';
-        foreground = isDark ? const Color(0xFFFFB4AB) : const Color(0xFFB3261E);
-        background = foreground.withValues(alpha: isDark ? 0.16 : 0.12);
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: foreground,
-              fontWeight: FontWeight.w700,
-            ),
       ),
     );
   }

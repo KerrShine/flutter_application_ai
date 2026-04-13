@@ -33,6 +33,11 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
   final Color emptyStateIconColor;
   final Color subtleText;
   final Color faintText;
+  final Color actionButtonAccent;
+  final Color actionDropdownAccent;
+  final Color actionWarning;
+  final Color actionInfo;
+  final Color actionSuccess;
 
   const FormDesignThemeColors({
     required this.pageGradient,
@@ -67,6 +72,11 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
     required this.emptyStateIconColor,
     required this.subtleText,
     required this.faintText,
+    required this.actionButtonAccent,
+    required this.actionDropdownAccent,
+    required this.actionWarning,
+    required this.actionInfo,
+    required this.actionSuccess,
   });
 
   @override
@@ -103,6 +113,11 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
     Color? emptyStateIconColor,
     Color? subtleText,
     Color? faintText,
+    Color? actionButtonAccent,
+    Color? actionDropdownAccent,
+    Color? actionWarning,
+    Color? actionInfo,
+    Color? actionSuccess,
   }) {
     return FormDesignThemeColors(
       pageGradient: pageGradient ?? this.pageGradient,
@@ -144,6 +159,11 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
       emptyStateIconColor: emptyStateIconColor ?? this.emptyStateIconColor,
       subtleText: subtleText ?? this.subtleText,
       faintText: faintText ?? this.faintText,
+      actionButtonAccent: actionButtonAccent ?? this.actionButtonAccent,
+      actionDropdownAccent: actionDropdownAccent ?? this.actionDropdownAccent,
+      actionWarning: actionWarning ?? this.actionWarning,
+      actionInfo: actionInfo ?? this.actionInfo,
+      actionSuccess: actionSuccess ?? this.actionSuccess,
     );
   }
 
@@ -252,6 +272,13 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
       )!,
       subtleText: Color.lerp(subtleText, other.subtleText, t)!,
       faintText: Color.lerp(faintText, other.faintText, t)!,
+      actionButtonAccent:
+          Color.lerp(actionButtonAccent, other.actionButtonAccent, t)!,
+      actionDropdownAccent:
+          Color.lerp(actionDropdownAccent, other.actionDropdownAccent, t)!,
+      actionWarning: Color.lerp(actionWarning, other.actionWarning, t)!,
+      actionInfo: Color.lerp(actionInfo, other.actionInfo, t)!,
+      actionSuccess: Color.lerp(actionSuccess, other.actionSuccess, t)!,
     );
   }
 }

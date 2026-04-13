@@ -7,5 +7,6 @@ abstract class FormDataBindingRepository {
     String bindingId,
   );
   Future<Result<List<FormDataBindingDraft>>> loadDraftsByFormId(String formId);
+  Future<Result<bool>> deleteDraftByBindingId(String formId, String bindingId);
   Future<Result<bool>> saveDraft(FormDataBindingDraft draft);
 }

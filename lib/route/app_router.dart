@@ -6,6 +6,7 @@ import 'package:flutter_application_ai/page/form_design/form_section_design/form
 import 'package:flutter_application_ai/page/form_design/form_create/form_create_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_select/form_select_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_binding/form_data_binding_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_action_binding/form_action_binding_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_manager/form_data_manager_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_manage/form_manage_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_composer/form_design_page.dart';
@@ -41,6 +42,8 @@ class RouteName {
   static const String formSelectPage = '/home/form-manage/form-select';
   static const String formDataBindingPage =
       '/home/form-manage/form-data-binding';
+  static const String formActionBindingPage =
+      '/home/form-manage/form-action-binding';
   static const String formDataManagerPage =
       '/home/form-manage/form-data-manager';
   static const String formDesignPage = '/home/form-manage/form-design';
@@ -165,6 +168,24 @@ class AppRouter {
                   }
 
                   return FormDataBindingPage(
+                    formId: extra as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'form-action-binding',
+                builder: (context, state) {
+                  final extra = state.extra;
+                  if (extra is Map<String, dynamic>) {
+                    return FormActionBindingPage(
+                      formId: extra['formId'] as String? ?? '',
+                      bindingId: extra['bindingId'] as String? ?? '',
+                      initialSourceItemId:
+                          extra['sourceItemId'] as String? ?? '',
+                    );
+                  }
+
+                  return FormActionBindingPage(
                     formId: extra as String? ?? '',
                   );
                 },

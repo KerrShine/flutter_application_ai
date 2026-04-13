@@ -11,6 +11,10 @@ class CompleteNavigationEvent extends FormDataManagerEvent {
   const CompleteNavigationEvent();
 }
 
+class CompleteDeleteDialogEvent extends FormDataManagerEvent {
+  const CompleteDeleteDialogEvent();
+}
+
 class InitEvent extends FormDataManagerEvent {
   final String formId;
 
@@ -41,6 +45,24 @@ class SelectBindingEvent extends FormDataManagerEvent {
 
 class ExportJsonEvent extends FormDataManagerEvent {
   const ExportJsonEvent();
+}
+
+class RequestDeleteBindingEvent extends FormDataManagerEvent {
+  final String bindingId;
+
+  const RequestDeleteBindingEvent(this.bindingId);
+
+  @override
+  List<Object> get props => [bindingId];
+}
+
+class DeleteBindingEvent extends FormDataManagerEvent {
+  final String bindingId;
+
+  const DeleteBindingEvent(this.bindingId);
+
+  @override
+  List<Object> get props => [bindingId];
 }
 
 class PreviewApiExportEvent extends FormDataManagerEvent {

@@ -235,6 +235,11 @@ class AppColors {
   static const Color formDesignSubtleTextDark = Color(0xFFA8B6C8);
   static const Color formDesignFaintTextLight = Color(0xFF7B8795);
   static const Color formDesignFaintTextDark = Color(0xFF7F93AB);
+  static const Color formDesignActionButtonAccent = Color(0xFF4AA3FF);
+  static const Color formDesignActionDropdownAccent = Color(0xFF2BB673);
+  static const Color formDesignActionWarning = Color(0xFFFFB020);
+  static const Color formDesignActionInfo = Color(0xFF4AA3FF);
+  static const Color formDesignActionSuccess = Color(0xFF2BB673);
 
   // FormBrowsePage 與其 widgets 使用
   static const Color formBrowseGradientStartLight = Color(0xFFF4F7FF);

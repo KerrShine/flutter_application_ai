@@ -5,7 +5,6 @@ import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/form_design/form_select/bloc/form_select_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_select/widgets/form_select_form_card_widget.dart';
-import 'package:flutter_application_ai/page/form_design/form_select/widgets/form_select_overview_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/service/form_select_service.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
@@ -137,11 +136,6 @@ class _FormSelectPageState extends State<FormSelectPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    FormSelectOverviewWidget(
-                      totalForms: state.forms.length,
-                      visibleForms: state.filteredForms.length,
-                    ),
-                    const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(

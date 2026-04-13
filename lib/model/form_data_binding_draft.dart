@@ -18,6 +18,164 @@ enum BindingNullStrategy {
   custom,
 }
 
+enum ActionTriggerType {
+  buttonPressed,
+  dropdownChanged,
+  dropdownLoaded,
+}
+
+enum ActionType {
+  navigate,
+  saveDraft,
+  submitForm,
+  callApi,
+  loadDropdownOptions,
+  refreshTarget,
+  setFieldValue,
+  other,
+}
+
+class FormActionBindingDraft extends Equatable {
+  final String actionId;
+  final String sourceItemId;
+  final String sourceLabel;
+  final String sourceType;
+  final ActionTriggerType triggerType;
+  final ActionType actionType;
+  final bool enabled;
+  final String targetItemId;
+  final String targetLabel;
+  final String navigateRoute;
+  final String description;
+
+  const FormActionBindingDraft({
+    this.actionId = '',
+    this.sourceItemId = '',
+    this.sourceLabel = '',
+    this.sourceType = '',
+    this.triggerType = ActionTriggerType.buttonPressed,
+    this.actionType = ActionType.navigate,
+    this.enabled = true,
+    this.targetItemId = '',
+    this.targetLabel = '',
+    this.navigateRoute = '',
+    this.description = '',
+  });
+
+  FormActionBindingDraft copyWith({
+    String? actionId,
+    String? sourceItemId,
+    String? sourceLabel,
+    String? sourceType,
+    ActionTriggerType? triggerType,
+    ActionType? actionType,
+    bool? enabled,
+    String? targetItemId,
+    String? targetLabel,
+    String? navigateRoute,
+    String? description,
+  }) {
+    return FormActionBindingDraft(
+      actionId: actionId ?? this.actionId,
+      sourceItemId: sourceItemId ?? this.sourceItemId,
+      sourceLabel: sourceLabel ?? this.sourceLabel,
+      sourceType: sourceType ?? this.sourceType,
+      triggerType: triggerType ?? this.triggerType,
+      actionType: actionType ?? this.actionType,
+      enabled: enabled ?? this.enabled,
+      targetItemId: targetItemId ?? this.targetItemId,
+      targetLabel: targetLabel ?? this.targetLabel,
+      navigateRoute: navigateRoute ?? this.navigateRoute,
+      description: description ?? this.description,
+    );
+  }
+
+  String get triggerLabel {
+    switch (triggerType) {
+      case ActionTriggerType.buttonPressed:
+        return 'buttonPressed';
+      case ActionTriggerType.dropdownChanged:
+        return 'dropdownChanged';
+      case ActionTriggerType.dropdownLoaded:
+        return 'dropdownLoaded';
+    }
+  }
+
+  String get actionLabel {
+    switch (actionType) {
+      case ActionType.navigate:
+        return 'navigate';
+      case ActionType.saveDraft:
+        return 'saveDraft';
+      case ActionType.submitForm:
+        return 'submitForm';
+      case ActionType.callApi:
+        return 'callApi';
+      case ActionType.loadDropdownOptions:
+        return 'loadDropdownOptions';
+      case ActionType.refreshTarget:
+        return 'refreshTarget';
+      case ActionType.setFieldValue:
+        return 'setFieldValue';
+      case ActionType.other:
+        return 'other';
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'actionId': actionId,
+      'sourceItemId': sourceItemId,
+      'sourceLabel': sourceLabel,
+      'sourceType': sourceType,
+      'triggerType': triggerType.name,
+      'actionType': actionType.name,
+      'enabled': enabled,
+      'targetItemId': targetItemId,
+      'targetLabel': targetLabel,
+      'navigateRoute': navigateRoute,
+      'description': description,
+    };
+  }
+
+  factory FormActionBindingDraft.fromMap(Map<String, dynamic> map) {
+    return FormActionBindingDraft(
+      actionId: map['actionId'] ?? '',
+      sourceItemId: map['sourceItemId'] ?? '',
+      sourceLabel: map['sourceLabel'] ?? '',
+      sourceType: map['sourceType'] ?? '',
+      triggerType: ActionTriggerType.values.firstWhere(
+        (item) => item.name == map['triggerType'],
+        orElse: () => ActionTriggerType.buttonPressed,
+      ),
+      actionType: ActionType.values.firstWhere(
+        (item) => item.name == map['actionType'],
+        orElse: () => ActionType.navigate,
+      ),
+      enabled: map['enabled'] as bool? ?? true,
+      targetItemId: map['targetItemId'] ?? '',
+      targetLabel: map['targetLabel'] ?? '',
+      navigateRoute: map['navigateRoute'] ?? '',
+      description: map['description'] ?? '',
+    );
+  }
+
+  @override
+  List<Object> get props => [
+        actionId,
+        sourceItemId,
+        sourceLabel,
+        sourceType,
+        triggerType,
+        actionType,
+        enabled,
+        targetItemId,
+        targetLabel,
+        navigateRoute,
+        description,
+      ];
+}
+
 class FormDataBindingFieldDraft extends Equatable {
   final String itemId;
   final String label;
@@ -105,7 +263,7 @@ class FormDataBindingFieldDraft extends Equatable {
 
   String get systemDefaultValue {
     if (fieldKind == BindingFieldKind.button) {
-      return '事件綁定';
+      return '預設行為';
     }
 
     switch (valueType) {
@@ -235,23 +393,27 @@ class FormDataBindingDraft extends Equatable {
   final String bindingId;
   final String bindingName;
   final String bindingDescription;
+  final bool isEnabled;
   final int templateVersion;
   final String formId;
   final String formName;
   final String formSize;
   final String updatedAt;
   final List<FormDataBindingSectionDraft> sections;
+  final List<FormActionBindingDraft> actions;
 
   const FormDataBindingDraft({
     this.bindingId = '',
     this.bindingName = '',
     this.bindingDescription = '',
+    this.isEnabled = true,
     this.templateVersion = 1,
     this.formId = '',
     this.formName = '',
     this.formSize = '',
     this.updatedAt = '',
     this.sections = const [],
+    this.actions = const [],
   });
 
   int get totalFields => sections.fold(
@@ -259,27 +421,33 @@ class FormDataBindingDraft extends Equatable {
         (previousValue, section) => previousValue + section.fields.length,
       );
 
+  int get totalActions => actions.length;
+
   FormDataBindingDraft copyWith({
     String? bindingId,
     String? bindingName,
     String? bindingDescription,
+    bool? isEnabled,
     int? templateVersion,
     String? formId,
     String? formName,
     String? formSize,
     String? updatedAt,
     List<FormDataBindingSectionDraft>? sections,
+    List<FormActionBindingDraft>? actions,
   }) {
     return FormDataBindingDraft(
       bindingId: bindingId ?? this.bindingId,
       bindingName: bindingName ?? this.bindingName,
       bindingDescription: bindingDescription ?? this.bindingDescription,
+      isEnabled: isEnabled ?? this.isEnabled,
       templateVersion: templateVersion ?? this.templateVersion,
       formId: formId ?? this.formId,
       formName: formName ?? this.formName,
       formSize: formSize ?? this.formSize,
       updatedAt: updatedAt ?? this.updatedAt,
       sections: sections ?? this.sections,
+      actions: actions ?? this.actions,
     );
   }
 
@@ -312,21 +480,25 @@ class FormDataBindingDraft extends Equatable {
       'bindingId': bindingId,
       'bindingName': bindingName,
       'bindingDescription': bindingDescription,
+      'isEnabled': isEnabled,
       'templateVersion': templateVersion,
       'formId': formId,
       'formName': formName,
       'formSize': formSize,
       'updatedAt': updatedAt,
       'sections': sections.map((item) => item.toMap()).toList(),
+      'actions': actions.map((item) => item.toMap()).toList(),
     };
   }
 
   factory FormDataBindingDraft.fromMap(Map<String, dynamic> map) {
     final rawSections = map['sections'] as List<dynamic>? ?? const [];
+    final rawActions = map['actions'] as List<dynamic>? ?? const [];
     return FormDataBindingDraft(
       bindingId: map['bindingId'] ?? '',
       bindingName: map['bindingName'] ?? '',
       bindingDescription: map['bindingDescription'] ?? '',
+      isEnabled: map['isEnabled'] as bool? ?? true,
       templateVersion: (map['templateVersion'] as num?)?.toInt() ?? 1,
       formId: map['formId'] ?? '',
       formName: map['formName'] ?? '',
@@ -334,6 +506,11 @@ class FormDataBindingDraft extends Equatable {
       updatedAt: map['updatedAt'] ?? '',
       sections: rawSections
           .map((item) => FormDataBindingSectionDraft.fromMap(
+                item as Map<String, dynamic>,
+              ))
+          .toList(),
+      actions: rawActions
+          .map((item) => FormActionBindingDraft.fromMap(
                 item as Map<String, dynamic>,
               ))
           .toList(),
@@ -345,11 +522,13 @@ class FormDataBindingDraft extends Equatable {
         bindingId,
         bindingName,
         bindingDescription,
+        isEnabled,
         templateVersion,
         formId,
         formName,
         formSize,
         updatedAt,
         sections,
+        actions,
       ];
 }

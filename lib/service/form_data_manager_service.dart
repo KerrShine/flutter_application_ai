@@ -68,6 +68,26 @@ class FormDataManagerService {
       return Result.failure('讀取表單綁定資料管理設定失敗：${ex.toString()}');
     }
   }
+
+  Future<Result<bool>> deleteBinding(String formId, String bindingId) async {
+    try {
+      if (formId.isEmpty || bindingId.isEmpty) {
+        return Result.failure('找不到要刪除的綁定資料');
+      }
+
+      final result = await formDataBindingRepository.deleteDraftByBindingId(
+        formId,
+        bindingId,
+      );
+      if (!result.isSuccess) {
+        return Result.failure(result.error ?? '刪除綁定資料失敗');
+      }
+
+      return Result.success(true);
+    } catch (ex) {
+      return Result.failure('刪除綁定資料失敗：${ex.toString()}');
+    }
+  }
 }
 
 class FormDataManagerInitialData {

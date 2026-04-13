@@ -12,10 +12,14 @@ class FormDataBindingBloc
 
   FormDataBindingBloc(this._formDataBindingService)
       : super(const FormDataBindingState()) {
+    on<CompleteNavigationEvent>(_onCompleteNavigationEvent);
     on<CompleteStatusEvent>(_onCompleteStatusEvent);
+    on<ConfirmSaveDraftEvent>(_onConfirmSaveDraftEvent);
     on<ExportJsonPreviewEvent>(_onExportJsonPreviewEvent);
     on<InitEvent>(_onInitEvent);
-    on<SaveDraftEvent>(_onSaveDraftEvent);
+    on<RequestNavigateToActionBindingEvent>(_onRequestNavigateToActionBinding);
+    on<RequestSaveDraftEvent>(_onRequestSaveDraftEvent);
+    on<UpdateBindingEnabledEvent>(_onUpdateBindingEnabledEvent);
     on<UpdateCustomDefaultValueEvent>(_onUpdateCustomDefaultValueEvent);
     on<UpdateNullStrategyEvent>(_onUpdateNullStrategyEvent);
     on<UpdateOutputKeyEvent>(_onUpdateOutputKeyEvent);
@@ -45,6 +49,7 @@ class FormDataBindingBloc
         formName: draft.formName,
         draft: draft,
         fieldErrors: _formDataBindingService.validateDraft(draft),
+        pendingBindingName: '',
         message: '',
       ));
       return;
@@ -64,6 +69,20 @@ class FormDataBindingBloc
   ) {
     emit(state.copyWith(
       status: FormDataBindingStatus.ready,
+      pendingBindingName: '',
+      message: '',
+    ));
+  }
+
+  void _onCompleteNavigationEvent(
+    CompleteNavigationEvent event,
+    Emitter<FormDataBindingState> emit,
+  ) {
+    emit(state.copyWith(
+      status: FormDataBindingStatus.ready,
+      navigateFormId: '',
+      navigateBindingId: '',
+      navigateSourceItemId: '',
       message: '',
     ));
   }
@@ -79,10 +98,54 @@ class FormDataBindingBloc
     ));
   }
 
-  Future<void> _onSaveDraftEvent(
-    SaveDraftEvent event,
+  void _onRequestSaveDraftEvent(
+    RequestSaveDraftEvent event,
+    Emitter<FormDataBindingState> emit,
+  ) {
+    final errors = _formDataBindingService.validateDraft(state.draft);
+    if (errors.isNotEmpty) {
+      emit(state.copyWith(
+        status: FormDataBindingStatus.failure,
+        fieldErrors: errors,
+        message: '仍有欄位設定未完成，請先修正後再儲存',
+      ));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: FormDataBindingStatus.confirmBindingName,
+      pendingBindingName: state.draft.bindingName,
+      fieldErrors: errors,
+      message: '',
+    ));
+  }
+
+  void _onRequestNavigateToActionBinding(
+    RequestNavigateToActionBindingEvent event,
+    Emitter<FormDataBindingState> emit,
+  ) {
+    emit(state.copyWith(
+      status: FormDataBindingStatus.navigateToActionBinding,
+      navigateFormId: state.formId,
+      navigateBindingId: state.bindingId,
+      navigateSourceItemId: event.sourceItemId,
+      message: '',
+    ));
+  }
+
+  Future<void> _onConfirmSaveDraftEvent(
+    ConfirmSaveDraftEvent event,
     Emitter<FormDataBindingState> emit,
   ) async {
+    final normalizedBindingName = event.bindingName.trim();
+    if (normalizedBindingName.isEmpty) {
+      emit(state.copyWith(
+        status: FormDataBindingStatus.failure,
+        message: '請輸入綁定名稱',
+      ));
+      return;
+    }
+
     final errors = _formDataBindingService.validateDraft(state.draft);
     if (errors.isNotEmpty) {
       emit(state.copyWith(
@@ -95,11 +158,15 @@ class FormDataBindingBloc
 
     emit(state.copyWith(
       status: FormDataBindingStatus.saving,
+      pendingBindingName: '',
       message: '',
     ));
 
     final now = DateTime.now();
-    final draft = state.draft.copyWith(updatedAt: now.toIso8601String());
+    final draft = state.draft.copyWith(
+      bindingName: normalizedBindingName,
+      updatedAt: now.toIso8601String(),
+    );
     final result = await _formDataBindingService.saveDraft(draft);
     if (result.isSuccess) {
       emit(state.copyWith(
@@ -157,6 +224,14 @@ class FormDataBindingBloc
     _emitUpdatedDraft(emit, draft);
   }
 
+  void _onUpdateBindingEnabledEvent(
+    UpdateBindingEnabledEvent event,
+    Emitter<FormDataBindingState> emit,
+  ) {
+    final draft = state.draft.copyWith(isEnabled: event.isEnabled);
+    _emitUpdatedDraft(emit, draft);
+  }
+
   void _emitUpdatedDraft(
     Emitter<FormDataBindingState> emit,
     FormDataBindingDraft draft,
@@ -165,6 +240,7 @@ class FormDataBindingBloc
       status: FormDataBindingStatus.ready,
       draft: draft,
       fieldErrors: _formDataBindingService.validateDraft(draft),
+      pendingBindingName: '',
       message: '',
     ));
   }

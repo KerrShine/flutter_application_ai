@@ -97,11 +97,29 @@ class FormDataBindingService {
       'bindingId': draft.bindingId,
       'bindingName': draft.bindingName,
       'bindingDescription': draft.bindingDescription,
+      'isEnabled': draft.isEnabled,
       'templateVersion': draft.templateVersion,
       'formId': draft.formId,
       'formName': draft.formName,
       'formSize': draft.formSize,
       'updatedAt': draft.updatedAt,
+      'actions': draft.actions
+          .map(
+            (action) => {
+              'actionId': action.actionId,
+              'sourceItemId': action.sourceItemId,
+              'sourceLabel': action.sourceLabel,
+              'sourceType': action.sourceType,
+              'triggerType': action.triggerType.name,
+              'actionType': action.actionType.name,
+              'enabled': action.enabled,
+              'targetItemId': action.targetItemId,
+              'targetLabel': action.targetLabel,
+              'navigateRoute': action.navigateRoute,
+              'description': action.description,
+            },
+          )
+          .toList(),
       'sections': draft.sections
           .map(
             (section) => {
@@ -264,12 +282,14 @@ class FormDataBindingService {
           '${form.name} 綁定 ${existingBindingCount + 1}',
       bindingDescription:
           savedDraft?.bindingDescription ?? '依 ${form.name} 產生的資料綁定設定',
+      isEnabled: savedDraft?.isEnabled ?? true,
       templateVersion: savedDraft?.templateVersion ?? 1,
       formId: form.id,
       formName: form.name,
       formSize: form.size,
       updatedAt: savedDraft?.updatedAt ?? '',
       sections: bindingSections,
+      actions: savedDraft?.actions ?? const [],
     );
   }
 

@@ -21,12 +21,34 @@ class CompleteStatusEvent extends FormDataBindingEvent {
   const CompleteStatusEvent();
 }
 
-class SaveDraftEvent extends FormDataBindingEvent {
-  const SaveDraftEvent();
+class ConfirmSaveDraftEvent extends FormDataBindingEvent {
+  final String bindingName;
+
+  const ConfirmSaveDraftEvent(this.bindingName);
+
+  @override
+  List<Object> get props => [bindingName];
+}
+
+class RequestSaveDraftEvent extends FormDataBindingEvent {
+  const RequestSaveDraftEvent();
 }
 
 class ExportJsonPreviewEvent extends FormDataBindingEvent {
   const ExportJsonPreviewEvent();
+}
+
+class CompleteNavigationEvent extends FormDataBindingEvent {
+  const CompleteNavigationEvent();
+}
+
+class RequestNavigateToActionBindingEvent extends FormDataBindingEvent {
+  final String sourceItemId;
+
+  const RequestNavigateToActionBindingEvent(this.sourceItemId);
+
+  @override
+  List<Object> get props => [sourceItemId];
 }
 
 class UpdateCustomDefaultValueEvent extends FormDataBindingEvent {
@@ -72,4 +94,13 @@ class UpdateOutputKeyEvent extends FormDataBindingEvent {
 
   @override
   List<Object> get props => [sectionId, itemId, outputKey];
+}
+
+class UpdateBindingEnabledEvent extends FormDataBindingEvent {
+  final bool isEnabled;
+
+  const UpdateBindingEnabledEvent(this.isEnabled);
+
+  @override
+  List<Object> get props => [isEnabled];
 }

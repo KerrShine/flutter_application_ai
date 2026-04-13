@@ -44,6 +44,34 @@ class FormDataBindingRepositoryImpl implements FormDataBindingRepository {
   }
 
   @override
+  Future<Result<bool>> deleteDraftByBindingId(
+    String formId,
+    String bindingId,
+  ) async {
+    try {
+      final drafts = await _loadAllDrafts();
+      final current = List<FormDataBindingDraft>.from(drafts);
+      final removedCountBefore = current.length;
+      current.removeWhere(
+        (item) => item.formId == formId && item.bindingId == bindingId,
+      );
+
+      if (current.length == removedCountBefore) {
+        return Result.failure('找不到要刪除的綁定資料');
+      }
+
+      await _localStorage.setString(
+        _draftsKey,
+        jsonEncode(current.map((item) => item.toMap()).toList()),
+      );
+
+      return Result.success(true);
+    } catch (ex) {
+      return Result.failure(ex.toString());
+    }
+  }
+
+  @override
   Future<Result<bool>> saveDraft(FormDataBindingDraft draft) async {
     try {
       final drafts = await _loadAllDrafts();

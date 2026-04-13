@@ -5,6 +5,8 @@ enum FormDataManagerStatus {
   loading,
   success,
   failure,
+  confirmDeleteBinding,
+  deleteSuccess,
   exportJsonPreview,
   exportApiPreview,
   navigateToDataBinding,
@@ -26,6 +28,7 @@ class BindingSummary extends Equatable {
   final String id;
   final String name;
   final String description;
+  final bool isEnabled;
   final int templateVersion;
   final BindingHealthStatus healthStatus;
   final int unmappedCount;
@@ -35,6 +38,7 @@ class BindingSummary extends Equatable {
     required this.id,
     required this.name,
     required this.description,
+    required this.isEnabled,
     required this.templateVersion,
     required this.healthStatus,
     required this.unmappedCount,
@@ -46,6 +50,7 @@ class BindingSummary extends Equatable {
         id,
         name,
         description,
+        isEnabled,
         templateVersion,
         healthStatus,
         unmappedCount,
@@ -104,6 +109,8 @@ class FormDataManagerState extends Equatable {
   final String exportedJson;
   final String navigateFormId;
   final String navigateBindingId;
+  final String pendingDeleteBindingId;
+  final String pendingDeleteBindingName;
   final List<BindingSummary> bindings;
   final List<FormDataBindingDraft> bindingDrafts;
   final List<FieldBindingItem> fieldBindings;
@@ -119,6 +126,8 @@ class FormDataManagerState extends Equatable {
     this.exportedJson = '',
     this.navigateFormId = '',
     this.navigateBindingId = '',
+    this.pendingDeleteBindingId = '',
+    this.pendingDeleteBindingName = '',
     this.bindings = const [],
     this.bindingDrafts = const [],
     this.fieldBindings = const [],
@@ -144,6 +153,8 @@ class FormDataManagerState extends Equatable {
     String? exportedJson,
     String? navigateFormId,
     String? navigateBindingId,
+    String? pendingDeleteBindingId,
+    String? pendingDeleteBindingName,
     List<BindingSummary>? bindings,
     List<FormDataBindingDraft>? bindingDrafts,
     List<FieldBindingItem>? fieldBindings,
@@ -160,6 +171,10 @@ class FormDataManagerState extends Equatable {
       exportedJson: exportedJson ?? this.exportedJson,
       navigateFormId: navigateFormId ?? this.navigateFormId,
       navigateBindingId: navigateBindingId ?? this.navigateBindingId,
+      pendingDeleteBindingId:
+          pendingDeleteBindingId ?? this.pendingDeleteBindingId,
+      pendingDeleteBindingName:
+          pendingDeleteBindingName ?? this.pendingDeleteBindingName,
       bindings: bindings ?? this.bindings,
       bindingDrafts: bindingDrafts ?? this.bindingDrafts,
       fieldBindings: fieldBindings ?? this.fieldBindings,
@@ -178,6 +193,8 @@ class FormDataManagerState extends Equatable {
         exportedJson,
         navigateFormId,
         navigateBindingId,
+        pendingDeleteBindingId,
+        pendingDeleteBindingName,
         bindings,
         bindingDrafts,
         fieldBindings,

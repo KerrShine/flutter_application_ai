@@ -7,6 +7,7 @@ class BindingExecutionHeaderWidget extends StatelessWidget {
   final int errorCount;
   final bool isSaving;
   final VoidCallback onSave;
+  final ValueChanged<bool> onBindingEnabledChanged;
 
   const BindingExecutionHeaderWidget({
     super.key,
@@ -14,6 +15,7 @@ class BindingExecutionHeaderWidget extends StatelessWidget {
     required this.errorCount,
     required this.isSaving,
     required this.onSave,
+    required this.onBindingEnabledChanged,
   });
 
   @override
@@ -49,11 +51,35 @@ class BindingExecutionHeaderWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              FilledButton.icon(
-                onPressed: isSaving ? null : onSave,
-                icon:
-                    Icon(isSaving ? Icons.hourglass_top : Icons.save_outlined),
-                label: Text(isSaving ? '儲存中' : '儲存暫存'),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('啟用'),
+                        selected: draft.isEnabled,
+                        onSelected: (_) => onBindingEnabledChanged(true),
+                      ),
+                      ChoiceChip(
+                        label: const Text('停用'),
+                        selected: !draft.isEnabled,
+                        onSelected: (_) => onBindingEnabledChanged(false),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: isSaving ? null : onSave,
+                    icon: Icon(
+                      isSaving ? Icons.hourglass_top : Icons.save_outlined,
+                    ),
+                    label: Text(isSaving ? '儲存中' : '儲存暫存'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -68,6 +94,7 @@ class BindingExecutionHeaderWidget extends StatelessWidget {
                   value: draft.formSize.isEmpty ? '-' : draft.formSize),
               _InfoBadge(label: '區塊數', value: '${draft.sections.length}'),
               _InfoBadge(label: '欄位數', value: '${draft.totalFields}'),
+              _InfoBadge(label: '狀態', value: draft.isEnabled ? '啟用' : '停用'),
               _InfoBadge(label: '待修正', value: '$errorCount'),
             ],
           ),

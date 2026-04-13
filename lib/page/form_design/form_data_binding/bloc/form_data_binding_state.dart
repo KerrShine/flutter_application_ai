@@ -4,6 +4,8 @@ enum FormDataBindingStatus {
   init,
   loading,
   ready,
+  confirmBindingName,
+  navigateToActionBinding,
   saving,
   exportJsonPreview,
   saveSuccess,
@@ -19,6 +21,10 @@ class FormDataBindingState extends Equatable {
   final FormDataBindingDraft draft;
   final Map<String, String> fieldErrors;
   final String exportedJson;
+  final String pendingBindingName;
+  final String navigateFormId;
+  final String navigateBindingId;
+  final String navigateSourceItemId;
 
   const FormDataBindingState({
     this.status = FormDataBindingStatus.init,
@@ -29,6 +35,10 @@ class FormDataBindingState extends Equatable {
     this.draft = const FormDataBindingDraft(),
     this.fieldErrors = const {},
     this.exportedJson = '',
+    this.pendingBindingName = '',
+    this.navigateFormId = '',
+    this.navigateBindingId = '',
+    this.navigateSourceItemId = '',
   });
 
   int get totalSections => draft.sections.length;
@@ -46,6 +56,10 @@ class FormDataBindingState extends Equatable {
     FormDataBindingDraft? draft,
     Map<String, String>? fieldErrors,
     String? exportedJson,
+    String? pendingBindingName,
+    String? navigateFormId,
+    String? navigateBindingId,
+    String? navigateSourceItemId,
   }) {
     return FormDataBindingState(
       status: status ?? this.status,
@@ -56,6 +70,10 @@ class FormDataBindingState extends Equatable {
       draft: draft ?? this.draft,
       fieldErrors: fieldErrors ?? this.fieldErrors,
       exportedJson: exportedJson ?? this.exportedJson,
+      pendingBindingName: pendingBindingName ?? this.pendingBindingName,
+      navigateFormId: navigateFormId ?? this.navigateFormId,
+      navigateBindingId: navigateBindingId ?? this.navigateBindingId,
+      navigateSourceItemId: navigateSourceItemId ?? this.navigateSourceItemId,
     );
   }
 
@@ -69,5 +87,9 @@ class FormDataBindingState extends Equatable {
         draft,
         fieldErrors,
         exportedJson,
+        pendingBindingName,
+        navigateFormId,
+        navigateBindingId,
+        navigateSourceItemId,
       ];
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/enum/designer_item_type.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
@@ -6,6 +7,8 @@ class BindingExecutionSectionWidget extends StatelessWidget {
   final FormDataBindingSectionDraft section;
   final Map<String, String> fieldErrors;
   final String Function(String sectionId, String itemId) fieldKeyBuilder;
+  final String Function(String itemId) actionSummaryBuilder;
+  final void Function(String sectionId, String itemId) onOpenActionBinding;
   final void Function(String sectionId, String itemId, String outputKey)
       onOutputKeyChanged;
   final void Function(
@@ -21,6 +24,8 @@ class BindingExecutionSectionWidget extends StatelessWidget {
     required this.section,
     required this.fieldErrors,
     required this.fieldKeyBuilder,
+    required this.actionSummaryBuilder,
+    required this.onOpenActionBinding,
     required this.onOutputKeyChanged,
     required this.onNullStrategyChanged,
     required this.onCustomDefaultChanged,
@@ -85,7 +90,9 @@ class BindingExecutionSectionWidget extends StatelessWidget {
                   return _FieldRow(
                     sectionId: section.sectionId,
                     field: field,
+                    actionSummary: actionSummaryBuilder(field.itemId),
                     errorText: error,
+                    onOpenActionBinding: onOpenActionBinding,
                     onOutputKeyChanged: onOutputKeyChanged,
                     onNullStrategyChanged: onNullStrategyChanged,
                     onCustomDefaultChanged: onCustomDefaultChanged,
@@ -116,7 +123,7 @@ class _HeaderRow extends StatelessWidget {
         Expanded(flex: 8, child: Text('型別', style: style)),
         Expanded(flex: 18, child: Text('對應欄位', style: style)),
         Expanded(flex: 12, child: Text('空值策略', style: style)),
-        Expanded(flex: 18, child: Text('預設值', style: style)),
+        Expanded(flex: 18, child: Text('預設值 / 預設行為', style: style)),
       ],
     );
   }
@@ -125,7 +132,9 @@ class _HeaderRow extends StatelessWidget {
 class _FieldRow extends StatelessWidget {
   final String sectionId;
   final FormDataBindingFieldDraft field;
+  final String actionSummary;
   final String errorText;
+  final void Function(String sectionId, String itemId) onOpenActionBinding;
   final void Function(String sectionId, String itemId, String outputKey)
       onOutputKeyChanged;
   final void Function(
@@ -139,11 +148,18 @@ class _FieldRow extends StatelessWidget {
   const _FieldRow({
     required this.sectionId,
     required this.field,
+    required this.actionSummary,
     required this.errorText,
+    required this.onOpenActionBinding,
     required this.onOutputKeyChanged,
     required this.onNullStrategyChanged,
     required this.onCustomDefaultChanged,
   });
+
+  bool get _supportsActionBinding {
+    return field.fieldKind == BindingFieldKind.button ||
+        field.sourceType == DesignerItemType.dropdown.name;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -282,6 +298,10 @@ class _FieldRow extends StatelessWidget {
                     ),
                   ],
                 ),
+          if (_supportsActionBinding) ...[
+            const SizedBox(height: 10),
+            _buildActionBindingEntry(theme, colors),
+          ],
           if (field.required) ...[
             const SizedBox(height: 8),
             Row(
@@ -340,7 +360,7 @@ class _FieldRow extends StatelessWidget {
         ),
         Expanded(
           flex: 18,
-          child: _ReadonlyValueDisplay(text: '事件綁定', colors: colors),
+          child: _ReadonlyValueDisplay(text: '動作綁定', colors: colors),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -350,9 +370,62 @@ class _FieldRow extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           flex: 18,
-          child: _ReadonlyValueDisplay(text: '事件綁定', colors: colors),
+          child: _ReadonlyValueDisplay(text: '預設行為', colors: colors),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionBindingEntry(
+    ThemeData theme,
+    FormDesignThemeColors colors,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.headerChipBackground.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colors.headerChipText.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '已選動作',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colors.headerAccentForeground,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  actionSummary == '尚未選擇動作'
+                      ? '此元件支援後續動作設定，可進入獨立頁面管理跳轉與其他觸發行為。'
+                      : actionSummary,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.faintText,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          FilledButton.icon(
+            onPressed: () {
+              onOpenActionBinding(sectionId, field.itemId);
+            },
+            icon: const Icon(Icons.route_outlined),
+            label: Text(actionSummary == '尚未選擇動作' ? '設定動作' : '調整動作'),
+          ),
+        ],
+      ),
     );
   }
 

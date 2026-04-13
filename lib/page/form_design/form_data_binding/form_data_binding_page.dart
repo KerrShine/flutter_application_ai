@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_ai/composables/glow_orb_widget.dart';
 import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_application_ai/page/form_design/form_data_binding/bloc/f
 import 'package:flutter_application_ai/page/form_design/form_data_binding/widgets/binding_execution_header_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_binding/widgets/binding_execution_section_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_binding/widgets/binding_execution_summary_widget.dart';
+import 'package:flutter_application_ai/route/app_router.dart';
+import 'package:flutter_application_ai/service/form_action_binding_service.dart';
 import 'package:flutter_application_ai/service/form_data_binding_service.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
@@ -58,6 +61,55 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                 );
                 _bloc.add(const CompleteStatusEvent());
               } else if (state.status ==
+                  FormDataBindingStatus.confirmBindingName) {
+                final controller = TextEditingController(
+                  text: state.pendingBindingName,
+                );
+                showDialog<String>(
+                  context: context,
+                  builder: (dialogContext) {
+                    return AlertDialog(
+                      title: const Text('設定綁定名稱'),
+                      content: TextField(
+                        controller: controller,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: '綁定名稱',
+                          hintText: '請輸入這份綁定的名稱',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          child: const Text('取消'),
+                        ),
+                        FilledButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext)
+                                .pop(controller.text.trim());
+                          },
+                          child: const Text('儲存'),
+                        ),
+                      ],
+                    );
+                  },
+                ).then((bindingName) {
+                  controller.dispose();
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  if (bindingName == null) {
+                    _bloc.add(const CompleteStatusEvent());
+                    return;
+                  }
+
+                  _bloc.add(ConfirmSaveDraftEvent(bindingName));
+                });
+              } else if (state.status ==
                   FormDataBindingStatus.exportJsonPreview) {
                 showScrollableMessageDialog(
                   context: context,
@@ -65,6 +117,27 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                   child: SelectableText(state.exportedJson),
                 );
                 _bloc.add(const CompleteStatusEvent());
+              } else if (state.status ==
+                  FormDataBindingStatus.navigateToActionBinding) {
+                context.push(
+                  RouteName.formActionBindingPage,
+                  extra: {
+                    'formId': state.navigateFormId,
+                    'bindingId': state.navigateBindingId,
+                    'sourceItemId': state.navigateSourceItemId,
+                  },
+                ).then((_) {
+                  if (!context.mounted) {
+                    return;
+                  }
+                  _bloc.add(
+                    InitEvent(
+                      state.formId,
+                      bindingId: state.bindingId,
+                    ),
+                  );
+                });
+                _bloc.add(const CompleteNavigationEvent());
               } else if (state.status == FormDataBindingStatus.saveSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -150,7 +223,10 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                       errorCount: state.errorCount,
                       isSaving: state.status == FormDataBindingStatus.saving,
                       onSave: () {
-                        _bloc.add(const SaveDraftEvent());
+                        _bloc.add(const RequestSaveDraftEvent());
+                      },
+                      onBindingEnabledChanged: (isEnabled) {
+                        _bloc.add(UpdateBindingEnabledEvent(isEnabled));
                       },
                     ),
                     const SizedBox(height: 16),
@@ -176,6 +252,24 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                                                   fieldErrors:
                                                       state.fieldErrors,
                                                   fieldKeyBuilder: _fieldKey,
+                                                  actionSummaryBuilder: (
+                                                    itemId,
+                                                  ) {
+                                                    return _actionSummaryForItem(
+                                                      state,
+                                                      itemId,
+                                                    );
+                                                  },
+                                                  onOpenActionBinding: (
+                                                    sectionId,
+                                                    itemId,
+                                                  ) {
+                                                    _bloc.add(
+                                                      RequestNavigateToActionBindingEvent(
+                                                        itemId,
+                                                      ),
+                                                    );
+                                                  },
                                                   onOutputKeyChanged: (
                                                     sectionId,
                                                     itemId,
@@ -233,7 +327,7 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                                     _bloc.add(const ExportJsonPreviewEvent());
                                   },
                                   onSave: () {
-                                    _bloc.add(const SaveDraftEvent());
+                                    _bloc.add(const RequestSaveDraftEvent());
                                   },
                                 ),
                               ),
@@ -283,5 +377,22 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
 
   String _fieldKey(String sectionId, String itemId) {
     return '$sectionId::$itemId';
+  }
+
+  String _actionSummaryForItem(
+    FormDataBindingState state,
+    String itemId,
+  ) {
+    final actions = state.draft.actions.where((item) {
+      return item.sourceItemId == itemId && item.enabled;
+    }).toList();
+
+    if (actions.isEmpty) {
+      return '尚未選擇動作';
+    }
+
+    return actions.map((item) {
+      return '${formActionTriggerDisplayName(item.triggerType.name)} / ${formActionDisplayName(item.actionType.name)}';
+    }).join('、');
   }
 }

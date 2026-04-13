@@ -32,6 +32,8 @@ import 'package:flutter_application_ai/service/form_select_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_select/bloc/form_select_bloc.dart';
 import 'package:flutter_application_ai/service/form_data_binding_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_binding/bloc/form_data_binding_bloc.dart';
+import 'package:flutter_application_ai/service/form_action_binding_service.dart';
+import 'package:flutter_application_ai/page/form_design/form_action_binding/bloc/form_action_binding_bloc.dart';
 import 'package:flutter_application_ai/service/form_data_manager_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_manager/bloc/form_data_manager_bloc.dart';
 import 'package:flutter_application_ai/repositories/interface/form_browse_repository.dart';
@@ -121,6 +123,8 @@ Future<void> initDI() async {
         sl<SectionRepository>(),
         sl<FormDataBindingRepository>(),
       ));
+  sl.registerFactory<FormActionBindingService>(
+      () => FormActionBindingService(sl<FormDataBindingService>()));
   sl.registerFactory<FormDataManagerService>(() => FormDataManagerService(
         sl<FormRepository>(),
         sl<FormDataBindingRepository>(),
@@ -162,6 +166,8 @@ Future<void> initDI() async {
       () => FormSelectBloc(sl<FormSelectService>()));
   sl.registerFactory<FormDataBindingBloc>(
       () => FormDataBindingBloc(sl<FormDataBindingService>()));
+  sl.registerFactory<FormActionBindingBloc>(
+      () => FormActionBindingBloc(sl<FormActionBindingService>()));
   sl.registerFactory<FormDataManagerBloc>(
       () => FormDataManagerBloc(sl<FormDataManagerService>()));
   sl.registerFactory<FormBrowseBloc>(

@@ -14,12 +14,15 @@ class FormDataManagerBloc
 
   FormDataManagerBloc(this.formDataManagerService)
       : super(const FormDataManagerState()) {
+    on<CompleteDeleteDialogEvent>(_onCompleteDeleteDialogEvent);
     on<CompleteExportJsonPreviewEvent>(_onCompleteExportJsonPreviewEvent);
     on<CompleteNavigationEvent>(_onCompleteNavigationEvent);
+    on<DeleteBindingEvent>(_onDeleteBindingEvent);
     on<ExportJsonEvent>(_onExportJsonEvent);
     on<InitEvent>(_onInitEvent);
     on<NavigateToDataBindingEvent>(_onNavigateToDataBindingEvent);
     on<PreviewApiExportEvent>(_onPreviewApiExportEvent);
+    on<RequestDeleteBindingEvent>(_onRequestDeleteBindingEvent);
     on<SelectBindingEvent>(_onSelectBindingEvent);
   }
 
@@ -58,6 +61,8 @@ class FormDataManagerBloc
           _findDraft(bindingDrafts, selectedBindingId),
           latestTemplateVersion,
         ),
+        pendingDeleteBindingId: '',
+        pendingDeleteBindingName: '',
         message: '',
       ));
       return;
@@ -83,6 +88,81 @@ class FormDataManagerBloc
     ));
   }
 
+  void _onRequestDeleteBindingEvent(
+    RequestDeleteBindingEvent event,
+    Emitter<FormDataManagerState> emit,
+  ) {
+    final binding = state.bindings.cast<BindingSummary?>().firstWhere(
+          (item) => item?.id == event.bindingId,
+          orElse: () => null,
+        );
+    if (binding == null) {
+      emit(state.copyWith(
+        status: FormDataManagerStatus.failure,
+        message: '找不到要刪除的綁定資料',
+      ));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: FormDataManagerStatus.confirmDeleteBinding,
+      pendingDeleteBindingId: binding.id,
+      pendingDeleteBindingName: binding.name,
+      message: '',
+    ));
+  }
+
+  Future<void> _onDeleteBindingEvent(
+    DeleteBindingEvent event,
+    Emitter<FormDataManagerState> emit,
+  ) async {
+    emit(state.copyWith(
+      status: FormDataManagerStatus.loading,
+      message: '',
+    ));
+
+    final result = await formDataManagerService.deleteBinding(
+      state.formId,
+      event.bindingId,
+    );
+    if (!result.isSuccess) {
+      emit(state.copyWith(
+        status: FormDataManagerStatus.failure,
+        message: result.error ?? '刪除綁定資料失敗',
+      ));
+      return;
+    }
+
+    final remainingDrafts = List<FormDataBindingDraft>.from(state.bindingDrafts)
+      ..removeWhere((draft) => draft.bindingId == event.bindingId);
+    final bindings = _buildBindings(remainingDrafts);
+    final selectedBindingId = bindings.isEmpty
+        ? ''
+        : (state.selectedBindingId == event.bindingId
+            ? bindings.first.id
+            : state.selectedBindingId);
+    final latestTemplateVersion = bindings.fold<int>(
+      0,
+      (current, item) =>
+          item.templateVersion > current ? item.templateVersion : current,
+    );
+
+    emit(state.copyWith(
+      status: FormDataManagerStatus.deleteSuccess,
+      bindings: bindings,
+      bindingDrafts: remainingDrafts,
+      latestTemplateVersion: latestTemplateVersion,
+      selectedBindingId: selectedBindingId,
+      fieldBindings: _buildFieldBindings(
+        _findDraft(remainingDrafts, selectedBindingId),
+        latestTemplateVersion,
+      ),
+      pendingDeleteBindingId: '',
+      pendingDeleteBindingName: '',
+      message: '已刪除綁定資料',
+    ));
+  }
+
   void _onExportJsonEvent(
     ExportJsonEvent event,
     Emitter<FormDataManagerState> emit,
@@ -94,6 +174,14 @@ class FormDataManagerBloc
       emit(state.copyWith(
         status: FormDataManagerStatus.failure,
         message: '目前沒有可匯出的 Json 設定',
+      ));
+      return;
+    }
+
+    if (!selectedBinding.isEnabled) {
+      emit(state.copyWith(
+        status: FormDataManagerStatus.failure,
+        message: '此綁定已停用，無法匯出 Json',
       ));
       return;
     }
@@ -160,6 +248,14 @@ class FormDataManagerBloc
       return;
     }
 
+    if (!selectedBinding.isEnabled) {
+      emit(state.copyWith(
+        status: FormDataManagerStatus.failure,
+        message: '此綁定已停用，無法預覽 API 匯出',
+      ));
+      return;
+    }
+
     if (selectedDraft == null) {
       emit(state.copyWith(
         status: FormDataManagerStatus.failure,
@@ -182,6 +278,18 @@ class FormDataManagerBloc
   ) {
     emit(state.copyWith(
       status: FormDataManagerStatus.success,
+      message: '',
+    ));
+  }
+
+  void _onCompleteDeleteDialogEvent(
+    CompleteDeleteDialogEvent event,
+    Emitter<FormDataManagerState> emit,
+  ) {
+    emit(state.copyWith(
+      status: FormDataManagerStatus.success,
+      pendingDeleteBindingId: '',
+      pendingDeleteBindingName: '',
       message: '',
     ));
   }
@@ -281,6 +389,7 @@ class FormDataManagerBloc
                 ? '已載入 local storage 暫存資料'
                 : '最後更新 ${draft.updatedAt}')
             : draft.bindingDescription,
+        isEnabled: draft.isEnabled,
         templateVersion: draft.templateVersion,
         healthStatus: draft.templateVersion < latestTemplateVersion
             ? BindingHealthStatus.outdated
@@ -343,6 +452,6 @@ class FormDataManagerBloc
 
   String _buildBindingId(String formId) {
     final now = DateTime.now().millisecondsSinceEpoch;
-    return '${formId}_binding_$now';
+    return '${formId}_$now';
   }
 }

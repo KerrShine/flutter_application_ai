@@ -307,6 +307,11 @@ class AppTheme {
             emptyStateIconColor: AppColors.formDesignEmptyStateIconColorDark,
             subtleText: AppColors.formDesignSubtleTextDark,
             faintText: AppColors.formDesignFaintTextDark,
+            actionButtonAccent: AppColors.formDesignActionButtonAccent,
+            actionDropdownAccent: AppColors.formDesignActionDropdownAccent,
+            actionWarning: AppColors.formDesignActionWarning,
+            actionInfo: AppColors.formDesignActionInfo,
+            actionSuccess: AppColors.formDesignActionSuccess,
           )
         : const FormDesignThemeColors(
             pageGradient: [
@@ -352,6 +357,11 @@ class AppTheme {
             emptyStateIconColor: AppColors.formDesignEmptyStateIconColorLight,
             subtleText: AppColors.formDesignSubtleTextLight,
             faintText: AppColors.formDesignFaintTextLight,
+            actionButtonAccent: AppColors.formDesignActionButtonAccent,
+            actionDropdownAccent: AppColors.formDesignActionDropdownAccent,
+            actionWarning: AppColors.formDesignActionWarning,
+            actionInfo: AppColors.formDesignActionInfo,
+            actionSuccess: AppColors.formDesignActionSuccess,
           );
 
     // FormBrowsePage、FormBrowseBodyWidget、FormBrowseSectionListWidget、

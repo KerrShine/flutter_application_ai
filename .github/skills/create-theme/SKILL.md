@@ -1,6 +1,6 @@
 ---
 name: create-theme
-description: "協助建立或修改符合專案架構規範的 Flutter Theme 類別與樣式設定。Use when: 建立 theme、調整主題、管理 AppColors、TextSize、ThemeData、全域 UI 樣式、顏色與字級設定。"
+description: "協助建立或修改符合專案架構規範的 Flutter Theme 類別與樣式設定。Use when: 建立 theme、調整主題、管理 AppColors、TextSize、ThemeData、全域 UI 樣式、顏色與字級設定；產生 widgets 時若涉及樣式，也必須先參考此 Skill。"
 ---
 
 # Create Theme Skill (建立 Theme 功能)
@@ -12,6 +12,7 @@ description: "協助建立或修改符合專案架構規範的 Flutter Theme 類
 - 當使用者要求建立新的 Theme 檔案或調整既有 Theme 設定時。
 - 當你需要集中管理顏色、字體大小、按鈕樣式、輸入框樣式或其他全域 UI 規格時。
 - 當功能頁面出現重複樣式，且應抽離到 Theme 層統一管理時。
+- 當你要產生新的 Widget，且其中涉及顏色、字級、間距、按鈕、輸入框或其他可重用外觀規格時，需先回來參考此 Skill，判斷是否應優先建置在 `lib/theme/`。
 
 ## 規則與慣例 (Rules & Conventions)
 

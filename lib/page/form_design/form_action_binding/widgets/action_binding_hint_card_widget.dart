@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/form_design/form_action_binding/bloc/form_action_binding_bloc.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
+/// 動作綁定提示卡片，用於顯示 warning / info / success 三種語氣的提示訊息。
+/// 依 tone 自動套用對應圖示與顏色，通常放置於右側 Inspector 面板中。
 class ActionBindingHintCardWidget extends StatelessWidget {
   final String text;
   final FormActionBindingHintTone tone;

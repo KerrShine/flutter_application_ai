@@ -5,6 +5,8 @@ import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 import 'action_binding_source_group_widget.dart';
 
+/// 動作綁定左側面板：顯示表單中所有可觸發互動的來源元件清單（按鈕、下拉選單）。
+/// 提供關鍵字搜尋，點選後將選取的元件 itemId 回傳給父層。
 class ActionBindingSourceListWidget extends StatelessWidget {
   final FormActionBindingState state;
   final ValueChanged<String> onSelectSourceItem;

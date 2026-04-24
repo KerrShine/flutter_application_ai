@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/page/form_design/form_action_binding/bloc/form_action_binding_bloc.dart';
 import 'package:flutter_application_ai/service/form_action_binding_service.dart';
 
+/// 單一類型來源元件群組列表（例如「按鈕」或「下拉選單」）。
+/// 顯示該類型下所有可設定動作的元件，並標示目前選取狀態。
 class ActionBindingSourceGroupWidget extends StatelessWidget {
   final String title;
   final List<FormActionSourceItem> items;

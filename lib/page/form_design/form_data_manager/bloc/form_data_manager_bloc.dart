@@ -194,6 +194,34 @@ class FormDataManagerBloc
       return;
     }
 
+    // 依 sourceItemId + triggerType 分組，群組內依 order 排序
+    final actionGroups = <String, List<FormActionBindingDraft>>{};
+    for (final a in selectedDraft.actions) {
+      final key = '${a.sourceItemId}__${a.triggerType.name}';
+      actionGroups.putIfAbsent(key, () => []).add(a);
+    }
+    final actionBindings = actionGroups.values.map((group) {
+      group.sort((a, b) => a.order.compareTo(b.order));
+      final first = group.first;
+      return {
+        'sourceItemId': first.sourceItemId,
+        'sourceLabel': first.sourceLabel,
+        'sourceType': first.sourceType,
+        'triggerType': first.triggerType.name,
+        'steps': group
+            .map((action) => {
+                  'sequence': action.order + 1,
+                  'actionId': action.actionId,
+                  'actionType': action.actionType.name,
+                  'apiId': action.apiId,
+                  'navigateRoute': action.navigateRoute,
+                  'enabled': action.enabled,
+                  'description': action.description,
+                })
+            .toList(),
+      };
+    }).toList();
+
     final preview = const JsonEncoder.withIndent('  ').convert({
       'bindingId': selectedDraft.bindingId,
       'bindingName': selectedDraft.bindingName,
@@ -225,6 +253,7 @@ class FormDataManagerBloc
           }).toList(),
         };
       }).toList(),
+      'actionBindings': actionBindings,
     });
 
     emit(state.copyWith(

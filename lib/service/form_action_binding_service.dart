@@ -2,14 +2,20 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_application_ai/enum/designer_item_type.dart';
+import 'package:flutter_application_ai/model/api_definition.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
+import 'package:flutter_application_ai/repositories/interface/api_catalog_repository.dart';
 import 'package:flutter_application_ai/service/form_data_binding_service.dart';
 import 'package:flutter_application_ai/unit/base/result.dart';
 
 class FormActionBindingService {
   final FormDataBindingService _formDataBindingService;
+  final ApiCatalogRepository _apiCatalogRepository;
 
-  FormActionBindingService(this._formDataBindingService);
+  FormActionBindingService(
+    this._formDataBindingService,
+    this._apiCatalogRepository,
+  );
 
   Future<Result<FormActionBindingInitialData>> initialize(
     String formId, {
@@ -36,11 +42,21 @@ class FormActionBindingService {
       final actionSources = _buildActionSources(draft);
       final previewJson = buildActionPlanPreviewJson(draft, actionSources);
 
+      final apiResult = await _apiCatalogRepository.loadApiList();
+      final apiList = apiResult.isSuccess ? (apiResult.data ?? []) : <ApiDefinition>[];
+
+      final dropdownApiResult = await _apiCatalogRepository.loadDropdownApiList();
+      final dropdownApiList = dropdownApiResult.isSuccess
+          ? (dropdownApiResult.data ?? [])
+          : <ApiDefinition>[];
+
       return Result.success(
         FormActionBindingInitialData(
           draft: draft,
           actionSources: actionSources,
           previewJson: previewJson,
+          apiList: apiList,
+          dropdownApiList: dropdownApiList,
         ),
       );
     } catch (ex) {
@@ -90,29 +106,43 @@ class FormActionBindingService {
     required List<FormActionBindingDraft> actions,
     required List<FormActionSourceItem> actionSources,
   }) {
+    // 依 sourceItemId + triggerType 分組，群組內依 order 排序
+    final actionGroups = <String, List<FormActionBindingDraft>>{};
+    for (final a in actions) {
+      final key = '${a.sourceItemId}__${a.triggerType.name}';
+      actionGroups.putIfAbsent(key, () => []).add(a);
+    }
+    final actionBindings = actionGroups.values.map((group) {
+      group.sort((a, b) => a.order.compareTo(b.order));
+      final first = group.first;
+      return {
+        'sourceItemId': first.sourceItemId,
+        'sourceLabel': first.sourceLabel,
+        'sourceType': first.sourceType,
+        'triggerType': first.triggerType.name,
+        'steps': group
+            .map((action) => {
+                  'sequence': action.order + 1,
+                  'actionId': action.actionId,
+                  'actionType': action.actionType.name,
+                  'apiId': action.apiId,
+                  'targetItemId': action.targetItemId,
+                  'targetLabel': action.targetLabel,
+                  'navigateRoute': action.navigateRoute,
+                  'enabled': action.enabled,
+                  'description': action.description,
+                })
+            .toList(),
+      };
+    }).toList();
+
     final payload = {
       'bindingId': bindingId,
       'bindingName': bindingName,
       'formId': formId,
       'formName': formName,
       'exportMode': 'settings_only',
-      'actions': actions
-          .map(
-            (action) => {
-              'actionId': action.actionId,
-              'sourceItemId': action.sourceItemId,
-              'sourceLabel': action.sourceLabel,
-              'sourceType': action.sourceType,
-              'triggerType': action.triggerType.name,
-              'actionType': action.actionType.name,
-              'enabled': action.enabled,
-              'targetItemId': action.targetItemId,
-              'targetLabel': action.targetLabel,
-              'navigateRoute': action.navigateRoute,
-              'description': action.description,
-            },
-          )
-          .toList(),
+      'actionBindings': actionBindings,
       'actionSources': actionSources
           .map(
             (item) => {
@@ -181,11 +211,15 @@ class FormActionBindingInitialData {
   final FormDataBindingDraft draft;
   final List<FormActionSourceItem> actionSources;
   final String previewJson;
+  final List<ApiDefinition> apiList;
+  final List<ApiDefinition> dropdownApiList;
 
   const FormActionBindingInitialData({
     required this.draft,
     required this.actionSources,
     required this.previewJson,
+    this.apiList = const [],
+    this.dropdownApiList = const [],
   });
 }
 

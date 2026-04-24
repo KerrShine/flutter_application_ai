@@ -10,6 +10,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   MainBloc(this._service) : super(const MainState()) {
     on<InitEvent>(_onInitEvent);
+    on<MainAddShortcutEvent>(_onAddShortcut);
+    on<MainRemoveShortcutEvent>(_onRemoveShortcut);
+    on<MainToggleShortcutEditEvent>(_onToggleShortcutEdit);
   }
 
   Future<void> _onInitEvent(
@@ -17,18 +20,49 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     Emitter<MainState> emit,
   ) async {
     emit(state.copyWith(status: MainStatus.loading));
-    
+
     final result = await _service.initData();
-    
+    final shortcuts = _service.loadShortcuts();
+
     if (result.isSuccess) {
       emit(state.copyWith(
         status: MainStatus.success,
+        shortcuts: shortcuts,
       ));
     } else {
       emit(state.copyWith(
         status: MainStatus.failure,
         message: result.error,
+        shortcuts: shortcuts,
       ));
     }
+  }
+
+  Future<void> _onAddShortcut(
+    MainAddShortcutEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state.shortcuts.contains(event.path)) return;
+    if (state.shortcuts.length >= MainService.maxShortcuts) return;
+
+    final updated = [...state.shortcuts, event.path];
+    emit(state.copyWith(shortcuts: updated));
+    await _service.saveShortcuts(updated);
+  }
+
+  Future<void> _onRemoveShortcut(
+    MainRemoveShortcutEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    final updated = state.shortcuts.where((p) => p != event.path).toList();
+    emit(state.copyWith(shortcuts: updated));
+    await _service.saveShortcuts(updated);
+  }
+
+  void _onToggleShortcutEdit(
+    MainToggleShortcutEditEvent event,
+    Emitter<MainState> emit,
+  ) {
+    emit(state.copyWith(isEditingShortcuts: !state.isEditingShortcuts));
   }
 }

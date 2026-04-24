@@ -5,7 +5,6 @@ import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 class BindingExecutionSummaryWidget extends StatelessWidget {
   final FormDataBindingDraft draft;
   final Map<String, String> fieldErrors;
-  final String Function(String sectionId, String itemId) fieldKeyBuilder;
   final VoidCallback onExportJson;
   final VoidCallback onSave;
 
@@ -13,7 +12,6 @@ class BindingExecutionSummaryWidget extends StatelessWidget {
     super.key,
     required this.draft,
     required this.fieldErrors,
-    required this.fieldKeyBuilder,
     required this.onExportJson,
     required this.onSave,
   });

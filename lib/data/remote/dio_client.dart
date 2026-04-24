@@ -87,6 +87,34 @@ class DioClient {
     return _dio.delete(path);
   }
 
+  // 通用 GET（支援 per-call timeout）
+  Future<Response> getWithTimeout(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    int? timeoutMs,
+  }) async {
+    final options = timeoutMs != null
+        ? Options(receiveTimeout: Duration(milliseconds: timeoutMs))
+        : null;
+    return _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
+  // 通用 POST（支援 per-call timeout）
+  Future<Response> postWithTimeout(
+    String path, {
+    dynamic data,
+    int? timeoutMs,
+  }) async {
+    final options = timeoutMs != null
+        ? Options(receiveTimeout: Duration(milliseconds: timeoutMs))
+        : null;
+    return _dio.post(path, data: data, options: options);
+  }
+
   // 加上 Auth header (可擴充)
   void setToken(String token) {
     _dio.options.headers["Authorization"] = "Bearer $token";

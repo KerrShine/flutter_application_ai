@@ -180,11 +180,33 @@ class _FormActionBindingPageState extends State<FormActionBindingPage> {
                     Expanded(
                       child: ActionBindingPlannerWidget(
                         state: state,
-                        onSelectAction: (action) {
-                          _bloc.add(SelectActionEvent(action));
-                        },
+                        apiList: state.apiList,
+                        dropdownApiList: state.dropdownApiList,
                         onSelectTrigger: (trigger) {
                           _bloc.add(SelectTriggerEvent(trigger));
+                        },
+                        onAddAction: (action) {
+                          _bloc.add(AddActionEvent(action));
+                        },
+                        onRemoveAction: (actionId) {
+                          _bloc.add(RemoveActionEvent(actionId));
+                        },
+                        onMoveUp: (actionId) {
+                          _bloc.add(MoveActionUpEvent(actionId));
+                        },
+                        onMoveDown: (actionId) {
+                          _bloc.add(MoveActionDownEvent(actionId));
+                        },
+                        onUpdateApiId: (actionId, apiId) {
+                          _bloc.add(UpdateActionApiIdEvent(actionId, apiId));
+                        },
+                        onUpdateNavigateRoute: (actionId, route) {
+                          _bloc.add(
+                              UpdateActionNavigateRouteEvent(actionId, route));
+                        },
+                        onUpdateParameterName: (actionId, parameterName) {
+                          _bloc.add(UpdateActionParameterNameEvent(
+                              actionId, parameterName));
                         },
                       ),
                     ),

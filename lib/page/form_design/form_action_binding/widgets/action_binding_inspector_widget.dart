@@ -5,6 +5,8 @@ import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 import 'action_binding_hint_card_widget.dart';
 
+/// 動作綁定右側 Inspector 面板。
+/// 顯示目前綁定的設定摘要、驗證提示，並提供「匯出預覽」與「儲存」按鈕。
 class ActionBindingInspectorWidget extends StatelessWidget {
   final FormActionBindingState state;
   final bool isSaving;

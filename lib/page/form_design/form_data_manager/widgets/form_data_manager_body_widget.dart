@@ -15,6 +15,7 @@ class FormDataManagerBodyWidget extends StatelessWidget {
   final ValueChanged<String> onDeleteBinding;
   final VoidCallback onPreviewApiExport;
   final VoidCallback onExportJson;
+  final VoidCallback? onRunForm;
 
   const FormDataManagerBodyWidget({
     super.key,
@@ -25,6 +26,7 @@ class FormDataManagerBodyWidget extends StatelessWidget {
     required this.onDeleteBinding,
     required this.onPreviewApiExport,
     required this.onExportJson,
+    this.onRunForm,
   });
 
   @override
@@ -102,6 +104,7 @@ class FormDataManagerBodyWidget extends StatelessWidget {
                           child: BindingSummaryPanelWidget(
                             state: state,
                             onExportJson: onExportJson,
+                            onRunForm: onRunForm,
                           ),
                         ),
                       ],

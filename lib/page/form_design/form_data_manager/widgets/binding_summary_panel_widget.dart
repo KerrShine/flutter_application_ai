@@ -7,11 +7,13 @@ import 'binding_summary_card_widget.dart';
 class BindingSummaryPanelWidget extends StatelessWidget {
   final FormDataManagerState state;
   final VoidCallback onExportJson;
+  final VoidCallback? onRunForm;
 
   const BindingSummaryPanelWidget({
     super.key,
     required this.state,
     required this.onExportJson,
+    this.onRunForm,
   });
 
   @override
@@ -85,6 +87,18 @@ class BindingSummaryPanelWidget extends StatelessWidget {
                 children: [
                   Text('操作', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: state.selectedBinding == null ||
+                              !state.selectedBinding!.isEnabled
+                          ? null
+                          : onRunForm,
+                      icon: const Icon(Icons.play_arrow_outlined),
+                      label: const Text('執行表單'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(

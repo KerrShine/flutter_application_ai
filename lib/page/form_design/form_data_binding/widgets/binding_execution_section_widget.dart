@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/enum/designer_item_type.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
+import 'package:flutter_application_ai/theme/form_design_page_theme.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 class BindingExecutionSectionWidget extends StatelessWidget {
   final FormDataBindingSectionDraft section;
-  final Map<String, String> fieldErrors;
-  final String Function(String sectionId, String itemId) fieldKeyBuilder;
+  final String Function(String sectionId, String itemId) fieldErrorBuilder;
   final String Function(String itemId) actionSummaryBuilder;
   final void Function(String sectionId, String itemId) onOpenActionBinding;
   final void Function(String sectionId, String itemId, String outputKey)
@@ -22,8 +22,7 @@ class BindingExecutionSectionWidget extends StatelessWidget {
   const BindingExecutionSectionWidget({
     super.key,
     required this.section,
-    required this.fieldErrors,
-    required this.fieldKeyBuilder,
+    required this.fieldErrorBuilder,
     required this.actionSummaryBuilder,
     required this.onOpenActionBinding,
     required this.onOutputKeyChanged,
@@ -84,9 +83,8 @@ class BindingExecutionSectionWidget extends StatelessWidget {
                 const _HeaderRow(),
                 const SizedBox(height: 8),
                 ...section.fields.map((field) {
-                  final error = fieldErrors[
-                          fieldKeyBuilder(section.sectionId, field.itemId)] ??
-                      '';
+                  final error =
+                      fieldErrorBuilder(section.sectionId, field.itemId);
                   return _FieldRow(
                     sectionId: section.sectionId,
                     field: field,
@@ -194,8 +192,8 @@ class _FieldRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          field.fieldKind == BindingFieldKind.button
-              ? _buildButtonRow(theme, colors)
+          _supportsActionBinding
+              ? _buildActionBindingFieldRow(context, theme, colors, hasError)
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -232,8 +230,9 @@ class _FieldRow extends StatelessWidget {
                           color: colors.headerAccentForeground,
                           fontWeight: FontWeight.w700,
                         ),
-                        decoration: _buildDarkInputDecoration(
-                          colors: colors,
+                        decoration:
+                            FormDesignPageTheme.executionInputDecoration(
+                          context,
                           isDense: true,
                           errorText: hasError && errorText == '套用結果不可為空'
                               ? errorText
@@ -256,8 +255,9 @@ class _FieldRow extends StatelessWidget {
                         dropdownColor: const Color(0xFF262B38),
                         iconEnabledColor: colors.headerAccentForeground,
                         isDense: true,
-                        decoration: _buildDarkInputDecoration(
-                          colors: colors,
+                        decoration:
+                            FormDesignPageTheme.executionInputDecoration(
+                          context,
                           isDense: true,
                         ),
                         items: strategyItems,
@@ -280,8 +280,9 @@ class _FieldRow extends StatelessWidget {
                                 color: colors.headerAccentForeground,
                                 fontWeight: FontWeight.w700,
                               ),
-                              decoration: _buildDarkInputDecoration(
-                                colors: colors,
+                              decoration:
+                                  FormDesignPageTheme.executionInputDecoration(
+                                context,
                                 isDense: true,
                                 errorText: hasError && errorText != '套用結果不可為空'
                                     ? errorText
@@ -329,7 +330,12 @@ class _FieldRow extends StatelessWidget {
     );
   }
 
-  Widget _buildButtonRow(ThemeData theme, FormDesignThemeColors colors) {
+  Widget _buildActionBindingFieldRow(
+    BuildContext context,
+    ThemeData theme,
+    FormDesignThemeColors colors,
+    bool hasError,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -351,7 +357,9 @@ class _FieldRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
-              'button',
+              field.fieldKind == BindingFieldKind.button
+                  ? 'button'
+                  : field.displayTypeLabel,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.headerAccentForeground,
               ),
@@ -360,18 +368,29 @@ class _FieldRow extends StatelessWidget {
         ),
         Expanded(
           flex: 18,
-          child: _ReadonlyValueDisplay(text: '動作綁定', colors: colors),
+          child: field.fieldKind == BindingFieldKind.button
+              ? _ReadonlyValueDisplay(text: '動作綁定', colors: colors)
+              : TextFormField(
+                  initialValue: field.outputKey,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colors.headerAccentForeground,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  decoration: FormDesignPageTheme.executionInputDecoration(
+                    context,
+                    isDense: true,
+                    errorText:
+                        hasError && errorText == '套用結果不可為空' ? errorText : null,
+                  ),
+                  onChanged: (value) {
+                    onOutputKeyChanged(sectionId, field.itemId, value);
+                  },
+                ),
         ),
         const SizedBox(width: 8),
-        Expanded(
-          flex: 12,
-          child: _ReadonlyValueDisplay(text: '略過', colors: colors),
-        ),
+        const Expanded(flex: 12, child: SizedBox.shrink()),
         const SizedBox(width: 8),
-        Expanded(
-          flex: 18,
-          child: _ReadonlyValueDisplay(text: '預設行為', colors: colors),
-        ),
+        const Expanded(flex: 18, child: SizedBox.shrink()),
       ],
     );
   }
@@ -380,6 +399,15 @@ class _FieldRow extends StatelessWidget {
     ThemeData theme,
     FormDesignThemeColors colors,
   ) {
+    final hasSelectedActions = actionSummary != '尚未選擇動作';
+    final actionItems = hasSelectedActions
+        ? actionSummary
+            .split('\n')
+            .map((item) => item.replaceFirst('• ', '').trim())
+            .where((item) => item.isNotEmpty)
+            .toList()
+        : const <String>[];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -391,30 +419,87 @@ class _FieldRow extends StatelessWidget {
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '已選動作',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: colors.headerAccentForeground,
-                    fontWeight: FontWeight.w700,
+            child: hasSelectedActions
+                ? Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              colors.sectionIconColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: colors.sectionIconColor.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: colors.sectionIconColor,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '已設定完畢',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: colors.headerAccentForeground,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ...actionItems.map(
+                        (item) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.headerChipBackground
+                                .withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: colors.headerChipText.withValues(
+                                alpha: 0.16,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            item,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colors.headerAccentForeground,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '尚未設定',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: colors.faintText,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  actionSummary == '尚未選擇動作'
-                      ? '此元件支援後續動作設定，可進入獨立頁面管理跳轉與其他觸發行為。'
-                      : actionSummary,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.faintText,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
           ),
           const SizedBox(width: 12),
           FilledButton.icon(
@@ -425,50 +510,6 @@ class _FieldRow extends StatelessWidget {
             label: Text(actionSummary == '尚未選擇動作' ? '設定動作' : '調整動作'),
           ),
         ],
-      ),
-    );
-  }
-
-  String _helperText(FormDataBindingFieldDraft field) {
-    switch (field.valueType) {
-      case BindingFieldValueType.number:
-        return '請輸入數字';
-      case BindingFieldValueType.date:
-        return '請輸入 yyyy-MM-dd';
-      case BindingFieldValueType.file:
-        return '可輸入 File 類別或附件範例';
-      case BindingFieldValueType.string:
-        return '可輸入任意字串';
-    }
-  }
-
-  InputDecoration _buildDarkInputDecoration({
-    required FormDesignThemeColors colors,
-    required bool isDense,
-    String? errorText,
-  }) {
-    return InputDecoration(
-      isDense: isDense,
-      filled: true,
-      fillColor: const Color(0xFF2A2A2A),
-      errorText: errorText,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide:
-            BorderSide(color: colors.shellBorder.withValues(alpha: 0.7)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: colors.sectionIconColor, width: 1.4),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFE07A7A)),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFFF9B9B), width: 1.4),
       ),
     );
   }

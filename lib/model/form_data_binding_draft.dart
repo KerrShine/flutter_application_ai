@@ -47,6 +47,9 @@ class FormActionBindingDraft extends Equatable {
   final String targetLabel;
   final String navigateRoute;
   final String description;
+  final String apiId;
+  final String parameterName;
+  final int order;
 
   const FormActionBindingDraft({
     this.actionId = '',
@@ -60,6 +63,9 @@ class FormActionBindingDraft extends Equatable {
     this.targetLabel = '',
     this.navigateRoute = '',
     this.description = '',
+    this.apiId = '',
+    this.parameterName = '',
+    this.order = 0,
   });
 
   FormActionBindingDraft copyWith({
@@ -74,6 +80,9 @@ class FormActionBindingDraft extends Equatable {
     String? targetLabel,
     String? navigateRoute,
     String? description,
+    String? apiId,
+    String? parameterName,
+    int? order,
   }) {
     return FormActionBindingDraft(
       actionId: actionId ?? this.actionId,
@@ -87,6 +96,9 @@ class FormActionBindingDraft extends Equatable {
       targetLabel: targetLabel ?? this.targetLabel,
       navigateRoute: navigateRoute ?? this.navigateRoute,
       description: description ?? this.description,
+      apiId: apiId ?? this.apiId,
+      parameterName: parameterName ?? this.parameterName,
+      order: order ?? this.order,
     );
   }
 
@@ -135,6 +147,9 @@ class FormActionBindingDraft extends Equatable {
       'targetLabel': targetLabel,
       'navigateRoute': navigateRoute,
       'description': description,
+      'apiId': apiId,
+      'parameterName': parameterName,
+      'order': order,
     };
   }
 
@@ -157,6 +172,9 @@ class FormActionBindingDraft extends Equatable {
       targetLabel: map['targetLabel'] ?? '',
       navigateRoute: map['navigateRoute'] ?? '',
       description: map['description'] ?? '',
+      apiId: map['apiId'] ?? '',
+      parameterName: map['parameterName'] ?? '',
+      order: (map['order'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -173,6 +191,9 @@ class FormActionBindingDraft extends Equatable {
         targetLabel,
         navigateRoute,
         description,
+        apiId,
+        parameterName,
+        order,
       ];
 }
 

@@ -21,6 +21,7 @@ import 'package:flutter_application_ai/page/employee/emp_info/emp_info_page.dart
 import 'package:flutter_application_ai/page/employee/emp_manager/emp_manager_guide_page.dart';
 import 'package:flutter_application_ai/page/employee/emp_role/emp_role_page.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
+import 'package:flutter_application_ai/page/form_design/form_run/form_run_page.dart';
 
 class RouteName {
   static const String loginPage = '/login';
@@ -48,6 +49,7 @@ class RouteName {
       '/home/form-manage/form-data-manager';
   static const String formDesignPage = '/home/form-manage/form-design';
   static const String formBrowsePage = '/home/form-browse';
+  static const String formRunPage = '/home/form-run';
 }
 
 class AppRouter {
@@ -122,6 +124,16 @@ class AppRouter {
               return FormSectionDesignPage(
                 returnFormId: returnFormId,
                 editSectionId: editSectionId,
+              );
+            },
+          ),
+          GoRoute(
+            path: RouteName.formRunPage,
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              return FormRunPage(
+                formId: extra?['formId'] as String? ?? '',
+                bindingId: extra?['bindingId'] as String? ?? '',
               );
             },
           ),

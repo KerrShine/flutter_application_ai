@@ -31,3 +31,4 @@ flutter:
   assets:
     - assets/
     - assets/wellan_icon.png
+    - lib/data/tempData/dropdown_options_sample.json

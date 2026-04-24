@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-04-23T00:00:00.000",
+  "description": "下拉選單 API 回傳選項範例（tempdata）。每筆對應一支 API 路徑，response 欄位為後端實際回傳結構，dataSourceKey 為取值鍵名。",
+  "sources": [
+    {
+      "_comment": "─── 範例 1：巢狀物件格式，dataSourceKey = data ───",
+      "apiId": "leave_type_options_api",
+      "apiName": "請假類型選項",
+      "dataSourceKey": "data",
+      "response": {
+        "code": 200,
+        "message": "success",
+        "data": [
+          "年假",
+          "病假",
+          "事假",
+          "婚假",
+          "喪假",
+          "公假",
+          "陪產假"
+        ]
+      }
+    },
+    {
+      "_comment": "─── 範例 2：巢狀物件格式，dataSourceKey = items ───",
+      "apiId": "department_options_api",
+      "apiName": "部門清單選項",
+      "dataSourceKey": "items",
+      "response": {
+        "code": 200,
+        "message": "success",
+        "items": [
+          "研發部",
+          "業務部",
+          "行政部",
+          "財務部",
+          "人資部",
+          "採購部",
+          "品保部"
+        ]
+      }
+    },
+    {
+      "_comment": "─── 範例 3：純陣列格式，dataSourceKey 留空 ───",
+      "apiId": "expense_category_options_api",
+      "apiName": "費用類別選項",
+      "dataSourceKey": "",
+      "response": [
+        "餐費",
+        "交通費",
+        "住宿費",
+        "教育訓練費",
+        "購置設備費",
+        "其他"
+      ]
+    },
+    {
+      "_comment": "─── 範例 4：value/label 物件陣列，dataSourceKey = data（前端取 label 欄位顯示）───",
+      "apiId": "approval_role_options_api",
+      "apiName": "簽核角色選項",
+      "dataSourceKey": "data",
+      "response": {
+        "code": 200,
+        "message": "success",
+        "data": [
+          { "value": "approver_mgr", "label": "直屬主管" },
+          { "value": "approver_hr",  "label": "人事主管" },
+          { "value": "approver_fin", "label": "財務主管" },
+          { "value": "approver_gm",  "label": "總經理" }
+        ]
+      }
+    }
+  ]
+}

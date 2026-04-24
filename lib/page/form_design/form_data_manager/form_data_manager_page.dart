@@ -182,6 +182,17 @@ class _FormDataManagerPageState extends State<FormDataManagerPage> {
       onExportJson: () {
         _bloc.add(const ExportJsonEvent());
       },
+      onRunForm: state.selectedBinding == null
+          ? null
+          : () {
+              context.push(
+                RouteName.formRunPage,
+                extra: {
+                  'formId': state.formId,
+                  'bindingId': state.selectedBinding!.id,
+                },
+              );
+            },
     );
   }
 }

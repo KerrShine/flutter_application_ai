@@ -1,6 +1,6 @@
 ---
 name: create-page
-description: 協助建立符合專案架構規範的 Flutter Page 類別 (Generates Flutter Page classes following the project's architecture guidelines).
+description: 協助建立符合專案架構規範的 Flutter Page 類別 (Generates Flutter Page classes following the project's architecture guidelines, and page theme styling must reference create-theme when applicable).
 ---
 
 # Create Page Skill (建立 Page 功能)
@@ -11,6 +11,7 @@ description: 協助建立符合專案架構規範的 Flutter Page 類別 (Genera
 
 - 當使用者要求建立新的 "Page"、"畫面" 或 "View" 時。
 - 當你需要新增一個完整的功能頁面並連接 BLoC 時。
+- 當頁面涉及 Theme、表單樣式、輸入框、按鈕、色彩或其他可重用 UI 規格時，需同步參考 `create-theme` Skill。
 
 ## 規則與慣例 (Rules & Conventions)
 
@@ -21,6 +22,7 @@ description: 協助建立符合專案架構規範的 Flutter Page 類別 (Genera
    - View 層**嚴禁**處理商業邏輯、API 呼叫、資料計算、驗證邏輯、操作 Repository 或 Service 等內容。
    - View 層職責僅限於：畫面呈現、收集使用者互動、發送 BLoC Event、顯示 State 結果。
    - Navigator 操作邏輯通常外推至 RouteName / AppRouter ，View 只能觸發「導航事件」(Event)，導航決策可在 BLoC/外層協調層處理。
+  - 若頁面需要建立或調整 Theme，尤其是表單 Theme、輸入框樣式、按鈕樣式或頁面共用外觀規格時，必須先參考 `create-theme` Skill，優先評估是否應抽到 `lib/theme/`。
 
 2. **BLoC 注入與生命週期 (BLoC Injection & Lifecycle)**:
    - 透過 `get_it` (即 `sl<[Name]Service>()`) 取出 Service 注入給 BLoC (或其他所需相依元件)。
@@ -43,6 +45,7 @@ description: 協助建立符合專案架構規範的 Flutter Page 類別 (Genera
    - 元件 (Widget) 頁面使用 `StatelessWidget`。
    - 檔名後方必須 `_widget.dart` 結尾 (例如: `login_widget.dart`)。
    - Widget 不得呼叫 Service、Repository 或執行資料處理，所有邏輯必須由 BLoC 事件觸發，或透過 CallBack 將事件或結果傳回 Parent。
+   - 每個 Widget class 定義前，**必須**加上一行 `///` 文件註解，簡述此 Widget 的目的與用途（例如：顯示什麼內容、在哪個頁面使用、接受哪些關鍵 props）。
 
 ## 程式碼模板 (Template)
 

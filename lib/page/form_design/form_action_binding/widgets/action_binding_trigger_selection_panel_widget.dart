@@ -1,24 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/model/api_definition.dart';
+import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
 import 'package:flutter_application_ai/service/form_action_binding_service.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
 import 'action_binding_planning_placeholder_widget.dart';
 import 'action_binding_trigger_card_widget.dart';
 
+/// 動作綁定中間面板：顯示所選來源元件的可用觸發事件列表，
+/// 以及目前觸發對應的動作序列設定區（ActionBindingPlanningPlaceholderWidget）。
 class ActionBindingTriggerSelectionPanelWidget extends StatelessWidget {
   final FormActionSourceItem selected;
-  final String selectedActionName;
   final String selectedTrigger;
-  final ValueChanged<String> onSelectAction;
+  final List<FormActionBindingDraft> triggerActions;
+  final List<ApiDefinition> apiList;
+  final List<ApiDefinition> dropdownApiList;
   final ValueChanged<String> onSelectTrigger;
+  final ValueChanged<String> onAddAction;
+  final ValueChanged<String> onRemoveAction;
+  final ValueChanged<String> onMoveUp;
+  final ValueChanged<String> onMoveDown;
+  final void Function(String actionId, String apiId) onUpdateApiId;
+  final void Function(String actionId, String route) onUpdateNavigateRoute;
+  final void Function(String actionId, String parameterName) onUpdateParameterName;
 
   const ActionBindingTriggerSelectionPanelWidget({
     super.key,
     required this.selected,
-    required this.selectedActionName,
     required this.selectedTrigger,
-    required this.onSelectAction,
+    required this.triggerActions,
+    this.apiList = const [],
+    this.dropdownApiList = const [],
     required this.onSelectTrigger,
+    required this.onAddAction,
+    required this.onRemoveAction,
+    required this.onMoveUp,
+    required this.onMoveDown,
+    required this.onUpdateApiId,
+    required this.onUpdateNavigateRoute,
+    required this.onUpdateParameterName,
   });
 
   @override
@@ -71,9 +91,17 @@ class ActionBindingTriggerSelectionPanelWidget extends StatelessWidget {
                 }),
                 ActionBindingPlanningPlaceholderWidget(
                   selected: selected,
-                  selectedActionName: selectedActionName,
                   selectedTrigger: selectedTrigger,
-                  onSelectAction: onSelectAction,
+                  triggerActions: triggerActions,
+                  apiList: apiList,
+                  dropdownApiList: dropdownApiList,
+                  onAddAction: onAddAction,
+                  onRemoveAction: onRemoveAction,
+                  onMoveUp: onMoveUp,
+                  onMoveDown: onMoveDown,
+                  onUpdateApiId: onUpdateApiId,
+                  onUpdateNavigateRoute: onUpdateNavigateRoute,
+                  onUpdateParameterName: onUpdateParameterName,
                 ),
               ],
             ),

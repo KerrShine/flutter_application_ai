@@ -47,6 +47,43 @@ class FormDataBindingState extends Equatable {
 
   int get errorCount => fieldErrors.length;
 
+  String actionSummaryForItem(String itemId) {
+    final actions = draft.actions.where((item) {
+      return item.sourceItemId == itemId && item.enabled;
+    }).toList()
+      ..sort((left, right) {
+        return _actionTriggerSortOrder(left.triggerType)
+            .compareTo(_actionTriggerSortOrder(right.triggerType));
+      });
+
+    if (actions.isEmpty) {
+      return '尚未選擇動作';
+    }
+
+    return actions.map((item) {
+      return '• ${formActionTriggerDisplayName(item.triggerType.name)} / ${formActionDisplayName(item.actionType.name)}';
+    }).join('\n');
+  }
+
+  String errorForField(String sectionId, String itemId) {
+    return fieldErrors[_buildFieldKey(sectionId, itemId)] ?? '';
+  }
+
+  int _actionTriggerSortOrder(ActionTriggerType triggerType) {
+    switch (triggerType) {
+      case ActionTriggerType.buttonPressed:
+        return 0;
+      case ActionTriggerType.dropdownChanged:
+        return 0;
+      case ActionTriggerType.dropdownLoaded:
+        return 1;
+    }
+  }
+
+  String _buildFieldKey(String sectionId, String itemId) {
+    return '$sectionId::$itemId';
+  }
+
   FormDataBindingState copyWith({
     FormDataBindingStatus? status,
     String? message,

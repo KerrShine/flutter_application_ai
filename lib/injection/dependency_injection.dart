@@ -62,6 +62,10 @@ import 'package:flutter_application_ai/page/employee/emp_dep/bloc/emp_dep_bloc.d
 import 'package:flutter_application_ai/page/employee/emp_manager/bloc/emp_manager_bloc.dart';
 import 'package:flutter_application_ai/page/employee/emp_info/bloc/emp_info_bloc.dart';
 import 'package:flutter_application_ai/page/employee/emp_role/bloc/emp_role_bloc.dart';
+import 'package:flutter_application_ai/repositories/interface/api_catalog_repository.dart';
+import 'package:flutter_application_ai/repositories/api_catalog_repository_impl.dart';
+import 'package:flutter_application_ai/service/form_run_service.dart';
+import 'package:flutter_application_ai/page/form_design/form_run/bloc/form_run_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -93,6 +97,8 @@ Future<void> initDI() async {
       () => SectionRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<FormBrowseRepository>(
       () => FormBrowseRepositoryImpl(sl<LocalStorage>()));
+  sl.registerFactory<ApiCatalogRepository>(
+      () => ApiCatalogRepositoryImpl());
   sl.registerFactory<EmpInfoRepository>(
       () => EmpInfoRepositoryImpl(sl<LocalStorage>()));
   sl.registerFactory<EmpAgentRepository>(
@@ -124,7 +130,10 @@ Future<void> initDI() async {
         sl<FormDataBindingRepository>(),
       ));
   sl.registerFactory<FormActionBindingService>(
-      () => FormActionBindingService(sl<FormDataBindingService>()));
+      () => FormActionBindingService(
+        sl<FormDataBindingService>(),
+        sl<ApiCatalogRepository>(),
+      ));
   sl.registerFactory<FormDataManagerService>(() => FormDataManagerService(
         sl<FormRepository>(),
         sl<FormDataBindingRepository>(),
@@ -132,9 +141,16 @@ Future<void> initDI() async {
       ));
   sl.registerFactory<FormBrowseService>(
       () => FormBrowseService(sl<FormBrowseRepository>()));
+  sl.registerFactory<FormRunService>(() => FormRunService(
+        sl<FormBrowseRepository>(),
+        sl<FormDataBindingRepository>(),
+        sl<ApiCatalogRepository>(),
+        sl<LocalStorage>(),
+        sl<DioClient>(),
+      ));
   sl.registerFactory<OrgDesignService>(
       () => OrgDesignService(sl<OrgDesignRepository>()));
-  sl.registerFactory<MainService>(() => MainService());
+  sl.registerFactory<MainService>(() => MainService(sl<LocalStorage>()));
   sl.registerFactory<EmpManagerService>(() => EmpManagerService());
   sl.registerFactory<EmpAgentService>(() => EmpAgentService(
         sl<EmpAgentRepository>(),
@@ -172,6 +188,8 @@ Future<void> initDI() async {
       () => FormDataManagerBloc(sl<FormDataManagerService>()));
   sl.registerFactory<FormBrowseBloc>(
       () => FormBrowseBloc(sl<FormBrowseService>()));
+  sl.registerFactory<FormRunBloc>(
+      () => FormRunBloc(sl<FormRunService>()));
   sl.registerFactory<OrgManagerBloc>(
       () => OrgManagerBloc(sl<OrgDesignService>()));
   sl.registerFactory<OrgDesignConfigBloc>(

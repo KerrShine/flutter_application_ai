@@ -40,6 +40,8 @@ class FormActionBindingState extends Equatable {
   final String selectedTrigger;
   final String previewJson;
   final List<FormActionBindingDraft> actions;
+  final List<ApiDefinition> apiList;
+  final List<ApiDefinition> dropdownApiList;
 
   const FormActionBindingState({
     this.status = FormActionBindingStatus.init,
@@ -55,6 +57,8 @@ class FormActionBindingState extends Equatable {
     this.selectedTrigger = '',
     this.previewJson = '',
     this.actions = const [],
+    this.apiList = const [],
+    this.dropdownApiList = const [],
   });
 
   List<FormActionSourceItem> get filteredSourceItems {
@@ -117,6 +121,8 @@ class FormActionBindingState extends Equatable {
     String? selectedTrigger,
     String? previewJson,
     List<FormActionBindingDraft>? actions,
+    List<ApiDefinition>? apiList,
+    List<ApiDefinition>? dropdownApiList,
   }) {
     return FormActionBindingState(
       status: status ?? this.status,
@@ -132,6 +138,8 @@ class FormActionBindingState extends Equatable {
       selectedTrigger: selectedTrigger ?? this.selectedTrigger,
       previewJson: previewJson ?? this.previewJson,
       actions: actions ?? this.actions,
+      apiList: apiList ?? this.apiList,
+      dropdownApiList: dropdownApiList ?? this.dropdownApiList,
     );
   }
 
@@ -150,6 +158,8 @@ class FormActionBindingState extends Equatable {
         selectedTrigger,
         previewJson,
         actions,
+        apiList,
+        dropdownApiList,
       ];
 
   String _sourceTypeLabel(String sourceType) {

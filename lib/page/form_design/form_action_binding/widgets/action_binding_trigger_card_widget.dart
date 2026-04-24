@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/service/form_action_binding_service.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 
+/// 單一觸發事件選項卡（例如「點擊事件」、「載入完成事件」）。
+/// 顯示事件名稱與說明，被選取時以 accent 色框標示，點選後回傳事件名稱。
 class ActionBindingTriggerCardWidget extends StatelessWidget {
   final FormActionSourceItem selected;
   final String trigger;

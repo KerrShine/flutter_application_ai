@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/model/api_definition.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
 import 'package:flutter_application_ai/service/form_action_binding_service.dart';
 
@@ -17,6 +18,13 @@ class FormActionBindingBloc
     on<RequestExportPreviewEvent>(_onRequestExportPreviewEvent);
     on<SaveActionSettingsEvent>(_onSaveActionSettingsEvent);
     on<SelectActionEvent>(_onSelectActionEvent);
+    on<AddActionEvent>(_onAddActionEvent);
+    on<RemoveActionEvent>(_onRemoveActionEvent);
+    on<MoveActionUpEvent>(_onMoveActionUpEvent);
+    on<MoveActionDownEvent>(_onMoveActionDownEvent);
+    on<UpdateActionApiIdEvent>(_onUpdateActionApiIdEvent);
+    on<UpdateActionNavigateRouteEvent>(_onUpdateActionNavigateRouteEvent);
+    on<UpdateActionParameterNameEvent>(_onUpdateActionParameterNameEvent);
     on<SelectSourceItemEvent>(_onSelectSourceItemEvent);
     on<SelectTriggerEvent>(_onSelectTriggerEvent);
     on<UpdateSearchKeywordEvent>(_onUpdateSearchKeywordEvent);
@@ -86,6 +94,8 @@ class FormActionBindingBloc
       selectedTrigger: selectedTrigger,
       previewJson: data?.previewJson ?? '',
       actions: draft?.actions ?? const <FormActionBindingDraft>[],
+      apiList: data?.apiList ?? const <ApiDefinition>[],
+      dropdownApiList: data?.dropdownApiList ?? const <ApiDefinition>[],
       message: '',
     ));
   }
@@ -170,6 +180,215 @@ class FormActionBindingBloc
       ),
       message: '',
     ));
+  }
+
+  void _onAddActionEvent(
+    AddActionEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final selected = state.selectedSourceItem;
+    if (selected == null || state.selectedTrigger.isEmpty) return;
+
+    final actionType = _resolveActionType(event.action);
+    final triggerType = _resolveTriggerType(state.selectedTrigger);
+    if (actionType == null || triggerType == null) return;
+
+    final existingOrders = state.actions
+        .where((a) =>
+            a.sourceItemId == selected.itemId && a.triggerType == triggerType)
+        .map((a) => a.order);
+    final nextOrder =
+        existingOrders.isEmpty ? 0 : existingOrders.reduce((a, b) => a > b ? a : b) + 1;
+
+    final newAction = FormActionBindingDraft(
+      actionId:
+          '${selected.itemId}_${state.selectedTrigger}_${event.action}_$nextOrder',
+      sourceItemId: selected.itemId,
+      sourceLabel: selected.label,
+      sourceType: selected.sourceType,
+      triggerType: triggerType,
+      actionType: actionType,
+      enabled: true,
+      order: nextOrder,
+      description: _buildActionDescription(
+        trigger: state.selectedTrigger,
+        action: event.action,
+      ),
+    );
+
+    final actions = List<FormActionBindingDraft>.from(state.actions)
+      ..add(newAction);
+
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      previewJson:
+          _formActionBindingService.buildActionPlanPreviewJsonFromState(
+        bindingId: state.bindingId,
+        bindingName: state.bindingName,
+        formId: state.formId,
+        formName: state.formName,
+        actions: actions,
+        actionSources: state.sourceItems,
+      ),
+      message: '',
+    ));
+  }
+
+  void _onRemoveActionEvent(
+    RemoveActionEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = List<FormActionBindingDraft>.from(state.actions)
+      ..removeWhere((a) => a.actionId == event.actionId);
+
+    // 重新排序 order（針對同 source + trigger 的動作）
+    final reordered = _reorderActions(actions);
+
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: reordered),
+      actions: reordered,
+      previewJson:
+          _formActionBindingService.buildActionPlanPreviewJsonFromState(
+        bindingId: state.bindingId,
+        bindingName: state.bindingName,
+        formId: state.formId,
+        formName: state.formName,
+        actions: reordered,
+        actionSources: state.sourceItems,
+      ),
+      message: '',
+    ));
+  }
+
+  void _onMoveActionUpEvent(
+    MoveActionUpEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = _swapOrder(state.actions, event.actionId, moveUp: true);
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      message: '',
+    ));
+  }
+
+  void _onMoveActionDownEvent(
+    MoveActionDownEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = _swapOrder(state.actions, event.actionId, moveUp: false);
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      message: '',
+    ));
+  }
+
+  void _onUpdateActionApiIdEvent(
+    UpdateActionApiIdEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = state.actions.map((a) {
+      if (a.actionId != event.actionId) return a;
+      return a.copyWith(apiId: event.apiId);
+    }).toList();
+
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      message: '',
+    ));
+  }
+
+  void _onUpdateActionNavigateRouteEvent(
+    UpdateActionNavigateRouteEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = state.actions.map((a) {
+      if (a.actionId != event.actionId) return a;
+      return a.copyWith(navigateRoute: event.route);
+    }).toList();
+
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      message: '',
+    ));
+  }
+
+  void _onUpdateActionParameterNameEvent(
+    UpdateActionParameterNameEvent event,
+    Emitter<FormActionBindingState> emit,
+  ) {
+    final actions = state.actions.map((a) {
+      if (a.actionId != event.actionId) return a;
+      return a.copyWith(parameterName: event.parameterName);
+    }).toList();
+
+    emit(state.copyWith(
+      status: FormActionBindingStatus.ready,
+      draft: state.draft.copyWith(actions: actions),
+      actions: actions,
+      message: '',
+    ));
+  }
+
+  List<FormActionBindingDraft> _reorderActions(
+    List<FormActionBindingDraft> actions,
+  ) {
+    final groups = <String, List<FormActionBindingDraft>>{};
+    for (final a in actions) {
+      final key = '${a.sourceItemId}_${a.triggerType.name}';
+      groups.putIfAbsent(key, () => []).add(a);
+    }
+    final result = <FormActionBindingDraft>[];
+    for (final group in groups.values) {
+      group.sort((a, b) => a.order.compareTo(b.order));
+      for (var i = 0; i < group.length; i++) {
+        result.add(group[i].copyWith(order: i));
+      }
+    }
+    return result;
+  }
+
+  List<FormActionBindingDraft> _swapOrder(
+    List<FormActionBindingDraft> actions,
+    String actionId, {
+    required bool moveUp,
+  }) {
+    final target =
+        actions.cast<FormActionBindingDraft?>().firstWhere(
+              (a) => a?.actionId == actionId,
+              orElse: () => null,
+            );
+    if (target == null) return actions;
+
+    final siblings = actions
+        .where((a) =>
+            a.sourceItemId == target.sourceItemId &&
+            a.triggerType == target.triggerType)
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    final idx = siblings.indexWhere((a) => a.actionId == actionId);
+    final swapIdx = moveUp ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= siblings.length) return actions;
+
+    final swapTarget = siblings[swapIdx];
+    final updatedActions = actions.map((a) {
+      if (a.actionId == target.actionId) return a.copyWith(order: swapTarget.order);
+      if (a.actionId == swapTarget.actionId) return a.copyWith(order: target.order);
+      return a;
+    }).toList();
+
+    return updatedActions;
   }
 
   Future<void> _onSaveActionSettingsEvent(

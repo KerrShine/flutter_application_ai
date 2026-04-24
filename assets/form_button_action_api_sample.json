@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-04-21T16:30:00.000",
+  "description": "可供動態表單控制元件挑選的 API 清單範例",
+  "apiList": [
+    {
+      "apiId": "leave_submit_api",
+      "apiName": "請假單送出",
+      "method": "POST",
+      "path": "/api/leave/submit",
+      "timeoutMs": 30000,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "bodyTemplate": {}
+    },
+    {
+      "apiId": "leave_save_draft_api",
+      "apiName": "請假單遠端暫存",
+      "method": "POST",
+      "path": "/api/leave/save-draft",
+      "timeoutMs": 30000,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "bodyTemplate": {}
+    }
+  ]
+}

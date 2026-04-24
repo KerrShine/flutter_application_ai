@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l \"/c/develop/flutter/examples/antigravity_test/flutter_application_ai/lib/page/form_design/form_action_binding/widgets/\"*.dart)"
+    ]
+  }
+}

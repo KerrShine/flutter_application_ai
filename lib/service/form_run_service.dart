@@ -79,9 +79,16 @@ class FormRunService {
       }
 
       final apiResult = await _apiCatalogRepository.loadApiList();
+      final dropdownApiResult =
+          await _apiCatalogRepository.loadDropdownApiList();
       final apiMap = <String, ApiDefinition>{};
       if (apiResult.isSuccess) {
         for (final api in apiResult.data ?? []) {
+          apiMap[api.apiId] = api;
+        }
+      }
+      if (dropdownApiResult.isSuccess) {
+        for (final api in dropdownApiResult.data ?? []) {
           apiMap[api.apiId] = api;
         }
       }
@@ -163,7 +170,6 @@ class FormRunService {
   Future<Result<List<String>>> executeLoadDropdownOptions(
     FormActionBindingDraft action,
     Map<String, ApiDefinition> apiMap,
-    String dataSourceKey,
   ) async {
     try {
       final api = apiMap[action.apiId];
@@ -171,7 +177,7 @@ class FormRunService {
         return Result.failure('找不到 API 定義：${action.apiId}');
       }
 
-      // 從 assets 讀取 dropdown_options_sample.json
+      // 從 assets 讀取 dropdown_options_sample.json（後續替換為 call api）
       final raw = await rootBundle.loadString(_dropdownSampleAsset);
       if (raw.isEmpty) {
         return Result.failure('找不到下拉選項範例資料（$_dropdownSampleAsset）');
@@ -190,7 +196,10 @@ class FormRunService {
         return Result.failure('找不到 apiId「${action.apiId}」的下拉選項資料');
       }
 
-      final key = (source['dataSourceKey'] as String? ?? '').trim();
+      // 優先使用 action 設定的 parameterName，fallback 到 JSON 內的 dataSourceKey
+      final key = action.parameterName.isNotEmpty
+          ? action.parameterName.trim()
+          : (source['dataSourceKey'] as String? ?? '').trim();
       final response = source['response'];
       List<dynamic> rawList;
 

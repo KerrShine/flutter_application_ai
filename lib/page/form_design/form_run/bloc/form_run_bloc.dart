@@ -54,10 +54,22 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       clearApiResponse: true,
     ));
 
+    // DEBUG: 檢查 apiMap 內容
+    // ignore: avoid_print
+    print('[FormRunBloc] apiMap keys: ${data.apiMap.keys.toList()}');
+    // ignore: avoid_print
+    print('[FormRunBloc] actions count: ${data.draft.actions.length}');
+    for (final a in data.draft.actions) {
+      // ignore: avoid_print
+      print('[FormRunBloc]   action: ${a.actionId} | type=${a.actionType.name} | apiId="${a.apiId}" | parameterName="${a.parameterName}" | source=${a.sourceItemId}');
+    }
+
     // 自動觸發 dropdownLoaded 事件
     for (final section in data.draft.sections) {
       for (final field in section.fields) {
         if (field.sourceType == 'dropdown') {
+          // ignore: avoid_print
+          print('[FormRunBloc] 觸發 DropdownLoadedEvent: itemId=${field.itemId}, label=${field.label}');
           add(FormRunDropdownLoadedEvent(field.itemId));
         }
       }
@@ -180,6 +192,20 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     FormRunDropdownLoadedEvent event,
     Emitter<FormRunState> emit,
   ) async {
+    // ignore: avoid_print
+    print('[FormRunBloc] _onDropdownLoaded: itemId=${event.itemId}');
+
+    // DEBUG: 列出所有 actions 供比對
+    final allMatching = state.draft.actions.where((a) =>
+        a.sourceItemId == event.itemId &&
+        a.triggerType == ActionTriggerType.dropdownLoaded);
+    // ignore: avoid_print
+    print('[FormRunBloc]   matching actions for this dropdown (dropdownLoaded): ${allMatching.length}');
+    for (final m in allMatching) {
+      // ignore: avoid_print
+      print('[FormRunBloc]     -> actionType=${m.actionType.name}, apiId="${m.apiId}", parameterName="${m.parameterName}"');
+    }
+
     final action = state.draft.actions
         .cast<FormActionBindingDraft?>()
         .firstWhere(
@@ -190,26 +216,29 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
           orElse: () => null,
         );
 
-    if (action == null) return;
+    if (action == null) {
+      // ignore: avoid_print
+      print('[FormRunBloc]   ❌ 找不到 loadDropdownOptions action，跳過');
+      return;
+    }
 
-    // 有 apiId → 從 API 取得選項
+    // ignore: avoid_print
+    print('[FormRunBloc]   ✅ 找到 action: apiId="${action.apiId}", parameterName="${action.parameterName}"');
+
+    // 有 apiId → 從 API 取得選項（使用 action.parameterName 作為取值 key）
     if (action.apiId.isNotEmpty) {
-      // 找 dataSourceKey（來自 DesignerItem）
-      String dataSourceKey = '';
-      for (final section in state.sections) {
-        for (final item in section.items) {
-          if (item.id == event.itemId) {
-            dataSourceKey = item.dataSourceKey;
-            break;
-          }
-        }
-      }
+      // ignore: avoid_print
+      print('[FormRunBloc]   呼叫 executeLoadDropdownOptions, apiId="${action.apiId}"');
+      // ignore: avoid_print
+      print('[FormRunBloc]   apiMap 是否包含此 apiId: ${state.apiMap.containsKey(action.apiId)}');
 
       final result = await _formRunService.executeLoadDropdownOptions(
         action,
         state.apiMap,
-        dataSourceKey,
       );
+
+      // ignore: avoid_print
+      print('[FormRunBloc]   result: success=${result.isSuccess}, data=${result.data}, error=${result.error}');
 
       if (!result.isSuccess || result.data == null) return;
 
@@ -225,6 +254,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     }
 
     // 無 apiId → fallback: 從 targetItemId 靜態選項讀取（舊行為）
+    // ignore: avoid_print
+    print('[FormRunBloc]   apiId 為空，走 fallback 路徑, targetItemId="${action.targetItemId}"');
     if (action.targetItemId.isEmpty) return;
 
     List<String>? options;

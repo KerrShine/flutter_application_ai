@@ -364,8 +364,8 @@ class _ActionCard extends StatelessWidget {
           // 參數名稱（loadDropdownOptions 專用）
           if (action.actionType == ActionType.loadDropdownOptions) ...[
             const SizedBox(height: 8),
-            TextField(
-              controller: TextEditingController(text: action.parameterName),
+            TextFormField(
+              initialValue: action.parameterName,
               decoration: InputDecoration(
                 labelText: '參數名稱',
                 hintText: '請輸入資料抓取的參數名稱',

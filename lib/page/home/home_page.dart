@@ -131,10 +131,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                             // 第三層：權限設定
                             ListTile(
+                              selected: currentPath ==
+                                  RouteName.formLaunchPermissionPage,
                               contentPadding: const EdgeInsets.only(left: 48.0),
                               title: const Text('表單權限設定'),
                               onTap: () {
                                 Navigator.pop(context); // 關閉 Drawer
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.formLaunchPermissionPage));
                               },
                             ),
                           ],
@@ -172,34 +176,46 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        // 第二層：出勤管理
+                        // 第二層：簽核設定
                         ExpansionTile(
+                          initiallyExpanded: currentPath
+                              .startsWith(RouteName.signOffManagerPage),
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
                             child: Text('簽核設定'),
                           ),
                           children: [
                             ListTile(
+                              selected:
+                                  currentPath == RouteName.signOffManagerPage,
                               contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('項目'),
+                              title: const Text('簽核流程'),
                               onTap: () {
                                 Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.signOffManagerPage));
                               },
                             ),
                           ],
                         ),
-                        // 第二層：認證與學習
+                        // 第二層：待辦事項
                         ExpansionTile(
+                          initiallyExpanded: currentPath ==
+                              RouteName.formApplicationCenterPage,
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
                             child: Text('待辦事項'),
                           ),
                           children: [
                             ListTile(
+                              selected: currentPath ==
+                                  RouteName.formApplicationCenterPage,
                               contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('項目'),
+                              title: const Text('申請中心'),
                               onTap: () {
                                 Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.formApplicationCenterPage));
                               },
                             ),
                           ],

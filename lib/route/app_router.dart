@@ -5,6 +5,7 @@ import 'package:flutter_application_ai/page/main/main_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/form_section_design_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_create/form_create_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_select/form_select_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/form_condition_field_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_binding/form_data_binding_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_action_binding/form_action_binding_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_data_manager/form_data_manager_page.dart';
@@ -22,6 +23,17 @@ import 'package:flutter_application_ai/page/employee/emp_manager/emp_manager_gui
 import 'package:flutter_application_ai/page/employee/emp_role/emp_role_page.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_run/form_run_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_launch_permission/form_launch_permission_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_launch_permission_editor/form_launch_permission_editor_page.dart';
+import 'package:flutter_application_ai/page/form_design/form_application_center/form_application_center_page.dart';
+import 'package:flutter_application_ai/page/sign_off/sign_off_manager/sign_off_manager_page.dart';
+import 'package:flutter_application_ai/page/sign_off/sign_off_editor/sign_off_editor_page.dart';
+import 'package:flutter_application_ai/model/form_launch_permission_model.dart';
+import 'package:flutter_application_ai/model/form_model.dart';
+import 'package:flutter_application_ai/model/emp_role_model.dart';
+import 'package:flutter_application_ai/model/org_department_node.dart';
+import 'package:flutter_application_ai/model/employee_model.dart';
+import 'package:flutter_application_ai/model/sign_off_template_model.dart';
 
 class RouteName {
   static const String loginPage = '/login';
@@ -43,6 +55,8 @@ class RouteName {
   static const String formSelectPage = '/home/form-manage/form-select';
   static const String formDataBindingPage =
       '/home/form-manage/form-data-binding';
+  static const String formConditionFieldPage =
+      '/home/form-manage/form-condition-field';
   static const String formActionBindingPage =
       '/home/form-manage/form-action-binding';
   static const String formDataManagerPage =
@@ -50,6 +64,14 @@ class RouteName {
   static const String formDesignPage = '/home/form-manage/form-design';
   static const String formBrowsePage = '/home/form-browse';
   static const String formRunPage = '/home/form-run';
+  static const String formLaunchPermissionPage =
+      '/home/form-manage/form-launch-permission';
+  static const String formApplicationCenterPage = '/home/form-apply';
+  static const String formLaunchPermissionEditorPage =
+      '/home/form-manage/form-launch-permission/editor';
+  static const String signOffManagerPage = '/home/sign-off/sign-off-manager';
+  static const String signOffEditorPage =
+      '/home/sign-off/sign-off-manager/editor';
 }
 
 class AppRouter {
@@ -185,6 +207,21 @@ class AppRouter {
                 },
               ),
               GoRoute(
+                path: 'form-condition-field',
+                builder: (context, state) {
+                  final extra = state.extra;
+                  if (extra is Map<String, dynamic>) {
+                    return FormConditionFieldPage(
+                      formId: extra['formId'] as String? ?? '',
+                      formName: extra['formName'] as String? ?? '',
+                    );
+                  }
+                  return FormConditionFieldPage(
+                    formId: extra as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
                 path: 'form-action-binding',
                 builder: (context, state) {
                   final extra = state.extra;
@@ -213,6 +250,73 @@ class AppRouter {
                 builder: (context, state) {
                   final formId = state.extra as String? ?? '';
                   return FormDesignPage(formId: formId);
+                },
+              ),
+              GoRoute(
+                path: 'form-launch-permission',
+                builder: (context, state) =>
+                    const FormLaunchPermissionPage(),
+                routes: [
+                  GoRoute(
+                    path: 'editor',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      return FormLaunchPermissionEditorPage(
+                        forms: extra['forms'] as List<FormModel>,
+                        roles: extra['roles'] as List<EmpRoleModel>,
+                        departments: extra['departments']
+                            as List<OrgDepartmentNode>,
+                        existingPermission: extra['permission']
+                            as FormLaunchPermissionModel?,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteName.formApplicationCenterPage,
+            builder: (context, state) {
+              final employeeId = state.extra as String? ?? '';
+              return FormApplicationCenterPage(employeeId: employeeId);
+            },
+          ),
+          GoRoute(
+            path: RouteName.signOffManagerPage,
+            builder: (context, state) => const SignOffManagerPage(),
+            routes: [
+              GoRoute(
+                path: 'editor',
+                builder: (context, state) {
+                  final extra =
+                      (state.extra as Map<String, dynamic>?) ?? const {};
+                  final templateId = extra['templateId'] as String?;
+                  // 注意：列表頁傳入的是已載入的清單（forms/permissions/depts/roles/employees）
+                  // 由編輯器自行從 SignOffService 重新載入也可，但此處沿用 form_launch_permission 的模式
+                  // 直接從 extra 拿。若是編輯模式，先在 args 裡帶 templateId，編輯器可由 service 重新載入找出 model。
+                  // 為簡化 v1，此處不單獨重載，editor 在 InitEvent 接收完整資料。
+                  return SignOffEditorPage(
+                    args: SignOffEditorPageArgs(
+                      forms: (extra['forms'] as List?)?.cast<FormModel>() ??
+                          const [],
+                      permissions: (extra['permissions'] as List?)
+                              ?.cast<FormLaunchPermissionModel>() ??
+                          const [],
+                      departments: (extra['departments'] as List?)
+                              ?.cast<OrgDepartmentNode>() ??
+                          const [],
+                      roles: (extra['roles'] as List?)?.cast<EmpRoleModel>() ??
+                          const [],
+                      employees: (extra['employees'] as List?)
+                              ?.cast<EmployeeModel>() ??
+                          const [],
+                      existingTemplate: templateId == null
+                          ? null
+                          : (extra['existingTemplate']
+                              as SignOffTemplateModel?),
+                    ),
+                  );
                 },
               ),
             ],

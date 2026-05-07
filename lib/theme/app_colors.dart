@@ -392,4 +392,42 @@ class AppColors {
   static const Color orgTreeNodeHighlightedShadow = Color(0x2A3D8C5D);
   static const Color orgTreeZoomBackground = Color(0xF7FFFFFF);
   static const Color orgTreeZoomBorder = Color(0xFFD0DBEA);
+
+  // FormLaunchPermissionPage 與其 widgets 使用
+  static const Color launchPermPageBackgroundLight = Color(0xFFF5F5F5);
+  static const Color launchPermPageBackgroundDark = Color(0xFF141414);
+  static const Color launchPermErrorLight = Color(0xFFDC2626);
+  static const Color launchPermErrorDark = Color(0xFFF87171);
+  static const Color launchPermEmptyTextLight = Color(0xFF9E9E9E);
+  static const Color launchPermEmptyTextDark = Color(0xFF94A3B8);
+  static const Color launchPermActiveIconLight = Color(0xFF4CAF50);
+  static const Color launchPermActiveIconDark = Color(0xFF66BB6A);
+  static const Color launchPermInactiveIconLight = Color(0xFF9E9E9E);
+  static const Color launchPermInactiveIconDark = Color(0xFF757575);
+  static const Color launchPermDeleteLight = Color(0xFFDC2626);
+  static const Color launchPermDeleteDark = Color(0xFFF87171);
+  static const Color launchPermChipIconLight = Color(0xFF757575);
+  static const Color launchPermChipIconDark = Color(0xFF94A3B8);
+  static const Color launchPermChipTextLight = Color(0xFF616161);
+  static const Color launchPermChipTextDark = Color(0xFFA8B6C8);
+
+  // FormApplicationCenterPage 與其 widgets 使用
+  static const Color appCenterPageBackgroundLight = Color(0xFFF5F5F5);
+  static const Color appCenterPageBackgroundDark = Color(0xFF141414);
+  static const Color appCenterErrorLight = Color(0xFFDC2626);
+  static const Color appCenterErrorDark = Color(0xFFF87171);
+  static const Color appCenterSubtitleTextLight = Color(0xFF757575);
+  static const Color appCenterSubtitleTextDark = Color(0xFF94A3B8);
+  static const Color appCenterSearchFillLight = Color(0xFFFFFFFF);
+  static const Color appCenterSearchFillDark = Color(0xFF1E1E1E);
+  static const Color appCenterEmptyTextLight = Color(0xFF9E9E9E);
+  static const Color appCenterEmptyTextDark = Color(0xFF94A3B8);
+  static const Color appCenterFormIconLight = Color(0xFF2196F3);
+  static const Color appCenterFormIconDark = Color(0xFF64B5F6);
+  static const Color appCenterHintTextLight = Color(0xFF9E9E9E);
+  static const Color appCenterHintTextDark = Color(0xFF7F93AB);
+  static const Color appCenterSubmittedIconLight = Color(0xFF4CAF50);
+  static const Color appCenterSubmittedIconDark = Color(0xFF66BB6A);
+  static const Color appCenterPendingIconLight = Color(0xFFFF9800);
+  static const Color appCenterPendingIconDark = Color(0xFFFFB74D);
 }

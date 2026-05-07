@@ -7,6 +7,8 @@ import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/login_theme_colors.dart';
+import 'package:flutter_application_ai/theme/form_application_center_theme_colors.dart';
+import 'package:flutter_application_ai/theme/form_launch_permission_theme_colors.dart';
 import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/text_size.dart';
 
@@ -536,6 +538,52 @@ class AppTheme {
             zoomBorder: AppColors.orgTreeZoomBorder,
           );
 
+    final formLaunchPermissionThemeColors = isDark
+        ? const FormLaunchPermissionThemeColors(
+            pageBackground: AppColors.launchPermPageBackgroundDark,
+            errorColor: AppColors.launchPermErrorDark,
+            emptyText: AppColors.launchPermEmptyTextDark,
+            activeIcon: AppColors.launchPermActiveIconDark,
+            inactiveIcon: AppColors.launchPermInactiveIconDark,
+            deleteButton: AppColors.launchPermDeleteDark,
+            chipIcon: AppColors.launchPermChipIconDark,
+            chipText: AppColors.launchPermChipTextDark,
+          )
+        : const FormLaunchPermissionThemeColors(
+            pageBackground: AppColors.launchPermPageBackgroundLight,
+            errorColor: AppColors.launchPermErrorLight,
+            emptyText: AppColors.launchPermEmptyTextLight,
+            activeIcon: AppColors.launchPermActiveIconLight,
+            inactiveIcon: AppColors.launchPermInactiveIconLight,
+            deleteButton: AppColors.launchPermDeleteLight,
+            chipIcon: AppColors.launchPermChipIconLight,
+            chipText: AppColors.launchPermChipTextLight,
+          );
+
+    final formApplicationCenterThemeColors = isDark
+        ? const FormApplicationCenterThemeColors(
+            pageBackground: AppColors.appCenterPageBackgroundDark,
+            errorColor: AppColors.appCenterErrorDark,
+            subtitleText: AppColors.appCenterSubtitleTextDark,
+            searchFill: AppColors.appCenterSearchFillDark,
+            emptyText: AppColors.appCenterEmptyTextDark,
+            formIcon: AppColors.appCenterFormIconDark,
+            hintText: AppColors.appCenterHintTextDark,
+            submittedIcon: AppColors.appCenterSubmittedIconDark,
+            pendingIcon: AppColors.appCenterPendingIconDark,
+          )
+        : const FormApplicationCenterThemeColors(
+            pageBackground: AppColors.appCenterPageBackgroundLight,
+            errorColor: AppColors.appCenterErrorLight,
+            subtitleText: AppColors.appCenterSubtitleTextLight,
+            searchFill: AppColors.appCenterSearchFillLight,
+            emptyText: AppColors.appCenterEmptyTextLight,
+            formIcon: AppColors.appCenterFormIconLight,
+            hintText: AppColors.appCenterHintTextLight,
+            submittedIcon: AppColors.appCenterSubmittedIconLight,
+            pendingIcon: AppColors.appCenterPendingIconLight,
+          );
+
     final colorScheme = ColorScheme(
       brightness: brightness,
       primary: AppColors.primary,
@@ -660,6 +708,8 @@ class AppTheme {
         orgTreeDesignThemeColors,
         formSectionDesignThemeColors,
         formDesignThemeColors,
+        formLaunchPermissionThemeColors,
+        formApplicationCenterThemeColors,
       ],
     );
   }

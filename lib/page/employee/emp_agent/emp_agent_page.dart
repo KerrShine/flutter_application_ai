@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/dialog/message_dialog.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/employee/emp_agent/bloc/emp_agent_bloc.dart';
 import 'package:flutter_application_ai/page/employee/emp_agent/widgets/emp_agent_agent_section_widget.dart';
@@ -46,6 +47,12 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
                 SnackBar(content: Text(state.message)),
               );
             },
+          ),
+          BlocListener<EmpAgentBloc, EmpAgentState>(
+            listenWhen: (previous, current) =>
+                previous.exportRequestId != current.exportRequestId,
+            listener: (context, state) =>
+                _showExportDialog(context, state.exportedJson),
           ),
         ],
         child: BlocBuilder<EmpAgentBloc, EmpAgentState>(
@@ -102,9 +109,24 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
     return Container(
       color: themeColors.pageBackground,
       padding: const EdgeInsets.all(24),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isCompact = constraints.maxWidth < 960;
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.icon(
+              icon: const Icon(Icons.file_download_outlined),
+              label: const Text('匯出代理人下拉 JSON'),
+              onPressed: () => context
+                  .read<EmpAgentBloc>()
+                  .add(const ExportAgentOptionsJsonEvent()),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 960;
 
           final principalCard = _buildPanel(
             child: EmpAgentPrincipalSectionWidget(
@@ -196,7 +218,36 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
               ),
             ],
           );
-        },
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExportDialog(BuildContext context, String json) {
+    showScrollableMessageDialog(
+      context: context,
+      title: '代理人下拉 JSON',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '複製下方陣列，貼到 lib/data/tempData/dropdown_options_sample.json '
+            '中 emp_agent_options_api 的 response.data。',
+            style: TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          SelectableText(
+            json,
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }

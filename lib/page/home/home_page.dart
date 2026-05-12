@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_ai/bloc/current_employee/current_employee_bloc.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/home/bloc/home_bloc.dart';
+import 'package:flutter_application_ai/page/home/widgets/identity_card_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,16 +17,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final HomeBloc _bloc;
+  late final CurrentEmployeeBloc _identityBloc;
 
   @override
   void initState() {
     super.initState();
     _bloc = sl<HomeBloc>();
+    _identityBloc = sl<CurrentEmployeeBloc>()..add(const LoadInitialEvent());
   }
 
   @override
   void dispose() {
     _bloc.close();
+    _identityBloc.close();
     super.dispose();
   }
 
@@ -37,8 +42,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final currentPath = _currentPath(context);
 
-    return BlocProvider.value(
-      value: _bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<HomeBloc>.value(value: _bloc),
+        BlocProvider<CurrentEmployeeBloc>.value(value: _identityBloc),
+      ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<HomeBloc, HomeState>(
@@ -49,6 +57,18 @@ class _HomePageState extends State<HomePage> {
               if (state.navigateRoute != null) {
                 context.go(state.navigateRoute!);
               }
+            },
+          ),
+          BlocListener<CurrentEmployeeBloc, CurrentEmployeeState>(
+            listenWhen: (previous, current) =>
+                previous.message != current.message && current.message.isNotEmpty,
+            listener: (context, state) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+              context
+                  .read<CurrentEmployeeBloc>()
+                  .add(const DismissMessageEvent());
             },
           ),
         ],
@@ -68,24 +88,7 @@ class _HomePageState extends State<HomePage> {
                 child: ListView(
                   padding: EdgeInsets.zero,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      color: Colors.blue,
-                      child: const SafeArea(
-                        bottom: false,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 20.0, horizontal: 16.0),
-                          child: Text(
-                            '選單',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    const IdentityCardWidget(),
                     // 第一層：WEB管理系統
                     ExpansionTile(
                       initiallyExpanded: currentPath ==
@@ -201,7 +204,9 @@ class _HomePageState extends State<HomePage> {
                         // 第二層：待辦事項
                         ExpansionTile(
                           initiallyExpanded: currentPath ==
-                              RouteName.formApplicationCenterPage,
+                                  RouteName.applicationCreatePage ||
+                              currentPath == RouteName.myApplicationPage ||
+                              currentPath == RouteName.signOffPendingPage,
                           title: const Padding(
                             padding: EdgeInsets.only(left: 16.0),
                             child: Text('待辦事項'),
@@ -209,13 +214,35 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             ListTile(
                               selected: currentPath ==
-                                  RouteName.formApplicationCenterPage,
+                                  RouteName.applicationCreatePage,
                               contentPadding: const EdgeInsets.only(left: 48.0),
-                              title: const Text('申請中心'),
+                              title: const Text('新增申請'),
                               onTap: () {
                                 Navigator.pop(context);
                                 _bloc.add(const HomeNavigateEvent(
-                                    RouteName.formApplicationCenterPage));
+                                    RouteName.applicationCreatePage));
+                              },
+                            ),
+                            ListTile(
+                              selected: currentPath ==
+                                  RouteName.myApplicationPage,
+                              contentPadding: const EdgeInsets.only(left: 48.0),
+                              title: const Text('我的申請'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.myApplicationPage));
+                              },
+                            ),
+                            ListTile(
+                              selected: currentPath ==
+                                  RouteName.signOffPendingPage,
+                              contentPadding: const EdgeInsets.only(left: 48.0),
+                              title: const Text('待我簽核'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _bloc.add(const HomeNavigateEvent(
+                                    RouteName.signOffPendingPage));
                               },
                             ),
                           ],

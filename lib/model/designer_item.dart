@@ -42,6 +42,12 @@ class DesignerItem extends Equatable {
   final String buttonColorHex;
   final String buttonTextColorHex;
 
+  /// label 欄位專用：綁定 condition_field 的 fieldKey。
+  ///
+  /// 非空時 form_run 會以該 fieldKey 對應的計算結果取代 [text] 顯示，
+  /// 讓 label 即時呈現「開始日期 - 結束日期」之類的衍生值。
+  final String computedFieldKey;
+
   const DesignerItem({
     required this.id,
     required this.type,
@@ -72,6 +78,7 @@ class DesignerItem extends Equatable {
     this.dataSourceKey = '',
     this.buttonColorHex = '',
     this.buttonTextColorHex = '',
+    this.computedFieldKey = '',
   });
 
   DesignerItem copyWith({
@@ -104,6 +111,7 @@ class DesignerItem extends Equatable {
     String? dataSourceKey,
     String? buttonColorHex,
     String? buttonTextColorHex,
+    String? computedFieldKey,
   }) {
     return DesignerItem(
       id: id ?? this.id,
@@ -135,6 +143,7 @@ class DesignerItem extends Equatable {
       dataSourceKey: dataSourceKey ?? this.dataSourceKey,
       buttonColorHex: buttonColorHex ?? this.buttonColorHex,
       buttonTextColorHex: buttonTextColorHex ?? this.buttonTextColorHex,
+      computedFieldKey: computedFieldKey ?? this.computedFieldKey,
     );
   }
 
@@ -169,6 +178,7 @@ class DesignerItem extends Equatable {
       'dataSourceKey': dataSourceKey,
       'buttonColorHex': buttonColorHex,
       'buttonTextColorHex': buttonTextColorHex,
+      'computedFieldKey': computedFieldKey,
     };
   }
 
@@ -203,5 +213,6 @@ class DesignerItem extends Equatable {
         dataSourceKey,
         buttonColorHex,
         buttonTextColorHex,
+        computedFieldKey,
       ];
 }

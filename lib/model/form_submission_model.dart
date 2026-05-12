@@ -9,6 +9,7 @@ class FormSubmissionModel extends Equatable {
   final String applicantName;
   final String departmentId;
   final Map<String, dynamic> fieldValues;
+  final Map<String, String> computedFields;
   final String status;
   final String submittedAt;
   final String createdAt;
@@ -23,6 +24,7 @@ class FormSubmissionModel extends Equatable {
     this.applicantName = '',
     this.departmentId = '',
     this.fieldValues = const {},
+    this.computedFields = const {},
     this.status = 'draft',
     this.submittedAt = '',
     this.createdAt = '',
@@ -41,6 +43,7 @@ class FormSubmissionModel extends Equatable {
     String? applicantName,
     String? departmentId,
     Map<String, dynamic>? fieldValues,
+    Map<String, String>? computedFields,
     String? status,
     String? submittedAt,
     String? createdAt,
@@ -55,6 +58,7 @@ class FormSubmissionModel extends Equatable {
       applicantName: applicantName ?? this.applicantName,
       departmentId: departmentId ?? this.departmentId,
       fieldValues: fieldValues ?? this.fieldValues,
+      computedFields: computedFields ?? this.computedFields,
       status: status ?? this.status,
       submittedAt: submittedAt ?? this.submittedAt,
       createdAt: createdAt ?? this.createdAt,
@@ -72,6 +76,7 @@ class FormSubmissionModel extends Equatable {
       'applicant_name': applicantName,
       'department_id': departmentId,
       'field_values': fieldValues,
+      'computed_fields': computedFields,
       'status': status,
       'submitted_at': submittedAt,
       'created_at': createdAt,
@@ -100,6 +105,8 @@ class FormSubmissionModel extends Equatable {
           map['departmentId']?.toString() ??
           '',
       fieldValues: _parseMap(map['field_values'] ?? map['fieldValues']),
+      computedFields:
+          _parseStringMap(map['computed_fields'] ?? map['computedFields']),
       status: map['status']?.toString() ?? 'draft',
       submittedAt: map['submitted_at']?.toString() ??
           map['submittedAt']?.toString() ??
@@ -118,6 +125,15 @@ class FormSubmissionModel extends Equatable {
     return {};
   }
 
+  static Map<String, String> _parseStringMap(dynamic value) {
+    if (value == null) return const {};
+    if (value is Map) {
+      return value
+          .map((k, v) => MapEntry(k.toString(), (v ?? '').toString()));
+    }
+    return const {};
+  }
+
   @override
   List<Object> get props => [
         submissionId,
@@ -128,6 +144,7 @@ class FormSubmissionModel extends Equatable {
         applicantName,
         departmentId,
         fieldValues,
+        computedFields,
         status,
         submittedAt,
         createdAt,

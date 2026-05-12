@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_ai/bloc/current_employee/current_employee_bloc.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
 import 'package:flutter_application_ai/page/form_design/form_run/bloc/form_run_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_run/widgets/form_run_body_widget.dart';
@@ -14,10 +15,14 @@ class FormRunPage extends StatefulWidget {
   final String formId;
   final String bindingId;
 
+  /// 編輯模式 — 非空時 form_run 以「編輯既有 LeaveSignOff」模式啟動。
+  final String signOffId;
+
   const FormRunPage({
     super.key,
     required this.formId,
     this.bindingId = '',
+    this.signOffId = '',
   });
 
   @override
@@ -31,7 +36,15 @@ class _FormRunPageState extends State<FormRunPage> {
   void initState() {
     super.initState();
     _bloc = FormRunBloc(sl<FormRunService>());
-    _bloc.add(FormRunInitEvent(widget.formId, bindingId: widget.bindingId));
+    final emp = context.read<CurrentEmployeeBloc>().state.current;
+    _bloc.add(FormRunInitEvent(
+      widget.formId,
+      bindingId: widget.bindingId,
+      applicantId: emp.employeeId,
+      applicantName: emp.employeeName,
+      departmentId: emp.departmentId,
+      signOffId: widget.signOffId,
+    ));
   }
 
   @override
@@ -128,11 +141,35 @@ class _FormRunPageState extends State<FormRunPage> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    state.formName.isNotEmpty ? state.formName : '表單執行',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
+                  Row(
+                    children: [
+                      Text(
+                        state.formName.isNotEmpty ? state.formName : '表單執行',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                ),
+                      ),
+                      if (state.signOffId.isNotEmpty) ...[
+                        const SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade700,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            '編輯模式',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
+                      ],
+                    ],
                   ),
                   if (state.draft.bindingName.isNotEmpty)
                     Text(
@@ -222,6 +259,7 @@ class _FormRunPageState extends State<FormRunPage> {
       sections: state.sections,
       fieldValues: state.fieldValues,
       dropdownOptionsOverride: state.dropdownOptionsOverride,
+      computedValues: state.computedValues,
       onValueChanged: (itemId, value) =>
           _bloc.add(FormRunFieldChangedEvent(itemId, value)),
       onButtonPressed: (itemId) =>

@@ -10,11 +10,31 @@ class FormRunEvent extends Equatable {
 class FormRunInitEvent extends FormRunEvent {
   final String formId;
   final String bindingId;
+  final String applicantId;
+  final String applicantName;
+  final String departmentId;
 
-  const FormRunInitEvent(this.formId, {this.bindingId = ''});
+  /// 編輯模式 — 非空時 form_run 以「編輯既有 LeaveSignOffModel」模式啟動。
+  final String signOffId;
+
+  const FormRunInitEvent(
+    this.formId, {
+    this.bindingId = '',
+    this.applicantId = '',
+    this.applicantName = '',
+    this.departmentId = '',
+    this.signOffId = '',
+  });
 
   @override
-  List<Object> get props => [formId, bindingId];
+  List<Object> get props => [
+        formId,
+        bindingId,
+        applicantId,
+        applicantName,
+        departmentId,
+        signOffId,
+      ];
 }
 
 class FormRunFieldChangedEvent extends FormRunEvent {

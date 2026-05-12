@@ -7,7 +7,8 @@ import 'package:flutter_application_ai/theme/form_browse_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/login_theme_colors.dart';
-import 'package:flutter_application_ai/theme/form_application_center_theme_colors.dart';
+import 'package:flutter_application_ai/theme/form_application_theme_colors.dart';
+import 'package:flutter_application_ai/theme/form_condition_field_theme_colors.dart';
 import 'package:flutter_application_ai/theme/form_launch_permission_theme_colors.dart';
 import 'package:flutter_application_ai/theme/org_tree_design_theme_colors.dart';
 import 'package:flutter_application_ai/theme/text_size.dart';
@@ -560,8 +561,8 @@ class AppTheme {
             chipText: AppColors.launchPermChipTextLight,
           );
 
-    final formApplicationCenterThemeColors = isDark
-        ? const FormApplicationCenterThemeColors(
+    final formApplicationThemeColors = isDark
+        ? const FormApplicationThemeColors(
             pageBackground: AppColors.appCenterPageBackgroundDark,
             errorColor: AppColors.appCenterErrorDark,
             subtitleText: AppColors.appCenterSubtitleTextDark,
@@ -571,8 +572,15 @@ class AppTheme {
             hintText: AppColors.appCenterHintTextDark,
             submittedIcon: AppColors.appCenterSubmittedIconDark,
             pendingIcon: AppColors.appCenterPendingIconDark,
+            inReviewIcon: AppColors.appCenterInReviewIconDark,
+            withdrawnIcon: AppColors.appCenterWithdrawnIconDark,
+            cardBackground: AppColors.appCenterCardBackgroundDark,
+            cardBorder: AppColors.appCenterCardBorderDark,
+            listTitleText: AppColors.appCenterListTitleTextDark,
+            listSubtitleText: AppColors.appCenterListSubtitleTextDark,
+            chipBackground: AppColors.appCenterChipBackgroundDark,
           )
-        : const FormApplicationCenterThemeColors(
+        : const FormApplicationThemeColors(
             pageBackground: AppColors.appCenterPageBackgroundLight,
             errorColor: AppColors.appCenterErrorLight,
             subtitleText: AppColors.appCenterSubtitleTextLight,
@@ -582,6 +590,151 @@ class AppTheme {
             hintText: AppColors.appCenterHintTextLight,
             submittedIcon: AppColors.appCenterSubmittedIconLight,
             pendingIcon: AppColors.appCenterPendingIconLight,
+            inReviewIcon: AppColors.appCenterInReviewIconLight,
+            withdrawnIcon: AppColors.appCenterWithdrawnIconLight,
+            cardBackground: AppColors.appCenterCardBackgroundLight,
+            cardBorder: AppColors.appCenterCardBorderLight,
+            listTitleText: AppColors.appCenterListTitleTextLight,
+            listSubtitleText: AppColors.appCenterListSubtitleTextLight,
+            chipBackground: AppColors.appCenterChipBackgroundLight,
+          );
+
+    // FormConditionFieldPage、ConditionFieldDefinitionCard、ConditionFieldEditorDialog 使用
+    final formConditionFieldThemeColors = isDark
+        ? const FormConditionFieldThemeColors(
+            pageGradient: [
+              AppColors.formConditionGradientStartDark,
+              AppColors.formConditionGradientMiddleDark,
+              AppColors.formConditionGradientEndDark,
+            ],
+            heroGlow: AppColors.formConditionHeroGlowDark,
+            shellBackground: AppColors.formConditionShellBackgroundDark,
+            shellBorder: AppColors.formConditionShellBorderDark,
+            shellShadow: AppColors.formConditionShellShadowDark,
+            headerTitleText: AppColors.formConditionHeaderTitleDark,
+            unsavedChipBackground:
+                AppColors.formConditionUnsavedChipBackgroundDark,
+            unsavedChipText: AppColors.formConditionUnsavedChipTextDark,
+            previewButtonBorder:
+                AppColors.formConditionPreviewButtonBorderDark,
+            previewButtonText: AppColors.formConditionPreviewButtonTextDark,
+            saveButtonBackground:
+                AppColors.formConditionSaveButtonBackgroundDark,
+            saveButtonText: AppColors.formConditionSaveButtonText,
+            statsCardBackground: AppColors.formConditionStatsCardBackgroundDark,
+            statsCardBorder: AppColors.formConditionStatsCardBorderDark,
+            statsCardShadow: AppColors.formConditionStatsCardShadowDark,
+            statsIconBackground:
+                AppColors.formConditionStatsIconBackgroundDark,
+            statsIconColor: AppColors.formConditionStatsIconColorDark,
+            statsTitleText: AppColors.formConditionStatsTitleDark,
+            statsDescriptionText:
+                AppColors.formConditionStatsDescriptionDark,
+            statsCounterValue: AppColors.formConditionStatsCounterValueDark,
+            statsCounterLabel: AppColors.formConditionStatsCounterLabelDark,
+            sectionTitleText: AppColors.formConditionSectionTitleDark,
+            addButtonBorder: AppColors.formConditionAddButtonBorderDark,
+            addButtonText: AppColors.formConditionAddButtonTextDark,
+            definitionCardBackground:
+                AppColors.formConditionDefinitionCardBackgroundDark,
+            definitionCardBorder:
+                AppColors.formConditionDefinitionCardBorderDark,
+            definitionCardShadow:
+                AppColors.formConditionDefinitionCardShadowDark,
+            fieldKeyBadgeBackground:
+                AppColors.formConditionFieldKeyBadgeBackgroundDark,
+            fieldKeyBadgeText:
+                AppColors.formConditionFieldKeyBadgeTextDark,
+            typePillBackground:
+                AppColors.formConditionTypePillBackgroundDark,
+            typePillText: AppColors.formConditionTypePillTextDark,
+            labelText: AppColors.formConditionLabelTextDark,
+            formulaIconColor: AppColors.formConditionFormulaIconColorDark,
+            formulaText: AppColors.formConditionFormulaTextDark,
+            argChipBackground: AppColors.formConditionArgChipBackgroundDark,
+            argChipBorder: AppColors.formConditionArgChipBorderDark,
+            argChipText: AppColors.formConditionArgChipTextDark,
+            iconButtonBorder: AppColors.formConditionIconButtonBorderDark,
+            editIconColor: AppColors.formConditionEditIconDark,
+            removeIconColor: AppColors.formConditionRemoveIconDark,
+            addPromptBackground:
+                AppColors.formConditionAddPromptBackgroundDark,
+            addPromptBorder: AppColors.formConditionAddPromptBorderDark,
+            addPromptText: AppColors.formConditionAddPromptTextDark,
+            subtleText: AppColors.formConditionSubtleTextDark,
+            faintText: AppColors.formConditionFaintTextDark,
+            emptyStateBackground:
+                AppColors.formConditionEmptyStateBackgroundDark,
+            emptyStateBorder: AppColors.formConditionEmptyStateBorderDark,
+            emptyStateIconColor: AppColors.formConditionEmptyStateIconDark,
+          )
+        : const FormConditionFieldThemeColors(
+            pageGradient: [
+              AppColors.formConditionGradientStartLight,
+              AppColors.formConditionGradientMiddleLight,
+              AppColors.formConditionGradientEndLight,
+            ],
+            heroGlow: AppColors.formConditionHeroGlowLight,
+            shellBackground: AppColors.formConditionShellBackgroundLight,
+            shellBorder: AppColors.formConditionShellBorderLight,
+            shellShadow: AppColors.formConditionShellShadowLight,
+            headerTitleText: AppColors.formConditionHeaderTitleLight,
+            unsavedChipBackground:
+                AppColors.formConditionUnsavedChipBackgroundLight,
+            unsavedChipText: AppColors.formConditionUnsavedChipTextLight,
+            previewButtonBorder:
+                AppColors.formConditionPreviewButtonBorderLight,
+            previewButtonText: AppColors.formConditionPreviewButtonTextLight,
+            saveButtonBackground:
+                AppColors.formConditionSaveButtonBackgroundLight,
+            saveButtonText: AppColors.formConditionSaveButtonText,
+            statsCardBackground:
+                AppColors.formConditionStatsCardBackgroundLight,
+            statsCardBorder: AppColors.formConditionStatsCardBorderLight,
+            statsCardShadow: AppColors.formConditionStatsCardShadowLight,
+            statsIconBackground:
+                AppColors.formConditionStatsIconBackgroundLight,
+            statsIconColor: AppColors.formConditionStatsIconColorLight,
+            statsTitleText: AppColors.formConditionStatsTitleLight,
+            statsDescriptionText:
+                AppColors.formConditionStatsDescriptionLight,
+            statsCounterValue: AppColors.formConditionStatsCounterValueLight,
+            statsCounterLabel: AppColors.formConditionStatsCounterLabelLight,
+            sectionTitleText: AppColors.formConditionSectionTitleLight,
+            addButtonBorder: AppColors.formConditionAddButtonBorderLight,
+            addButtonText: AppColors.formConditionAddButtonTextLight,
+            definitionCardBackground:
+                AppColors.formConditionDefinitionCardBackgroundLight,
+            definitionCardBorder:
+                AppColors.formConditionDefinitionCardBorderLight,
+            definitionCardShadow:
+                AppColors.formConditionDefinitionCardShadowLight,
+            fieldKeyBadgeBackground:
+                AppColors.formConditionFieldKeyBadgeBackgroundLight,
+            fieldKeyBadgeText:
+                AppColors.formConditionFieldKeyBadgeTextLight,
+            typePillBackground:
+                AppColors.formConditionTypePillBackgroundLight,
+            typePillText: AppColors.formConditionTypePillTextLight,
+            labelText: AppColors.formConditionLabelTextLight,
+            formulaIconColor: AppColors.formConditionFormulaIconColorLight,
+            formulaText: AppColors.formConditionFormulaTextLight,
+            argChipBackground: AppColors.formConditionArgChipBackgroundLight,
+            argChipBorder: AppColors.formConditionArgChipBorderLight,
+            argChipText: AppColors.formConditionArgChipTextLight,
+            iconButtonBorder: AppColors.formConditionIconButtonBorderLight,
+            editIconColor: AppColors.formConditionEditIconLight,
+            removeIconColor: AppColors.formConditionRemoveIconLight,
+            addPromptBackground:
+                AppColors.formConditionAddPromptBackgroundLight,
+            addPromptBorder: AppColors.formConditionAddPromptBorderLight,
+            addPromptText: AppColors.formConditionAddPromptTextLight,
+            subtleText: AppColors.formConditionSubtleTextLight,
+            faintText: AppColors.formConditionFaintTextLight,
+            emptyStateBackground:
+                AppColors.formConditionEmptyStateBackgroundLight,
+            emptyStateBorder: AppColors.formConditionEmptyStateBorderLight,
+            emptyStateIconColor: AppColors.formConditionEmptyStateIconLight,
           );
 
     final colorScheme = ColorScheme(
@@ -709,7 +862,8 @@ class AppTheme {
         formSectionDesignThemeColors,
         formDesignThemeColors,
         formLaunchPermissionThemeColors,
-        formApplicationCenterThemeColors,
+        formApplicationThemeColors,
+        formConditionFieldThemeColors,
       ],
     );
   }

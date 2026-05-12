@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/model/api_definition.dart';
+import 'package:flutter_application_ai/model/condition_field_definition.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
 import 'package:flutter_application_ai/model/form_run_field_value.dart';
 import 'package:flutter_application_ai/model/section_model.dart';
@@ -29,10 +30,17 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       status: FormRunStatus.loading,
       formId: event.formId,
       bindingId: event.bindingId,
+      applicantId: event.applicantId,
+      applicantName: event.applicantName,
+      departmentId: event.departmentId,
+      signOffId: event.signOffId,
     ));
 
-    final result =
-        await _formRunService.initialize(event.formId, event.bindingId);
+    final result = await _formRunService.initialize(
+      event.formId,
+      event.bindingId,
+      signOffId: event.signOffId,
+    );
     if (!result.isSuccess) {
       emit(state.copyWith(
         status: FormRunStatus.actionFailure,
@@ -42,6 +50,10 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     }
 
     final data = result.data!;
+    final initialComputed = await _evaluate(
+      event.formId,
+      data.fieldValues,
+    );
     emit(state.copyWith(
       status: FormRunStatus.ready,
       formName: data.draft.formName,
@@ -49,6 +61,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       draft: data.draft,
       apiMap: data.apiMap,
       fieldValues: data.fieldValues,
+      conditionDefinitions: data.conditionDefinitions,
+      computedValues: initialComputed,
       message: '',
       clearNavigateRoute: true,
       clearApiResponse: true,
@@ -76,18 +90,33 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     }
   }
 
-  void _onFieldChanged(
+  Future<void> _onFieldChanged(
     FormRunFieldChangedEvent event,
     Emitter<FormRunState> emit,
-  ) {
+  ) async {
     final updated = Map<String, FormRunFieldValue>.from(state.fieldValues);
     if (updated.containsKey(event.itemId)) {
       updated[event.itemId] = updated[event.itemId]!.copyWith(value: event.value);
     }
+    final computed = await _evaluate(state.formId, updated);
     emit(state.copyWith(
       status: FormRunStatus.ready,
       fieldValues: updated,
+      computedValues: computed,
     ));
+  }
+
+  /// 用 ConditionFieldService 計算所有 condition fieldKey 的衍生值。
+  /// 回傳 Map<fieldKey, computedValue>；formId 為空 / 無 condition draft 時回空 map。
+  Future<Map<String, String>> _evaluate(
+    String formId,
+    Map<String, FormRunFieldValue> fieldValues,
+  ) async {
+    if (formId.isEmpty) return const {};
+    final rawMap = fieldValues.map((k, v) => MapEntry(k, v.value));
+    final result =
+        await _formRunService.conditionFieldService.evaluate(formId, rawMap);
+    return result.isSuccess ? (result.data ?? const {}) : const {};
   }
 
   Future<void> _onButtonPressed(
@@ -120,6 +149,48 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       switch (action.actionType) {
         case ActionType.callApi:
         case ActionType.submitForm:
+          // 「測試寫入」特例 — 構造 LeaveSignOffModel 寫入 LocalStorage，
+          // 不走 executeCallApi 的 mock/真實 API 流程。
+          // 編輯模式（state.signOffId 非空）走 update 分支覆寫該筆。
+          final apiDef = state.apiMap[action.apiId];
+          if (apiDef != null &&
+              apiDef.apiId == 'test_write_to_storage_api') {
+            final isEdit = state.signOffId.isNotEmpty;
+            final writeResult = isEdit
+                ? await _formRunService.executeUpdateSignOff(
+                    api: apiDef,
+                    signOffId: state.signOffId,
+                    sections: state.sections,
+                    fieldValues: state.fieldValues,
+                    computedValues: state.computedValues,
+                  )
+                : await _formRunService.executeTestWriteSignOff(
+                    api: apiDef,
+                    formId: state.formId,
+                    formName: state.formName,
+                    bindingId: state.bindingId,
+                    applicantId: state.applicantId,
+                    applicantName: state.applicantName,
+                    departmentId: state.departmentId,
+                    sections: state.sections,
+                    fieldValues: state.fieldValues,
+                    computedValues: state.computedValues,
+                  );
+            if (!writeResult.isSuccess) {
+              emit(state.copyWith(
+                status: FormRunStatus.actionFailure,
+                message: writeResult.error ?? '測試寫入失敗',
+              ));
+              return;
+            }
+            emit(state.copyWith(
+              status: FormRunStatus.actionSuccess,
+              message: isEdit ? '已更新' : '測試寫入完成',
+              lastApiResponse: writeResult.data,
+            ));
+            break;
+          }
+
           final apiResult = await _formRunService.executeCallApi(
             action,
             state.apiMap,
@@ -281,18 +352,20 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     ));
   }
 
-  void _onDropdownChanged(
+  Future<void> _onDropdownChanged(
     FormRunDropdownChangedEvent event,
     Emitter<FormRunState> emit,
-  ) {
+  ) async {
     final updated = Map<String, FormRunFieldValue>.from(state.fieldValues);
     if (updated.containsKey(event.itemId)) {
       updated[event.itemId] =
           updated[event.itemId]!.copyWith(value: event.value);
     }
+    final computed = await _evaluate(state.formId, updated);
     emit(state.copyWith(
       status: FormRunStatus.ready,
       fieldValues: updated,
+      computedValues: computed,
     ));
   }
 

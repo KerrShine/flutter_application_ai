@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/enum/condition_compute_function.dart';
+import 'package:flutter_application_ai/enum/condition_field_type.dart';
 import 'package:flutter_application_ai/injection/dependency_injection.dart';
+import 'package:flutter_application_ai/model/condition_field_definition.dart';
 import 'package:flutter_application_ai/page/form_design/form_condition_field/bloc/form_condition_field_bloc.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_add_prompt_widget.dart';
 import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_definition_card.dart';
 import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_editor_dialog.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_empty_state_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_header_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_no_fields_hint_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_section_header_widget.dart';
+import 'package:flutter_application_ai/page/form_design/form_condition_field/widgets/condition_field_stats_card_widget.dart';
 import 'package:flutter_application_ai/service/condition_field_service.dart';
-import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
+import 'package:flutter_application_ai/theme/form_condition_field_theme_colors.dart';
 
 /// 表單條件欄位設定頁。
 ///
 /// 入口：sign_off_editor header chip → push 此頁帶 formId。
 /// 一個 form 對應一筆 ConditionFieldDraft，內含多個 ConditionFieldDefinition。
-class FormConditionFieldPage extends StatelessWidget {
+class FormConditionFieldPage extends StatefulWidget {
   final String formId;
   final String formName;
 
@@ -22,89 +31,99 @@ class FormConditionFieldPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<FormConditionFieldBloc>(
-      create: (_) => sl<FormConditionFieldBloc>()
-        ..add(InitConditionFieldEvent(formId: formId, formName: formName)),
-      child: const _FormConditionFieldView(),
-    );
-  }
+  State<FormConditionFieldPage> createState() => _FormConditionFieldPageState();
 }
 
-class _FormConditionFieldView extends StatelessWidget {
-  const _FormConditionFieldView();
+class _FormConditionFieldPageState extends State<FormConditionFieldPage> {
+  late final FormConditionFieldBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = sl<FormConditionFieldBloc>();
+    _bloc.add(InitConditionFieldEvent(
+      formId: widget.formId,
+      formName: widget.formName,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<FormConditionFieldBloc, FormConditionFieldState>(
-      listener: (context, state) {
-        if (state.message.isNotEmpty &&
-            state.status != FormConditionFieldStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-          context
-              .read<FormConditionFieldBloc>()
-              .add(const DismissConditionMessageEvent());
-        }
-        if (state.status == FormConditionFieldStatus.failure &&
-            state.message.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-          context
-              .read<FormConditionFieldBloc>()
-              .add(const DismissConditionMessageEvent());
-        }
-      },
-      builder: (context, state) {
-        final theme = Theme.of(context);
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(state.draft.formName.isEmpty
-                ? '表單條件欄位'
-                : '表單條件欄位 — ${state.draft.formName}'),
-            actions: [
-              if (state.isDirty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Center(
-                    child: Text(
-                      '尚未儲存',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+    return BlocProvider.value(
+      value: _bloc,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<FormConditionFieldBloc, FormConditionFieldState>(
+            listenWhen: (previous, current) =>
+                previous.message != current.message &&
+                current.message.isNotEmpty,
+            listener: _onMessageChanged,
+          ),
+        ],
+        child: BlocBuilder<FormConditionFieldBloc, FormConditionFieldState>(
+          builder: (context, state) {
+            final colors =
+                Theme.of(context).extension<FormConditionFieldThemeColors>()!;
+            return Scaffold(
+              body: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: colors.pageGradient,
                   ),
                 ),
-              TextButton.icon(
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('儲存'),
-                onPressed: state.status == FormConditionFieldStatus.saving ||
-                        !state.isDirty
-                    ? null
-                    : () => context
-                        .read<FormConditionFieldBloc>()
-                        .add(const SaveConditionDraftEvent()),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      ConditionFieldHeaderWidget(
+                        formName: state.draft.formName,
+                        isDirty: state.isDirty,
+                        onBack: () => Navigator.of(context).maybePop(),
+                        onPreview: state.draft.definitions.isEmpty
+                            ? null
+                            : () => _showPreview(context, state),
+                        onSave: state.status ==
+                                    FormConditionFieldStatus.saving ||
+                                !state.isDirty
+                            ? null
+                            : () => context
+                                .read<FormConditionFieldBloc>()
+                                .add(const SaveConditionDraftEvent()),
+                      ),
+                      Expanded(child: _buildBody(context, state)),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          body: _buildBody(context, state),
-          floatingActionButton: state.status == FormConditionFieldStatus.ready
-              ? FloatingActionButton.extended(
-                  icon: const Icon(Icons.add),
-                  label: const Text('新增條件欄位'),
-                  onPressed: () => _onAddDefinition(context, state),
-                )
-              : null,
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
+  }
+
+  void _onMessageChanged(
+    BuildContext context,
+    FormConditionFieldState state,
+  ) {
+    final isFailure = state.status == FormConditionFieldStatus.failure;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state.message),
+        backgroundColor:
+            isFailure ? Theme.of(context).colorScheme.error : null,
+      ),
+    );
+    context
+        .read<FormConditionFieldBloc>()
+        .add(const DismissConditionMessageEvent());
   }
 
   Widget _buildBody(BuildContext context, FormConditionFieldState state) {
@@ -112,118 +131,52 @@ class _FormConditionFieldView extends StatelessWidget {
         state.status == FormConditionFieldStatus.initial) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (state.availableItems.isEmpty &&
-        state.draft.definitions.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            '此表單尚未設計任何可作為條件來源的欄位。\n請先到表單設計加入欄位後再回此處設定條件欄位。',
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+
+    if (state.availableItems.isEmpty && state.draft.definitions.isEmpty) {
+      return const ConditionFieldNoFieldsHintWidget();
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context, state),
+          ConditionFieldStatsCardWidget(
+            definitionCount: state.draft.definitions.length,
+            availableItemCount: state.availableItems.length,
+          ),
+          const SizedBox(height: 16),
+          ConditionFieldSectionHeaderWidget(
+            onAdd: state.availableItems.isEmpty
+                ? null
+                : () => _onAddDefinition(context, state),
+          ),
           const SizedBox(height: 12),
-          Expanded(
-            child: state.draft.definitions.isEmpty
-                ? _buildEmptyState(context)
-                : ListView.builder(
-                    itemCount: state.draft.definitions.length,
-                    itemBuilder: (ctx, index) {
-                      final def = state.draft.definitions[index];
-                      return ConditionFieldDefinitionCard(
-                        definition: def,
-                        availableItems: state.availableItems,
-                        onEdit: () =>
-                            _onEditDefinition(context, state, def),
-                        onRemove: () => _onRemoveDefinition(
-                            context, def.fieldKey),
-                      );
-                    },
+          if (state.draft.definitions.isEmpty)
+            const ConditionFieldEmptyStateWidget()
+          else
+            ...state.draft.definitions.map((def) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: ConditionFieldDefinitionCard(
+                    definition: def,
+                    availableItems: state.availableItems,
+                    onEdit: () => _onEditDefinition(context, state, def),
+                    onRemove: () =>
+                        _onRemoveDefinition(context, def.fieldKey),
                   ),
-          ),
+                )),
+          if (state.draft.definitions.isNotEmpty &&
+              state.availableItems.isNotEmpty)
+            ConditionFieldAddPromptWidget(
+              availableItemCount: state.availableItems.length,
+              onTap: () => _onAddDefinition(context, state),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, FormConditionFieldState state) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.functions, color: theme.colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '已定義條件欄位 ${state.draft.definitions.length} 個',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  '可用表單欄位 ${state.availableItems.length} 個 · 條件欄位獨立於表單提交設定，由 sign_off path rule 直接消費。',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.extension<FormDesignThemeColors>()!;
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: colors.emptyStateBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colors.emptyStateBorder),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.functions,
-                size: 48, color: colors.emptyStateIconColor),
-            const SizedBox(height: 12),
-            Text(
-              '尚未定義任何條件欄位',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '點右下「+ 新增條件欄位」開始；'
-              '可使用 Direct / DateDiff / Sum / Concat 4 種函式組合表單欄位。',
-              style: theme.textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // ---------- Actions ----------
 
   Future<void> _onAddDefinition(
     BuildContext context,
@@ -245,7 +198,7 @@ class _FormConditionFieldView extends StatelessWidget {
   Future<void> _onEditDefinition(
     BuildContext context,
     FormConditionFieldState state,
-    dynamic def,
+    ConditionFieldDefinition def,
   ) async {
     final result = await showConditionFieldEditorDialog(
       context: context,
@@ -272,7 +225,8 @@ class _FormConditionFieldView extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('移除條件欄位'),
-        content: Text('確定要移除 "$fieldKey"？sign_off 中已引用此 fieldKey 的規則將失效。'),
+        content:
+            Text('確定要移除 "$fieldKey"？sign_off 中已引用此 fieldKey 的規則將失效。'),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
@@ -288,5 +242,40 @@ class _FormConditionFieldView extends StatelessWidget {
           .read<FormConditionFieldBloc>()
           .add(RemoveConditionDefinitionEvent(fieldKey));
     }
+  }
+
+  void _showPreview(BuildContext context, FormConditionFieldState state) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('條件欄位預覽'),
+        content: SizedBox(
+          width: 480,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('共 ${state.draft.definitions.length} 個定義：'),
+                const SizedBox(height: 8),
+                for (final def in state.draft.definitions) ...[
+                  Text(
+                    '• ${def.fieldKey} (${def.outputType.label})',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text('  ${def.label} ← ${def.function.label}'),
+                  const SizedBox(height: 4),
+                ],
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('關閉')),
+        ],
+      ),
+    );
   }
 }

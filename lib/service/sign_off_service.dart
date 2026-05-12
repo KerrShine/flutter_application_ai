@@ -550,7 +550,7 @@ class SignOffService {
       return;
     }
 
-    final manager = empById[dept.departmentHeadUserId];
+    final manager = _resolveDepartmentManager(dept, empById);
     result.add(ResolvedApprover(
       nodeId: node.nodeId,
       description: '${dept.name} 主管',
@@ -560,6 +560,28 @@ class SignOffService {
       resolved: manager != null,
       unresolvedReason: manager == null ? '部門未指定主管' : '',
     ));
+  }
+
+  /// 解析部門主管 — 兩層 fallback：
+  ///
+  /// 1. 優先用 `dept.departmentHeadUserId`（組織管理頁明確指定）
+  /// 2. 若為空或對應員工不存在 → 找部門內任一 `roleType == 1`（主管級）員工
+  ///
+  /// 與 emp_dep 頁面判定一致：主管身份由 EmployeeModel.isManagerLevel 決定。
+  EmployeeModel? _resolveDepartmentManager(
+    OrgDepartmentNode dept,
+    Map<String, EmployeeModel> empById,
+  ) {
+    if (dept.departmentHeadUserId.isNotEmpty) {
+      final explicit = empById[dept.departmentHeadUserId];
+      if (explicit != null) return explicit;
+    }
+    for (final emp in empById.values) {
+      if (emp.departmentId == dept.departmentId && emp.isManagerLevel) {
+        return emp;
+      }
+    }
+    return null;
   }
 
   void _resolveCrossLevel(
@@ -584,7 +606,8 @@ class SignOffService {
     }
 
     final dept = deptById[target.departmentId];
-    final manager = dept != null ? empById[dept.departmentHeadUserId] : null;
+    final manager =
+        dept != null ? _resolveDepartmentManager(dept, empById) : null;
     result.add(ResolvedApprover(
       nodeId: node.nodeId,
       description: '同層互簽 → ${dept?.name ?? '未知部門'} 主管',
@@ -702,7 +725,7 @@ class SignOffService {
       dept = parent;
     }
 
-    final manager = empById[dept!.departmentHeadUserId];
+    final manager = _resolveDepartmentManager(dept!, empById);
     result.add(ResolvedApprover(
       nodeId: node.nodeId,
       description: node.applicantAncestorOffset <= 1
@@ -773,7 +796,7 @@ class SignOffService {
       dept = parent;
     }
 
-    final manager = empById[dept.departmentHeadUserId];
+    final manager = _resolveDepartmentManager(dept, empById);
     result.add(ResolvedApprover(
       nodeId: node.nodeId,
       description: '$targetLabel (${dept.name})',

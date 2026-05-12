@@ -68,6 +68,11 @@ class _ApiPickerDialogState extends State<_ApiPickerDialog> {
     }).toList();
   }
 
+  /// 把 API 清單拆成「正式 API」與「測試工具」兩組。
+  /// method == LOCAL_STORAGE 視為測試工具，會在 list 底部以獨立分組呈現。
+  static bool _isTestTool(ApiDefinition api) =>
+      api.method.toUpperCase() == 'LOCAL_STORAGE';
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -189,18 +194,59 @@ class _ApiPickerDialogState extends State<_ApiPickerDialog> {
                         ],
                       ),
                     )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, __) =>
-                          const Divider(height: 1, indent: 20, endIndent: 20),
-                      itemBuilder: (_, i) {
-                        final api = filtered[i];
-                        final isSelected = _pending?.apiId == api.apiId;
-                        return _ApiListTile(
-                          api: api,
-                          isSelected: isSelected,
-                          onTap: () => setState(() => _pending = api),
+                  : Builder(
+                      builder: (_) {
+                        final normalApis =
+                            filtered.where((a) => !_isTestTool(a)).toList();
+                        final testApis =
+                            filtered.where(_isTestTool).toList();
+                        // 計算 itemCount：
+                        // - normalApis 每筆 1 item
+                        // - 若有 testApis 則加 1 個 section header + testApis.length
+                        final hasTestSection = testApis.isNotEmpty;
+                        final itemCount = normalApis.length +
+                            (hasTestSection ? 1 + testApis.length : 0);
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          itemCount: itemCount,
+                          itemBuilder: (_, i) {
+                            // 正式 API 區
+                            if (i < normalApis.length) {
+                              final api = normalApis[i];
+                              return Column(
+                                children: [
+                                  _ApiListTile(
+                                    api: api,
+                                    isSelected: _pending?.apiId == api.apiId,
+                                    onTap: () =>
+                                        setState(() => _pending = api),
+                                  ),
+                                  if (i < normalApis.length - 1)
+                                    const Divider(
+                                        height: 1, indent: 20, endIndent: 20),
+                                ],
+                              );
+                            }
+                            // Section header (測試工具)
+                            if (i == normalApis.length && hasTestSection) {
+                              return const _TestToolsSectionHeader();
+                            }
+                            // 測試工具區
+                            final testIndex = i - normalApis.length - 1;
+                            final api = testApis[testIndex];
+                            return Column(
+                              children: [
+                                _ApiListTile(
+                                  api: api,
+                                  isSelected: _pending?.apiId == api.apiId,
+                                  onTap: () => setState(() => _pending = api),
+                                ),
+                                if (testIndex < testApis.length - 1)
+                                  const Divider(
+                                      height: 1, indent: 20, endIndent: 20),
+                              ],
+                            );
+                          },
                         );
                       },
                     ),
@@ -279,10 +325,14 @@ class _ApiListTile extends StatelessWidget {
         return Colors.teal.shade600;
       case 'DELETE':
         return cs.error;
+      case 'LOCAL_STORAGE':
+        return Colors.deepPurple.shade400;
       default:
         return cs.secondary;
     }
   }
+
+  bool get _isTestTool => api.method.toUpperCase() == 'LOCAL_STORAGE';
 
   @override
   Widget build(BuildContext context) {
@@ -290,25 +340,32 @@ class _ApiListTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final methodColor = _methodColor(api.method, cs);
 
+    // 測試工具底色（淡紫）— 與正式 API 視覺上明確區隔
+    final baseColor = _isTestTool
+        ? Colors.deepPurple.withValues(alpha: 0.04)
+        : Colors.transparent;
     return InkWell(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
         color: isSelected
             ? cs.primary.withValues(alpha: 0.08)
-            : Colors.transparent,
+            : baseColor,
         padding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
-            // Method badge
+            // Method badge — 測試工具用較寬版面以容納 LOCAL_STORAGE 字樣
             Container(
-              width: 60,
+              width: _isTestTool ? 110 : 60,
               padding: const EdgeInsets.symmetric(vertical: 4),
               decoration: BoxDecoration(
-                color: methodColor.withValues(alpha: 0.12),
+                color: methodColor.withValues(alpha: _isTestTool ? 0.18 : 0.12),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: methodColor.withValues(alpha: 0.35)),
+                border: Border.all(
+                  color: methodColor.withValues(alpha: _isTestTool ? 0.6 : 0.35),
+                  width: _isTestTool ? 1.4 : 1.0,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -327,14 +384,25 @@ class _ApiListTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    api.apiName,
-                    style: TextStyle(
-                      fontSize: TextSize.body,
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? cs.primary : cs.onSurface,
-                    ),
+                  Row(
+                    children: [
+                      if (_isTestTool) ...[
+                        const Text('🧪', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 6),
+                      ],
+                      Flexible(
+                        child: Text(
+                          api.apiName,
+                          style: TextStyle(
+                            fontSize: TextSize.body,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSelected ? cs.primary : cs.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 3),
                   Text(
@@ -357,6 +425,54 @@ class _ApiListTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 「測試工具」分組標題列 — 視覺上把開發/測試類 API 與正式 API 隔開。
+class _TestToolsSectionHeader extends StatelessWidget {
+  const _TestToolsSectionHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = Colors.deepPurple.shade400;
+    return Container(
+      margin: const EdgeInsets.only(top: 12, bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        border: Border(
+          top: BorderSide(color: color.withValues(alpha: 0.35), width: 1.5),
+          bottom: BorderSide(color: color.withValues(alpha: 0.15)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.science_outlined, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(
+            '測試工具',
+            style: TextStyle(
+              fontSize: TextSize.small,
+              fontWeight: FontWeight.w700,
+              color: color,
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              '— 開發/驗證用，會寫入本地存儲',
+              style: TextStyle(
+                fontSize: TextSize.small,
+                color: cs.onSurface.withValues(alpha: 0.5),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

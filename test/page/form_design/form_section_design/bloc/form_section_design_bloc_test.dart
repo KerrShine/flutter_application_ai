@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/model/form_section_design_draft_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
+import 'package:flutter_application_ai/service/condition_field_service.dart';
 import 'package:flutter_application_ai/service/form_section_design_service.dart';
 import 'package:flutter_application_ai/unit/base/result.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,12 +11,19 @@ import 'package:mocktail/mocktail.dart';
 class MockFormSectionDesignService extends Mock
     implements FormSectionDesignService {}
 
+class MockConditionFieldService extends Mock
+    implements ConditionFieldService {}
+
 void main() {
   group('FormSectionDesignBloc', () {
     late MockFormSectionDesignService service;
+    late MockConditionFieldService conditionService;
 
     setUp(() {
       service = MockFormSectionDesignService();
+      conditionService = MockConditionFieldService();
+      when(() => conditionService.loadDraft(any()))
+          .thenAnswer((_) async => Result.success(null));
     });
 
     blocTest<FormSectionDesignBloc, FormSectionDesignState>(
@@ -40,7 +48,7 @@ void main() {
         when(() => service.loadSection(any()))
             .thenAnswer((_) async => Result.success(null));
 
-        return FormSectionDesignBloc(service);
+        return FormSectionDesignBloc(service, conditionService);
       },
       act: (bloc) => bloc.add(const InitEvent(sectionId: 'section_1')),
       expect: () => const [

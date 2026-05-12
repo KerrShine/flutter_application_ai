@@ -79,8 +79,13 @@ import 'package:flutter_application_ai/service/form_launch_permission_service.da
 import 'package:flutter_application_ai/service/form_application_service.dart';
 import 'package:flutter_application_ai/page/form_design/form_run/bloc/form_run_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_launch_permission/bloc/form_launch_permission_bloc.dart';
-import 'package:flutter_application_ai/page/form_design/form_application_center/bloc/form_application_center_bloc.dart';
+import 'package:flutter_application_ai/page/form_application/application_create/bloc/application_create_bloc.dart';
+import 'package:flutter_application_ai/page/form_application/application_my/bloc/application_my_bloc.dart';
+import 'package:flutter_application_ai/page/form_application/application_submission_view/bloc/application_submission_view_bloc.dart';
+import 'package:flutter_application_ai/page/form_application/application_sign_off_pending/bloc/application_sign_off_pending_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_condition_field/bloc/form_condition_field_bloc.dart';
+import 'package:flutter_application_ai/service/identity_service.dart';
+import 'package:flutter_application_ai/bloc/current_employee/current_employee_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -168,6 +173,8 @@ Future<void> initDI() async {
         sl<FormBrowseRepository>(),
         sl<FormDataBindingRepository>(),
         sl<ApiCatalogRepository>(),
+        sl<ConditionFieldService>(),
+        sl<SignOffRepository>(),
         sl<LocalStorage>(),
         sl<DioClient>(),
       ));
@@ -202,6 +209,10 @@ Future<void> initDI() async {
             sl<FormLaunchPermissionRepository>(),
             sl<FormSubmissionRepository>(),
             sl<EmpInfoRepository>(),
+            sl<OrgDesignRepository>(),
+            sl<SignOffRepository>(),
+            sl<SignOffService>(),
+            sl<LocalStorage>(),
           ));
   sl.registerFactory<ConditionFieldService>(
       () => ConditionFieldService(
@@ -224,7 +235,10 @@ Future<void> initDI() async {
   sl.registerFactory<LoginBloc>(() => LoginBloc(sl<LoginService>()));
   sl.registerFactory<HomeBloc>(() => HomeBloc());
   sl.registerFactory<FormSectionDesignBloc>(
-      () => FormSectionDesignBloc(sl<FormSectionDesignService>()));
+      () => FormSectionDesignBloc(
+            sl<FormSectionDesignService>(),
+            sl<ConditionFieldService>(),
+          ));
   sl.registerFactory<FormCreateBloc>(
       () => FormCreateBloc(sl<FormCreateService>()));
   sl.registerFactory<FormManageBloc>(
@@ -258,8 +272,21 @@ Future<void> initDI() async {
   sl.registerFactory<EmpRoleBloc>(() => EmpRoleBloc(sl<EmpRoleService>()));
   sl.registerFactory<FormLaunchPermissionBloc>(
       () => FormLaunchPermissionBloc(sl<FormLaunchPermissionService>()));
-  sl.registerFactory<FormApplicationCenterBloc>(
-      () => FormApplicationCenterBloc(sl<FormApplicationService>()));
+  sl.registerFactory<ApplicationCreateBloc>(
+      () => ApplicationCreateBloc(sl<FormApplicationService>()));
+  sl.registerFactory<ApplicationMyBloc>(
+      () => ApplicationMyBloc(sl<FormApplicationService>()));
+  sl.registerFactory<ApplicationSubmissionViewBloc>(
+      () => ApplicationSubmissionViewBloc(sl<FormApplicationService>()));
+  sl.registerFactory<ApplicationSignOffPendingBloc>(
+      () => ApplicationSignOffPendingBloc());
   sl.registerFactory<FormConditionFieldBloc>(
       () => FormConditionFieldBloc(sl<ConditionFieldService>()));
+  sl.registerFactory<IdentityService>(() => IdentityService(
+        sl<EmpInfoRepository>(),
+        sl<OrgDesignRepository>(),
+        sl<LocalStorage>(),
+      ));
+  sl.registerFactory<CurrentEmployeeBloc>(
+      () => CurrentEmployeeBloc(sl<IdentityService>()));
 }

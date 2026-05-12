@@ -15,6 +15,7 @@ class EmpAgentBloc extends Bloc<EmpAgentEvent, EmpAgentState> {
 
   EmpAgentBloc(this._service) : super(const EmpAgentState()) {
     on<DeleteAssignmentEvent>(_onDeleteAssignmentEvent);
+    on<ExportAgentOptionsJsonEvent>(_onExportAgentOptionsJsonEvent);
     on<InitEvent>(_onInitEvent);
     on<SelectAgentDepartmentEvent>(_onSelectAgentDepartmentEvent);
     on<SelectAgentEmployeeEvent>(_onSelectAgentEmployeeEvent);
@@ -61,6 +62,26 @@ class EmpAgentBloc extends Bloc<EmpAgentEvent, EmpAgentState> {
     emit(state.copyWith(
       status: EmpAgentStatus.failure,
       message: result.error ?? '代理資料刪除失敗',
+      messageRequestId: state.messageRequestId + 1,
+    ));
+  }
+
+  Future<void> _onExportAgentOptionsJsonEvent(
+    ExportAgentOptionsJsonEvent event,
+    Emitter<EmpAgentState> emit,
+  ) async {
+    final result = await _service.buildAgentOptionsJson();
+    if (result.isSuccess) {
+      emit(state.copyWith(
+        exportedJson: result.data ?? '',
+        exportRequestId: state.exportRequestId + 1,
+      ));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: EmpAgentStatus.failure,
+      message: result.error ?? '代理人下拉 JSON 匯出失敗',
       messageRequestId: state.messageRequestId + 1,
     ));
   }

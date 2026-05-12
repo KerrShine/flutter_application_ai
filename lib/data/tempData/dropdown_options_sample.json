@@ -70,6 +70,26 @@
           { "value": "approver_gm",  "label": "總經理" }
         ]
       }
+    },
+    {
+      "_comment": "─── 範例 5：代理人選項，dataSourceKey = data，由 emp_agent_page 匯出工具產生 ───",
+      "apiId": "emp_agent_options_api",
+      "apiName": "代理人選項",
+      "dataSourceKey": "data",
+      "response": {
+        "code": 200,
+        "message": "success",
+        "data": [
+        {
+          "value": "emp_1775026539825000",
+          "label": "蔡嘉丞"
+        },
+        {
+          "value": "emp_1774937636999000",
+          "label": "陳煙溪"
+        }
+        ]
+      }
     }
   ]
 }

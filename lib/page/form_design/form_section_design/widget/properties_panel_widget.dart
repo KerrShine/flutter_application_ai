@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_ai/dialog/colorpicker_dialog.dart';
+import 'package:flutter_application_ai/enum/condition_compute_function.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/bloc/form_section_design_bloc.dart';
 import 'package:flutter_application_ai/page/form_design/form_section_design/constant/form_section_design_constants.dart';
@@ -316,6 +317,8 @@ class _PropertiesTab extends StatelessWidget {
               }
             },
           ),
+          const SizedBox(height: 12),
+          _ComputedFieldKeyDropdown(selectedItem: selectedItem),
         ],
         if (isDatePicker) ...[
           const SizedBox(height: 12),
@@ -688,6 +691,94 @@ class _ColorValueFieldState extends State<_ColorValueField> {
     _controller.text = selectedHex;
     widget.onChanged(selectedHex);
     setState(() {});
+  }
+}
+
+/// label 屬性面板「綁定條件欄位（顯示計算結果）」下拉。
+///
+/// 從 [FormSectionDesignBloc] state 拿出 form 已建立的 condition_field 列表；
+/// 列表為空時顯示提示，引導使用者先去 sign_off → 條件欄位設定建立計算定義。
+class _ComputedFieldKeyDropdown extends StatelessWidget {
+  final DesignerItem selectedItem;
+
+  const _ComputedFieldKeyDropdown({required this.selectedItem});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FormSectionDesignBloc, FormSectionDesignState>(
+      buildWhen: (prev, curr) =>
+          prev.availableConditionFields != curr.availableConditionFields,
+      builder: (context, state) {
+        final fields = state.availableConditionFields;
+        if (fields.isEmpty) {
+          return InputDecorator(
+            decoration: const InputDecoration(
+              labelText: '綁定條件欄位（顯示計算結果）',
+              border: OutlineInputBorder(),
+            ),
+            child: Text(
+              '請先到 sign_off → 條件欄位設定建立計算定義',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+          );
+        }
+
+        final currentValue = selectedItem.computedFieldKey.isEmpty
+            ? null
+            : selectedItem.computedFieldKey;
+        final stillExists =
+            currentValue == null || fields.any((d) => d.fieldKey == currentValue);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DropdownButtonFormField<String?>(
+              key: ValueKey('${selectedItem.id}_computed_field_key'),
+              value: stillExists ? currentValue : null,
+              decoration: const InputDecoration(
+                labelText: '綁定條件欄位（顯示計算結果）',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('無（顯示文字）'),
+                ),
+                ...fields.map((d) => DropdownMenuItem<String?>(
+                      value: d.fieldKey,
+                      child: Text(
+                        '${d.label} · ${d.function.label}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )),
+              ],
+              onChanged: (val) {
+                context.read<FormSectionDesignBloc>().add(
+                      UpdateDesignerItemComputedFieldKeyEvent(
+                        selectedItem.id,
+                        val ?? '',
+                      ),
+                    );
+              },
+            ),
+            if (currentValue != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                '文字中可用 {value} 表示計算結果位置，例如：共 {value} 天 → 共 5 天。\n'
+                '若文字未含 {value}，則只顯示計算結果。',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
   }
 }
 

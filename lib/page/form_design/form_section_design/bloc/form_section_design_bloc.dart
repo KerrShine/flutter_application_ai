@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/model/condition_field_definition.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
+import 'package:flutter_application_ai/service/condition_field_service.dart';
 import 'package:flutter_application_ai/service/form_section_design_service.dart';
 
 part 'form_section_design_event.dart';
@@ -13,9 +15,12 @@ class FormSectionDesignBloc
   static const int sectionDescriptionMaxLength = 50;
 
   final FormSectionDesignService formSectionDesignService;
+  final ConditionFieldService conditionFieldService;
 
-  FormSectionDesignBloc(this.formSectionDesignService)
-      : super(const FormSectionDesignState()) {
+  FormSectionDesignBloc(
+    this.formSectionDesignService,
+    this.conditionFieldService,
+  ) : super(const FormSectionDesignState()) {
     on<InitEvent>(_onInitEvent);
     on<AddDesignerItemEvent>(_onAddDesignerItemEvent);
     on<InsertDesignerItemEvent>(_onInsertDesignerItemEvent);
@@ -88,6 +93,21 @@ class FormSectionDesignBloc
         _onUpdateDesignerItemDataSourceUrlEvent);
     on<UpdateDesignerItemDataSourceKeyEvent>(
         _onUpdateDesignerItemDataSourceKeyEvent);
+    on<UpdateDesignerItemComputedFieldKeyEvent>(
+        _onUpdateDesignerItemComputedFieldKeyEvent);
+  }
+
+  Future<List<ConditionFieldDefinition>> _loadConditionDefinitions(
+    String formId,
+  ) async {
+    if (formId.isEmpty) return const [];
+    try {
+      final result = await conditionFieldService.loadDraft(formId);
+      if (!result.isSuccess || result.data == null) return const [];
+      return result.data!.definitions;
+    } catch (_) {
+      return const [];
+    }
   }
 
   Future<void> _onInitEvent(
@@ -96,9 +116,13 @@ class FormSectionDesignBloc
   ) async {
     emit(state.copyWith(status: FormSectionDesignStatus.loading));
 
+    final conditionDefinitions = await _loadConditionDefinitions(event.formId);
+
     if (event.sectionId.isEmpty) {
-      emit(const FormSectionDesignState(
+      emit(FormSectionDesignState(
         status: FormSectionDesignStatus.success,
+        editingFormId: event.formId,
+        availableConditionFields: conditionDefinitions,
       ));
       return;
     }
@@ -122,6 +146,8 @@ class FormSectionDesignBloc
         draftName: draft.formName,
         draftDescription: draft.description,
         editingSectionId: draft.sectionId,
+        editingFormId: event.formId,
+        availableConditionFields: conditionDefinitions,
       ));
       return;
     }
@@ -149,6 +175,8 @@ class FormSectionDesignBloc
       draftName: section.name,
       draftDescription: section.description,
       editingSectionId: section.id,
+      editingFormId: event.formId,
+      availableConditionFields: conditionDefinitions,
     ));
   }
 
@@ -673,6 +701,16 @@ class FormSectionDesignBloc
   ) {
     final updatedItems = _updateItem(event.id, (item) {
       return item.copyWith(dataSourceKey: event.dataSourceKey);
+    });
+    emit(state.copyWith(items: updatedItems));
+  }
+
+  void _onUpdateDesignerItemComputedFieldKeyEvent(
+    UpdateDesignerItemComputedFieldKeyEvent event,
+    Emitter<FormSectionDesignState> emit,
+  ) {
+    final updatedItems = _updateItem(event.id, (item) {
+      return item.copyWith(computedFieldKey: event.computedFieldKey);
     });
     emit(state.copyWith(items: updatedItems));
   }

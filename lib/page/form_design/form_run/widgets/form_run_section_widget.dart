@@ -11,6 +11,7 @@ class FormRunSectionWidget extends StatelessWidget {
   final SectionModel section;
   final Map<String, FormRunFieldValue> fieldValues;
   final Map<String, List<String>> dropdownOptionsOverride;
+  final Map<String, String> computedValues;
   final void Function(String itemId, String value) onValueChanged;
   final void Function(String itemId) onButtonPressed;
   final void Function(String itemId, String value) onDropdownChanged;
@@ -20,6 +21,7 @@ class FormRunSectionWidget extends StatelessWidget {
     required this.section,
     required this.fieldValues,
     required this.dropdownOptionsOverride,
+    this.computedValues = const {},
     required this.onValueChanged,
     required this.onButtonPressed,
     required this.onDropdownChanged,
@@ -151,6 +153,7 @@ class FormRunSectionWidget extends StatelessWidget {
       item: item,
       currentValue: currentValue,
       dropdownOptionsOverride: options,
+      computedValues: computedValues,
       onValueChanged: (v) => onValueChanged(item.id, v),
       onButtonPressed: () => onButtonPressed(item.id),
     );

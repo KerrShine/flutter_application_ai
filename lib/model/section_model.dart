@@ -91,6 +91,7 @@ class SectionModel extends Equatable {
           dataSourceKey: m['dataSourceKey'] ?? '',
           buttonColorHex: m['buttonColorHex'] ?? '',
           buttonTextColorHex: m['buttonTextColorHex'] ?? '',
+          computedFieldKey: m['computedFieldKey'] ?? '',
         );
       }).toList(),
     );

@@ -30,6 +30,22 @@ class EmpInfoRepositoryImpl implements EmpInfoRepository {
   }
 
   @override
+  Future<Result<EmployeeModel?>> loadById(String employeeId) async {
+    if (employeeId.isEmpty) return Result.success(null);
+    final result = await loadEmployees();
+    if (!result.isSuccess) {
+      return Result.failure(result.error ?? '讀取員工失敗');
+    }
+    final found = (result.data ?? const <EmployeeModel>[])
+        .cast<EmployeeModel?>()
+        .firstWhere(
+          (e) => e?.employeeId == employeeId,
+          orElse: () => null,
+        );
+    return Result.success(found);
+  }
+
+  @override
   Future<Result<bool>> saveAllEmployees(List<EmployeeModel> employees) async {
     try {
       final payload = employees.map((employee) => employee.toMap()).toList();

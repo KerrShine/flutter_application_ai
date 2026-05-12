@@ -32,7 +32,10 @@
 | 表單設計 | `form_condition_field_page.dart` | 表單條件欄位定義（per-form 的 fieldKey + 計算公式 Direct/DateDiff/Sum/Concat，給 sign_off path rule 條件比對消費；入口僅從 sign_off_editor header chip 進） |
 | 表單應用 | `form_run_page.dart` | 執行表單 |
 | 表單應用 | `form_browse_page.dart` | 預覽表單 |
-| 表單應用 | `form_application_center_page.dart` | 表單申請中心 |
+| 表單應用 | `application_create_page.dart` | 新增申請（員工選表單發起，含搜尋與表單卡） |
+| 表單應用 | `application_my_page.dart` | 我的申請（自己送過的 submission 列表 + 匯出 JSON） |
+| 表單應用 | `application_sign_off_pending_page.dart` | 待我簽核（v1 空殼；sign_off 流程模組完成後接入） |
+| 表單應用 | `application_submission_view_page.dart` | 申請詳情（meta + 簽核狀態 + 完整簽核鏈 + 匯出 JSON；pending 可入編輯模式） |
 | 簽核 | `sign_off_manager_page.dart` | 簽核流程模板管理 |
 | 簽核 | `sign_off_editor_page.dart` | 簽核流程模板編輯 |
 

@@ -9,11 +9,12 @@ class FormSectionDesignEvent extends Equatable {
 
 class InitEvent extends FormSectionDesignEvent {
   final String sectionId;
+  final String formId;
 
-  const InitEvent({this.sectionId = ''});
+  const InitEvent({this.sectionId = '', this.formId = ''});
 
   @override
-  List<Object> get props => [sectionId];
+  List<Object> get props => [sectionId, formId];
 }
 
 class AddDesignerItemEvent extends FormSectionDesignEvent {
@@ -393,4 +394,17 @@ class UpdateDesignerItemDataSourceKeyEvent extends FormSectionDesignEvent {
 
   @override
   List<Object> get props => [id, dataSourceKey];
+}
+
+class UpdateDesignerItemComputedFieldKeyEvent extends FormSectionDesignEvent {
+  final String id;
+  final String computedFieldKey;
+
+  const UpdateDesignerItemComputedFieldKeyEvent(
+    this.id,
+    this.computedFieldKey,
+  );
+
+  @override
+  List<Object> get props => [id, computedFieldKey];
 }

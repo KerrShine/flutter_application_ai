@@ -124,5 +124,35 @@ class RouteCatalog {
       label: '職位設定',
       group: '員工',
     ),
+
+    // ── 表單應用 ─────────────────────────────────────────
+    RouteDefinition(
+      path: '/home/form-apply/new',
+      label: '新增申請',
+      group: '表單應用',
+    ),
+    RouteDefinition(
+      path: '/home/form-apply/my',
+      label: '我的申請',
+      group: '表單應用',
+    ),
+    RouteDefinition(
+      path: '/home/sign-off-pending',
+      label: '待我簽核',
+      group: '表單應用',
+    ),
+
+    // ── 簽核 ─────────────────────────────────────────────
+    RouteDefinition(
+      path: '/home/sign-off/sign-off-manager',
+      label: '簽核流程模板管理',
+      group: '簽核',
+    ),
+    RouteDefinition(
+      path: '/home/sign-off/sign-off-manager/editor',
+      label: '簽核流程模板編輯',
+      group: '簽核',
+      requiresExtra: true,
+    ),
   ];
 }

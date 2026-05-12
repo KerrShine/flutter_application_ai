@@ -25,7 +25,10 @@ import 'package:flutter_application_ai/model/section_model.dart';
 import 'package:flutter_application_ai/page/form_design/form_run/form_run_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_launch_permission/form_launch_permission_page.dart';
 import 'package:flutter_application_ai/page/form_design/form_launch_permission_editor/form_launch_permission_editor_page.dart';
-import 'package:flutter_application_ai/page/form_design/form_application_center/form_application_center_page.dart';
+import 'package:flutter_application_ai/page/form_application/application_create/application_create_page.dart';
+import 'package:flutter_application_ai/page/form_application/application_my/application_my_page.dart';
+import 'package:flutter_application_ai/page/form_application/application_sign_off_pending/application_sign_off_pending_page.dart';
+import 'package:flutter_application_ai/page/form_application/application_submission_view/application_submission_view_page.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_manager/sign_off_manager_page.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/sign_off_editor_page.dart';
 import 'package:flutter_application_ai/model/form_launch_permission_model.dart';
@@ -66,7 +69,10 @@ class RouteName {
   static const String formRunPage = '/home/form-run';
   static const String formLaunchPermissionPage =
       '/home/form-manage/form-launch-permission';
-  static const String formApplicationCenterPage = '/home/form-apply';
+  static const String applicationCreatePage = '/home/form-apply/new';
+  static const String myApplicationPage = '/home/form-apply/my';
+  static const String signOffPendingPage = '/home/sign-off-pending';
+  static const String submissionViewPage = '/home/submission/:signOffId';
   static const String formLaunchPermissionEditorPage =
       '/home/form-manage/form-launch-permission/editor';
   static const String signOffManagerPage = '/home/sign-off/sign-off-manager';
@@ -156,6 +162,7 @@ class AppRouter {
               return FormRunPage(
                 formId: extra?['formId'] as String? ?? '',
                 bindingId: extra?['bindingId'] as String? ?? '',
+                signOffId: extra?['signOffId'] as String? ?? '',
               );
             },
           ),
@@ -276,10 +283,23 @@ class AppRouter {
             ],
           ),
           GoRoute(
-            path: RouteName.formApplicationCenterPage,
+            path: RouteName.applicationCreatePage,
+            builder: (context, state) => const ApplicationCreatePage(),
+          ),
+          GoRoute(
+            path: RouteName.myApplicationPage,
+            builder: (context, state) => const ApplicationMyPage(),
+          ),
+          GoRoute(
+            path: RouteName.signOffPendingPage,
+            builder: (context, state) => const ApplicationSignOffPendingPage(),
+          ),
+          GoRoute(
+            path: RouteName.submissionViewPage,
             builder: (context, state) {
-              final employeeId = state.extra as String? ?? '';
-              return FormApplicationCenterPage(employeeId: employeeId);
+              final signOffId =
+                  state.pathParameters['signOffId'] ?? '';
+              return ApplicationSubmissionViewPage(signOffId: signOffId);
             },
           ),
           GoRoute(

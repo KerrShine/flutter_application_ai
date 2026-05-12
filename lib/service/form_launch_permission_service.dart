@@ -165,10 +165,11 @@ class FormLaunchPermissionService {
       }
 
       final employees = empResult.data ?? const <EmployeeModel>[];
+      final topLevelDeptIds = _topLevelDeptIdsOf(await _loadDepartments());
       final eligible = <EligibleEmployeeInfo>[];
 
       for (final emp in employees) {
-        if (_canLaunch(emp, permission)) {
+        if (_canLaunch(emp, permission, topLevelDeptIds)) {
           eligible.add(EligibleEmployeeInfo(
             employeeId: emp.employeeId,
             employeeName: emp.employeeName,
@@ -184,7 +185,11 @@ class FormLaunchPermissionService {
     }
   }
 
-  bool _canLaunch(EmployeeModel emp, FormLaunchPermissionModel permission) {
+  bool _canLaunch(
+    EmployeeModel emp,
+    FormLaunchPermissionModel permission,
+    Set<String> topLevelDeptIds,
+  ) {
     if (permission.requireActiveStatus && !emp.isActive) return false;
     if (permission.requireManagerRole && !emp.isManagerLevel) return false;
 
@@ -193,12 +198,23 @@ class FormLaunchPermissionService {
       return false;
     }
 
-    if (permission.allowedDepartmentIds.isNotEmpty &&
+    // 部門檢查：總管理（depthLevel == 0）員工 bypass — 對應編輯器將總管理排除於
+    // 可選清單外的設計意圖（總管理預設享有所有發起權限）。
+    final isTopLevelEmp = topLevelDeptIds.contains(emp.departmentId);
+    if (!isTopLevelEmp &&
+        permission.allowedDepartmentIds.isNotEmpty &&
         !permission.allowedDepartmentIds.contains(emp.departmentId)) {
       return false;
     }
 
     return true;
+  }
+
+  Set<String> _topLevelDeptIdsOf(List<OrgDepartmentNode> departments) {
+    return departments
+        .where((d) => d.depthLevel == 0)
+        .map((d) => d.departmentId)
+        .toSet();
   }
 
   Future<Result<String>> buildExportJson() async {

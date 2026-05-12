@@ -23,6 +23,8 @@ class EmpAgentState extends Equatable {
   final String agentEmployeeId;
   final EmployeeModel selectedAgentEmployee;
   final List<EmpAgentAssignmentViewModel> assignmentRows;
+  final String exportedJson;
+  final int exportRequestId;
 
   const EmpAgentState({
     this.status = EmpAgentStatus.init,
@@ -40,6 +42,8 @@ class EmpAgentState extends Equatable {
     this.agentEmployeeId = '',
     this.selectedAgentEmployee = const EmployeeModel(),
     this.assignmentRows = const [],
+    this.exportedJson = '',
+    this.exportRequestId = 0,
   });
 
   bool get hasDepartments => departments.isNotEmpty;
@@ -60,6 +64,8 @@ class EmpAgentState extends Equatable {
     String? agentEmployeeId,
     EmployeeModel? selectedAgentEmployee,
     List<EmpAgentAssignmentViewModel>? assignmentRows,
+    String? exportedJson,
+    int? exportRequestId,
   }) {
     return EmpAgentState(
       status: status ?? this.status,
@@ -80,6 +86,8 @@ class EmpAgentState extends Equatable {
       selectedAgentEmployee:
           selectedAgentEmployee ?? this.selectedAgentEmployee,
       assignmentRows: assignmentRows ?? this.assignmentRows,
+      exportedJson: exportedJson ?? this.exportedJson,
+      exportRequestId: exportRequestId ?? this.exportRequestId,
     );
   }
 
@@ -100,5 +108,7 @@ class EmpAgentState extends Equatable {
         agentEmployeeId,
         selectedAgentEmployee,
         assignmentRows,
+        exportedJson,
+        exportRequestId,
       ];
 }

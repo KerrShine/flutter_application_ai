@@ -24,6 +24,15 @@
         "Content-Type": "application/json"
       },
       "bodyTemplate": {}
+    },
+    {
+      "apiId": "test_write_to_storage_api",
+      "apiName": "測試寫入",
+      "method": "LOCAL_STORAGE",
+      "path": "form_run_test_write_log",
+      "timeoutMs": 1000,
+      "headers": {},
+      "bodyTemplate": {}
     }
   ]
 }

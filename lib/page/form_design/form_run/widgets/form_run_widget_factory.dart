@@ -16,6 +16,7 @@ class FormRunWidgetFactory {
     required DesignerItem item,
     required String currentValue,
     List<String>? dropdownOptionsOverride,
+    Map<String, String> computedValues = const {},
     required void Function(String value) onValueChanged,
     required void Function() onButtonPressed,
   }) {
@@ -27,6 +28,7 @@ class FormRunWidgetFactory {
         item: item,
         currentValue: currentValue,
         dropdownOptionsOverride: dropdownOptionsOverride,
+        computedValues: computedValues,
         onValueChanged: onValueChanged,
         onButtonPressed: onButtonPressed,
       ),
@@ -38,6 +40,7 @@ class FormRunWidgetFactory {
     required DesignerItem item,
     required String currentValue,
     List<String>? dropdownOptionsOverride,
+    required Map<String, String> computedValues,
     required void Function(String value) onValueChanged,
     required void Function() onButtonPressed,
   }) {
@@ -47,8 +50,18 @@ class FormRunWidgetFactory {
 
     switch (item.type) {
       case DesignerItemType.label:
+        // 綁 condition_field 時把 item.text 當 template，用 `{value}` 占位符替換成計算結果，
+        // 例如「共 {value} 天」→「共 5 天」；text 中無占位符時 fallback 為純值顯示。
+        // 未綁定則顯示設計師輸入的靜態文字。
+        String displayText = item.text;
+        if (item.computedFieldKey.isNotEmpty) {
+          final value = computedValues[item.computedFieldKey] ?? '';
+          displayText = item.text.contains('{value}')
+              ? item.text.replaceAll('{value}', value)
+              : value;
+        }
         return Text(
-          item.text,
+          displayText,
           style: TextStyle(
             fontSize: item.fontSize,
             fontWeight: item.isBold ? FontWeight.bold : FontWeight.normal,

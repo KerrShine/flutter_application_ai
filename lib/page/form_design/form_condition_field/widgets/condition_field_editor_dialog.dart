@@ -3,6 +3,7 @@ import 'package:flutter_application_ai/enum/condition_compute_function.dart';
 import 'package:flutter_application_ai/enum/condition_field_type.dart';
 import 'package:flutter_application_ai/model/condition_field_definition.dart';
 import 'package:flutter_application_ai/service/condition_field_service.dart';
+import 'package:flutter_application_ai/theme/form_condition_field_theme_colors.dart';
 
 /// 結果容器：dialog 結束時帶回原 fieldKey（編輯模式用來定位舊定義）+ 新定義。
 class ConditionFieldEditResult {
@@ -349,7 +350,9 @@ class _ConditionFieldEditorDialogState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context)
+                      .extension<FormConditionFieldThemeColors>()!
+                      .formulaIconColor,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

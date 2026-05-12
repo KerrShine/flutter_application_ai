@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_application_ai/model/emp_agent_assignment_model.dart';
 import 'package:flutter_application_ai/model/emp_agent_assignment_view_model.dart';
 import 'package:flutter_application_ai/model/emp_agent_view_data.dart';
@@ -255,6 +257,42 @@ class EmpAgentService {
       );
     } catch (ex) {
       return Result.failure('代理資料刪除失敗: ${ex.toString()}');
+    }
+  }
+
+  /// 把代理人指派與員工 join 成 dropdown 期待的 `{value, label}` JSON 字串。
+  ///
+  /// - value = agentEmployeeId
+  /// - label = 員工姓名（找不到員工時 fallback 為 employeeId）
+  /// - 過濾 status != 1 的指派；同 agent 去重；依 label 排序
+  /// - 用於 dropdown_options_sample.json 中 emp_agent_options_api 的 response.data
+  Future<Result<String>> buildAgentOptionsJson() async {
+    try {
+      final sourceResult = await _loadSourceData();
+      if (!sourceResult.isSuccess || sourceResult.data == null) {
+        return Result.failure(sourceResult.error ?? '代理資料讀取失敗');
+      }
+
+      final source = sourceResult.data!;
+      final empById = {for (final e in source.employees) e.employeeId: e};
+      final seen = <String>{};
+      final entries = <Map<String, String>>[];
+      for (final assignment in source.assignments) {
+        if (assignment.status != 1) continue;
+        if (!seen.add(assignment.agentEmployeeId)) continue;
+        final emp = empById[assignment.agentEmployeeId];
+        entries.add({
+          'value': assignment.agentEmployeeId,
+          'label': emp?.employeeName ?? assignment.agentEmployeeId,
+        });
+      }
+      entries.sort((x, y) => x['label']!.compareTo(y['label']!));
+
+      return Result.success(
+        const JsonEncoder.withIndent('  ').convert(entries),
+      );
+    } catch (ex) {
+      return Result.failure('代理人下拉 JSON 匯出失敗: ${ex.toString()}');
     }
   }
 

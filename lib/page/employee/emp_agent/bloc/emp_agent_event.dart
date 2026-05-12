@@ -20,6 +20,10 @@ class DeleteAssignmentEvent extends EmpAgentEvent {
   List<Object> get props => [assignmentId];
 }
 
+class ExportAgentOptionsJsonEvent extends EmpAgentEvent {
+  const ExportAgentOptionsJsonEvent();
+}
+
 class SelectAgentDepartmentEvent extends EmpAgentEvent {
   final String departmentId;
 

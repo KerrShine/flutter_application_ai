@@ -20,6 +20,8 @@ class FormSectionDesignState extends Equatable {
   final String draftName;
   final String draftDescription;
   final String editingSectionId;
+  final String editingFormId;
+  final List<ConditionFieldDefinition> availableConditionFields;
 
   const FormSectionDesignState({
     this.status = FormSectionDesignStatus.init,
@@ -31,6 +33,8 @@ class FormSectionDesignState extends Equatable {
     this.draftName = '',
     this.draftDescription = '',
     this.editingSectionId = '',
+    this.editingFormId = '',
+    this.availableConditionFields = const [],
   });
 
   FormSectionDesignState copyWith({
@@ -43,6 +47,8 @@ class FormSectionDesignState extends Equatable {
     String? draftName,
     String? draftDescription,
     String? editingSectionId,
+    String? editingFormId,
+    List<ConditionFieldDefinition>? availableConditionFields,
   }) {
     return FormSectionDesignState(
       status: status ?? this.status,
@@ -54,6 +60,9 @@ class FormSectionDesignState extends Equatable {
       draftName: draftName ?? this.draftName,
       draftDescription: draftDescription ?? this.draftDescription,
       editingSectionId: editingSectionId ?? this.editingSectionId,
+      editingFormId: editingFormId ?? this.editingFormId,
+      availableConditionFields:
+          availableConditionFields ?? this.availableConditionFields,
     );
   }
 
@@ -68,5 +77,7 @@ class FormSectionDesignState extends Equatable {
         draftName,
         draftDescription,
         editingSectionId,
+        editingFormId,
+        availableConditionFields,
       ];
 }

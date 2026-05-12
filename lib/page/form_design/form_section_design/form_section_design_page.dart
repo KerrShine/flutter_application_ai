@@ -13,7 +13,6 @@ import 'package:flutter_application_ai/page/form_design/form_section_design/widg
 import 'package:flutter_application_ai/page/form_design/form_section_design/widget/trailing_drop_zone_widget.dart';
 import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/theme/form_section_design_page_theme.dart';
-import 'package:flutter_application_ai/service/form_section_design_service.dart';
 import 'package:flutter_application_ai/theme/form_section_design_theme_colors.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,8 +38,11 @@ class _FormSectionDesignPageState extends State<FormSectionDesignPage> {
 
   @override
   void initState() {
-    _bloc = FormSectionDesignBloc(sl<FormSectionDesignService>());
-    _bloc.add(InitEvent(sectionId: widget.editSectionId));
+    _bloc = sl<FormSectionDesignBloc>();
+    _bloc.add(InitEvent(
+      sectionId: widget.editSectionId,
+      formId: widget.returnFormId,
+    ));
     super.initState();
   }
 

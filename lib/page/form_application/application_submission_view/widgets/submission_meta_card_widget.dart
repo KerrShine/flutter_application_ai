@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ai/model/leave_sign_off_model.dart';
+import 'package:flutter_application_ai/model/sign_off_instance.dart';
 import 'package:flutter_application_ai/theme/form_application_theme_colors.dart';
 import 'package:flutter_application_ai/theme/text_size.dart';
 
 /// submission_view_page 頂部的 meta 卡 — 顯示申請人 / 送出時間 / 狀態 / 申請編號。
 class SubmissionMetaCardWidget extends StatelessWidget {
-  final LeaveSignOffModel signOff;
+  final SignOffInstance signOff;
 
   const SubmissionMetaCardWidget({super.key, required this.signOff});
 
@@ -98,7 +98,7 @@ class SubmissionMetaCardWidget extends StatelessWidget {
   /// 找 sectionsSnapshot 中 label 含 [keywords] 之一的欄位 → 用其 itemId 取值。
   /// 找不到回空字串。
   String _findValueByLabel(
-    LeaveSignOffModel signOff,
+    SignOffInstance signOff,
     List<String> keywords,
   ) {
     for (final sectionMap in signOff.sectionsSnapshot) {
@@ -122,7 +122,7 @@ class SubmissionMetaCardWidget extends StatelessWidget {
   /// 找 sectionsSnapshot 中有 computedFieldKey 且 text 含 [keywords] 之一的
   /// label 欄位 → 用 computedFieldKey 從 computedFields 取計算值。
   String _findComputedByLabel(
-    LeaveSignOffModel signOff,
+    SignOffInstance signOff,
     List<String> keywords,
   ) {
     for (final sectionMap in signOff.sectionsSnapshot) {
@@ -144,7 +144,7 @@ class SubmissionMetaCardWidget extends StatelessWidget {
   }
 
   List<Widget> _buildLeaveSpecificRows(
-    LeaveSignOffModel signOff,
+    SignOffInstance signOff,
     FormApplicationThemeColors colors,
     TextTheme textTheme,
   ) {

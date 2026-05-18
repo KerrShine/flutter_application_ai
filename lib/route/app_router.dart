@@ -29,6 +29,7 @@ import 'package:flutter_application_ai/page/form_application/application_create/
 import 'package:flutter_application_ai/page/form_application/application_my/application_my_page.dart';
 import 'package:flutter_application_ai/page/form_application/application_sign_off_pending/application_sign_off_pending_page.dart';
 import 'package:flutter_application_ai/page/form_application/application_submission_view/application_submission_view_page.dart';
+import 'package:flutter_application_ai/enum/submission_view_mode.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_manager/sign_off_manager_page.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/sign_off_editor_page.dart';
 import 'package:flutter_application_ai/model/form_launch_permission_model.dart';
@@ -299,7 +300,14 @@ class AppRouter {
             builder: (context, state) {
               final signOffId =
                   state.pathParameters['signOffId'] ?? '';
-              return ApplicationSubmissionViewPage(signOffId: signOffId);
+              final extra = state.extra as Map<String, dynamic>?;
+              final mode = SubmissionViewModeX.fromCode(
+                extra?['mode'] as String?,
+              );
+              return ApplicationSubmissionViewPage(
+                signOffId: signOffId,
+                mode: mode,
+              );
             },
           ),
           GoRoute(

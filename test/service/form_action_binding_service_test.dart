@@ -45,12 +45,15 @@ void main() {
     apiCatalogRepository = MockApiCatalogRepository();
     when(() => apiCatalogRepository.loadApiList())
         .thenAnswer((_) async => Result.success(<ApiDefinition>[]));
+    when(() => apiCatalogRepository.loadDropdownApiList())
+        .thenAnswer((_) async => Result.success(<ApiDefinition>[]));
     formDataBindingService = FormDataBindingService(
       formRepository,
       sectionRepository,
       bindingRepository,
     );
-    service = FormActionBindingService(formDataBindingService, apiCatalogRepository);
+    service =
+        FormActionBindingService(formDataBindingService, apiCatalogRepository);
   });
 
   group('initialize', () {

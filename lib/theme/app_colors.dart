@@ -241,6 +241,11 @@ class AppColors {
   static const Color formDesignActionInfo = Color(0xFF4AA3FF);
   static const Color formDesignActionSuccess = Color(0xFF2BB673);
 
+  // sign_off canvas 連線色（依目標節點 nodeType 區分）
+  static const Color signOffFlowApprove = Color(0xFF2BB673); // 綠：審核（同 actionSuccess）
+  static const Color signOffFlowCountersign = Color(0xFF8B5CF6); // 紫：會簽（多人）
+  static const Color signOffFlowNotify = Color(0xFFF59E0B); // 琥珀：知會（不阻擋）
+
   // FormBrowsePage 與其 widgets 使用
   static const Color formBrowseGradientStartLight = Color(0xFFF4F7FF);
   static const Color formBrowseGradientMiddleLight = Color(0xFFFFF7EA);
@@ -512,42 +517,42 @@ class AppColors {
   static const Color formConditionEmptyStateIconLight = Color(0xFF295BBD);
   static const Color formConditionEmptyStateIconDark = Color(0xFFA0BEFF);
 
-  // FormApplicationCenterPage 與其 widgets 使用
-  static const Color appCenterPageBackgroundLight = Color(0xFFF5F5F5);
-  static const Color appCenterPageBackgroundDark = Color(0xFF141414);
-  static const Color appCenterErrorLight = Color(0xFFDC2626);
-  static const Color appCenterErrorDark = Color(0xFFF87171);
-  static const Color appCenterSubtitleTextLight = Color(0xFF757575);
-  static const Color appCenterSubtitleTextDark = Color(0xFF94A3B8);
-  static const Color appCenterSearchFillLight = Color(0xFFFFFFFF);
-  static const Color appCenterSearchFillDark = Color(0xFF1E1E1E);
-  static const Color appCenterEmptyTextLight = Color(0xFF9E9E9E);
-  static const Color appCenterEmptyTextDark = Color(0xFF94A3B8);
-  static const Color appCenterFormIconLight = Color(0xFF2196F3);
-  static const Color appCenterFormIconDark = Color(0xFF64B5F6);
-  static const Color appCenterHintTextLight = Color(0xFF9E9E9E);
-  static const Color appCenterHintTextDark = Color(0xFF7F93AB);
-  static const Color appCenterSubmittedIconLight = Color(0xFF4CAF50);
-  static const Color appCenterSubmittedIconDark = Color(0xFF66BB6A);
-  static const Color appCenterPendingIconLight = Color(0xFFFF9800);
-  static const Color appCenterPendingIconDark = Color(0xFFFFB74D);
+  // FormApplicationThemeColors 與其關聯 widgets 使用
+  static const Color appFormApplicationPageBackgroundLight = Color(0xFFF5F5F5);
+  static const Color appFormApplicationPageBackgroundDark = Color(0xFF141414);
+  static const Color appFormApplicationErrorLight = Color(0xFFDC2626);
+  static const Color appFormApplicationErrorDark = Color(0xFFF87171);
+  static const Color appFormApplicationSubtitleTextLight = Color(0xFF757575);
+  static const Color appFormApplicationSubtitleTextDark = Color(0xFF94A3B8);
+  static const Color appFormApplicationSearchFillLight = Color(0xFFFFFFFF);
+  static const Color appFormApplicationSearchFillDark = Color(0xFF1E1E1E);
+  static const Color appFormApplicationEmptyTextLight = Color(0xFF9E9E9E);
+  static const Color appFormApplicationEmptyTextDark = Color(0xFF94A3B8);
+  static const Color appFormApplicationFormIconLight = Color(0xFF2196F3);
+  static const Color appFormApplicationFormIconDark = Color(0xFF64B5F6);
+  static const Color appFormApplicationHintTextLight = Color(0xFF9E9E9E);
+  static const Color appFormApplicationHintTextDark = Color(0xFF7F93AB);
+  static const Color appFormApplicationSubmittedIconLight = Color(0xFF4CAF50);
+  static const Color appFormApplicationSubmittedIconDark = Color(0xFF66BB6A);
+  static const Color appFormApplicationPendingIconLight = Color(0xFFFF9800);
+  static const Color appFormApplicationPendingIconDark = Color(0xFFFFB74D);
   // 簽核中（藍）— 區別於 pending 的橙
-  static const Color appCenterInReviewIconLight = Color(0xFF2196F3);
-  static const Color appCenterInReviewIconDark = Color(0xFF64B5F6);
+  static const Color appFormApplicationInReviewIconLight = Color(0xFF2196F3);
+  static const Color appFormApplicationInReviewIconDark = Color(0xFF64B5F6);
   // 已撤回（灰）— 收斂掉的最終狀態
-  static const Color appCenterWithdrawnIconLight = Color(0xFF9E9E9E);
-  static const Color appCenterWithdrawnIconDark = Color(0xFF6B7280);
+  static const Color appFormApplicationWithdrawnIconLight = Color(0xFF9E9E9E);
+  static const Color appFormApplicationWithdrawnIconDark = Color(0xFF6B7280);
   // 列表卡片
-  static const Color appCenterCardBackgroundLight = Color(0xFFFFFFFF);
-  static const Color appCenterCardBackgroundDark = Color(0xFF1E2230);
-  static const Color appCenterCardBorderLight = Color(0xFFE5E7EB);
-  static const Color appCenterCardBorderDark = Color(0xFF2A3040);
+  static const Color appFormApplicationCardBackgroundLight = Color(0xFFFFFFFF);
+  static const Color appFormApplicationCardBackgroundDark = Color(0xFF1E2230);
+  static const Color appFormApplicationCardBorderLight = Color(0xFFE5E7EB);
+  static const Color appFormApplicationCardBorderDark = Color(0xFF2A3040);
   // 列表標題/副標
-  static const Color appCenterListTitleTextLight = Color(0xFF111827);
-  static const Color appCenterListTitleTextDark = Color(0xFFE2E8F0);
-  static const Color appCenterListSubtitleTextLight = Color(0xFF6B7280);
-  static const Color appCenterListSubtitleTextDark = Color(0xFF94A3B8);
+  static const Color appFormApplicationListTitleTextLight = Color(0xFF111827);
+  static const Color appFormApplicationListTitleTextDark = Color(0xFFE2E8F0);
+  static const Color appFormApplicationListSubtitleTextLight = Color(0xFF6B7280);
+  static const Color appFormApplicationListSubtitleTextDark = Color(0xFF94A3B8);
   // 狀態 chip 背景
-  static const Color appCenterChipBackgroundLight = Color(0xFFF3F4F6);
-  static const Color appCenterChipBackgroundDark = Color(0xFF2A3040);
+  static const Color appFormApplicationChipBackgroundLight = Color(0xFFF3F4F6);
+  static const Color appFormApplicationChipBackgroundDark = Color(0xFF2A3040);
 }

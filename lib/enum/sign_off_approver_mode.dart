@@ -21,6 +21,10 @@ enum SignOffApproverMode {
   /// 申請人指定層級主管 — 沿 parent 鏈往上找第一個 depthLevel == applicantTargetDepthLevel 的祖先部門主管。
   /// 解決不對稱組織樹下「BU 主管 / 事業群主管」這類邏輯角色定位（相對申請人）
   applicantManagerAtDepth,
+
+  /// 申請人的代理人 — 執行時依 EmpAgentAssignment 動態查申請人當前代理人為簽核者（相對申請人）。
+  /// 適用於請假單等需要先讓代理人知情並承接職務的場景。
+  applicantAgent,
 }
 
 extension SignOffApproverModeX on SignOffApproverMode {
@@ -40,6 +44,8 @@ extension SignOffApproverModeX on SignOffApproverMode {
         return 'applicantAncestorManager';
       case SignOffApproverMode.applicantManagerAtDepth:
         return 'applicantManagerAtDepth';
+      case SignOffApproverMode.applicantAgent:
+        return 'applicantAgent';
     }
   }
 
@@ -59,6 +65,8 @@ extension SignOffApproverModeX on SignOffApproverMode {
         return '申請人上 N 層主管';
       case SignOffApproverMode.applicantManagerAtDepth:
         return '申請人指定層級主管';
+      case SignOffApproverMode.applicantAgent:
+        return '申請人的代理人';
     }
   }
 
@@ -66,7 +74,8 @@ extension SignOffApproverModeX on SignOffApproverMode {
   bool get isRelativeToApplicant {
     return this == SignOffApproverMode.applicantSelf ||
         this == SignOffApproverMode.applicantAncestorManager ||
-        this == SignOffApproverMode.applicantManagerAtDepth;
+        this == SignOffApproverMode.applicantManagerAtDepth ||
+        this == SignOffApproverMode.applicantAgent;
   }
 
   static SignOffApproverMode fromCode(String? code) {
@@ -83,6 +92,8 @@ extension SignOffApproverModeX on SignOffApproverMode {
         return SignOffApproverMode.applicantAncestorManager;
       case 'applicantManagerAtDepth':
         return SignOffApproverMode.applicantManagerAtDepth;
+      case 'applicantAgent':
+        return SignOffApproverMode.applicantAgent;
       case 'hierarchyManager':
       default:
         return SignOffApproverMode.hierarchyManager;

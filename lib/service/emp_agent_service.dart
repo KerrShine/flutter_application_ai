@@ -21,6 +21,34 @@ class EmpAgentService {
     this._orgDesignRepository,
   );
 
+  /// 查詢給定員工目前的 active 代理指派；無則回 null（success state）。
+  ///
+  /// 給簽核流程預覽鏈用 — `SignOffService.resolveApproverChain` 在節點
+  /// 啟用 `allowAgentFallback` 時呼叫此 method 取得代理人姓名/ID。
+  Future<Result<EmpAgentAssignmentModel?>> findActiveAgentFor(
+    String principalEmployeeId,
+  ) async {
+    if (principalEmployeeId.isEmpty) {
+      return Result.success(null);
+    }
+    try {
+      final result = await _repository.loadAssignments();
+      if (!result.isSuccess || result.data == null) {
+        return Result.failure(result.error ?? '查詢代理人失敗');
+      }
+      final match = result.data!.cast<EmpAgentAssignmentModel?>().firstWhere(
+            (a) =>
+                a != null &&
+                a.principalEmployeeId == principalEmployeeId &&
+                a.isActive,
+            orElse: () => null,
+          );
+      return Result.success(match);
+    } catch (ex) {
+      return Result.failure('查詢代理人失敗: ${ex.toString()}');
+    }
+  }
+
   Future<Result<EmpAgentViewData>> initData() async {
     try {
       final sourceResult = await _loadSourceData();

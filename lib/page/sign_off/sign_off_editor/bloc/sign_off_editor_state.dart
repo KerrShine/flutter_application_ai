@@ -63,6 +63,18 @@ class SignOffEditorState extends Equatable {
   final String message;
   final int messageRequestId;
 
+  /// 匯出 JSON 的內容（由 RequestExportJsonEvent 觸發後填入）。
+  final String exportJson;
+
+  /// 匯出 JSON dialog 顯示計數 — page 透過 BlocListener 比對前後值決定是否 showDialog。
+  final int exportDialogRequestId;
+
+  /// 待導航的路由名稱（空字串 = 無）。
+  final String navigateRoute;
+
+  /// 待導航攜帶的 extra（如 formId / formName）。
+  final Map<String, dynamic> navigateExtra;
+
   static final List<double> defaultCanvasTransformValues =
       List<double>.unmodifiable([
     1.0, 0.0, 0.0, 0.0,
@@ -96,6 +108,10 @@ class SignOffEditorState extends Equatable {
     this.conditionFieldStatuses = const {},
     this.message = '',
     this.messageRequestId = 0,
+    this.exportJson = '',
+    this.exportDialogRequestId = 0,
+    this.navigateRoute = '',
+    this.navigateExtra = const {},
   }) : canvasTransformValues =
             canvasTransformValues ?? defaultCanvasTransformValues;
 
@@ -257,6 +273,10 @@ class SignOffEditorState extends Equatable {
     Map<String, SignOffConditionFieldSummary>? conditionFieldStatuses,
     String? message,
     int? messageRequestId,
+    String? exportJson,
+    int? exportDialogRequestId,
+    String? navigateRoute,
+    Map<String, dynamic>? navigateExtra,
     bool clearSelectedNode = false,
   }) {
     return SignOffEditorState(
@@ -288,6 +308,11 @@ class SignOffEditorState extends Equatable {
       conditionFieldStatuses: conditionFieldStatuses ?? this.conditionFieldStatuses,
       message: message ?? this.message,
       messageRequestId: messageRequestId ?? this.messageRequestId,
+      exportJson: exportJson ?? this.exportJson,
+      exportDialogRequestId:
+          exportDialogRequestId ?? this.exportDialogRequestId,
+      navigateRoute: navigateRoute ?? this.navigateRoute,
+      navigateExtra: navigateExtra ?? this.navigateExtra,
     );
   }
 
@@ -317,5 +342,9 @@ class SignOffEditorState extends Equatable {
         conditionFieldStatuses,
         message,
         messageRequestId,
+        exportJson,
+        exportDialogRequestId,
+        navigateRoute,
+        navigateExtra,
       ];
 }

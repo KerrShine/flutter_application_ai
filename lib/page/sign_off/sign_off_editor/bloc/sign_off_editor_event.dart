@@ -117,6 +117,11 @@ class AddApplicantManagerAtDepthNodeEvent extends SignOffEditorEvent {
   List<Object?> get props => [depthLevel];
 }
 
+/// 從組織來源面板加入「申請人的代理人」node。
+class AddApplicantAgentNodeEvent extends SignOffEditorEvent {
+  const AddApplicantAgentNodeEvent();
+}
+
 class UpdateApplicantTargetDepthLevelEvent extends SignOffEditorEvent {
   final int depthLevel;
   const UpdateApplicantTargetDepthLevelEvent(this.depthLevel);
@@ -205,6 +210,22 @@ class UpdateSlaDaysEvent extends SignOffEditorEvent {
   const UpdateSlaDaysEvent(this.days);
   @override
   List<Object?> get props => [days];
+}
+
+/// 切換選中節點的「允許代理人代簽」設定。
+class UpdateAllowAgentFallbackEvent extends SignOffEditorEvent {
+  final bool allow;
+  const UpdateAllowAgentFallbackEvent(this.allow);
+  @override
+  List<Object?> get props => [allow];
+}
+
+/// 切換選中節點的「允許加簽」設定。
+class UpdateAllowAddSignerEvent extends SignOffEditorEvent {
+  final bool allow;
+  const UpdateAllowAddSignerEvent(this.allow);
+  @override
+  List<Object?> get props => [allow];
 }
 
 // ============ Simulation preview ============
@@ -330,4 +351,26 @@ class RefreshConditionFieldStatusEvent extends SignOffEditorEvent {
   const RefreshConditionFieldStatusEvent(this.formId);
   @override
   List<Object?> get props => [formId];
+}
+
+// ============ Export / Navigation ============
+
+/// 觸發匯出當前模板 JSON dialog（由 AppBar 匯出按鈕發送）。
+class RequestExportJsonEvent extends SignOffEditorEvent {
+  const RequestExportJsonEvent();
+}
+
+/// 觸發前往該表單的條件欄位編輯器（由 chip 與 path rule 編輯區發送）。
+class RequestOpenConditionFieldCenterEvent extends SignOffEditorEvent {
+  const RequestOpenConditionFieldCenterEvent();
+}
+
+/// 觸發前往代理人設定頁（由預覽鏈 dialog 「前往設定」按鈕發送）。
+class RequestOpenEmpAgentPageEvent extends SignOffEditorEvent {
+  const RequestOpenEmpAgentPageEvent();
+}
+
+/// page 完成導航後清空 navigateRoute，避免重複觸發。
+class NavigationHandledEvent extends SignOffEditorEvent {
+  const NavigationHandledEvent();
 }

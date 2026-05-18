@@ -12,9 +12,12 @@ class FormRunInitEvent extends FormRunEvent {
   final String bindingId;
   final String applicantId;
   final String applicantName;
+  final String applicantCode;
   final String departmentId;
+  final String departmentName;
+  final String roleName;
 
-  /// 編輯模式 — 非空時 form_run 以「編輯既有 LeaveSignOffModel」模式啟動。
+  /// 編輯模式 — 非空時 form_run 以「編輯既有 SignOffInstance」模式啟動。
   final String signOffId;
 
   const FormRunInitEvent(
@@ -22,7 +25,10 @@ class FormRunInitEvent extends FormRunEvent {
     this.bindingId = '',
     this.applicantId = '',
     this.applicantName = '',
+    this.applicantCode = '',
     this.departmentId = '',
+    this.departmentName = '',
+    this.roleName = '',
     this.signOffId = '',
   });
 
@@ -32,7 +38,10 @@ class FormRunInitEvent extends FormRunEvent {
         bindingId,
         applicantId,
         applicantName,
+        applicantCode,
         departmentId,
+        departmentName,
+        roleName,
         signOffId,
       ];
 }

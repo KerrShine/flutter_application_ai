@@ -23,6 +23,7 @@ class FormDataBindingBloc
     on<UpdateBindingEnabledEvent>(_onUpdateBindingEnabledEvent);
     on<UpdateCustomDefaultValueEvent>(_onUpdateCustomDefaultValueEvent);
     on<UpdateNullStrategyEvent>(_onUpdateNullStrategyEvent);
+    on<UpdateProvidedDataKeyEvent>(_onUpdateProvidedDataKeyEvent);
     on<UpdateOutputKeyEvent>(_onUpdateOutputKeyEvent);
   }
 
@@ -205,10 +206,27 @@ class FormDataBindingBloc
       event.itemId,
       (field) => field.copyWith(
         nullStrategy: event.nullStrategy,
-        customDefaultValue: event.nullStrategy == BindingNullStrategy.skip
-            ? ''
-            : field.customDefaultValue,
+        // 切到非 custom 時清空 customDefaultValue
+        customDefaultValue: event.nullStrategy == BindingNullStrategy.custom
+            ? field.customDefaultValue
+            : '',
+        // 切到非 injected 時清空 providedDataKey
+        providedDataKey: event.nullStrategy == BindingNullStrategy.injected
+            ? field.providedDataKey
+            : '',
       ),
+    );
+    _emitUpdatedDraft(emit, draft);
+  }
+
+  void _onUpdateProvidedDataKeyEvent(
+    UpdateProvidedDataKeyEvent event,
+    Emitter<FormDataBindingState> emit,
+  ) {
+    final draft = state.draft.updateField(
+      event.sectionId,
+      event.itemId,
+      (field) => field.copyWith(providedDataKey: event.providedDataKey),
     );
     _emitUpdatedDraft(emit, draft);
   }

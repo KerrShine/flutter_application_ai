@@ -81,6 +81,21 @@ class UpdateNullStrategyEvent extends FormDataBindingEvent {
   List<Object> get props => [sectionId, itemId, nullStrategy];
 }
 
+class UpdateProvidedDataKeyEvent extends FormDataBindingEvent {
+  final String sectionId;
+  final String itemId;
+  final String providedDataKey;
+
+  const UpdateProvidedDataKeyEvent({
+    required this.sectionId,
+    required this.itemId,
+    required this.providedDataKey,
+  });
+
+  @override
+  List<Object> get props => [sectionId, itemId, providedDataKey];
+}
+
 class UpdateOutputKeyEvent extends FormDataBindingEvent {
   final String sectionId;
   final String itemId;

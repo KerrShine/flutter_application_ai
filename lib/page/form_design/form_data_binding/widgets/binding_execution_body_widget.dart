@@ -24,6 +24,8 @@ class BindingExecutionBodyWidget extends StatelessWidget {
   ) onNullStrategyChanged;
   final void Function(String sectionId, String itemId, String value)
       onCustomDefaultChanged;
+  final void Function(String sectionId, String itemId, String key)
+      onProvidedDataKeyChanged;
   final VoidCallback onExportJson;
 
   const BindingExecutionBodyWidget({
@@ -36,6 +38,7 @@ class BindingExecutionBodyWidget extends StatelessWidget {
     required this.onOutputKeyChanged,
     required this.onNullStrategyChanged,
     required this.onCustomDefaultChanged,
+    required this.onProvidedDataKeyChanged,
     required this.onExportJson,
   });
 
@@ -133,6 +136,8 @@ class BindingExecutionBodyWidget extends StatelessWidget {
                                                       onNullStrategyChanged,
                                                   onCustomDefaultChanged:
                                                       onCustomDefaultChanged,
+                                                  onProvidedDataKeyChanged:
+                                                      onProvidedDataKeyChanged,
                                                 ),
                                               )
                                               .toList(),

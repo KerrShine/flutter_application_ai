@@ -39,6 +39,15 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
   final Color actionInfo;
   final Color actionSuccess;
 
+  /// sign_off canvas 連線色 — 流向目標節點為審核（approve）時用
+  final Color signOffFlowApprove;
+
+  /// sign_off canvas 連線色 — 流向目標節點為會簽（countersign）時用
+  final Color signOffFlowCountersign;
+
+  /// sign_off canvas 連線色 — 流向目標節點為知會（notify）時用
+  final Color signOffFlowNotify;
+
   const FormDesignThemeColors({
     required this.pageGradient,
     required this.heroGlow,
@@ -77,6 +86,9 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
     required this.actionWarning,
     required this.actionInfo,
     required this.actionSuccess,
+    required this.signOffFlowApprove,
+    required this.signOffFlowCountersign,
+    required this.signOffFlowNotify,
   });
 
   @override
@@ -118,6 +130,9 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
     Color? actionWarning,
     Color? actionInfo,
     Color? actionSuccess,
+    Color? signOffFlowApprove,
+    Color? signOffFlowCountersign,
+    Color? signOffFlowNotify,
   }) {
     return FormDesignThemeColors(
       pageGradient: pageGradient ?? this.pageGradient,
@@ -164,6 +179,10 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
       actionWarning: actionWarning ?? this.actionWarning,
       actionInfo: actionInfo ?? this.actionInfo,
       actionSuccess: actionSuccess ?? this.actionSuccess,
+      signOffFlowApprove: signOffFlowApprove ?? this.signOffFlowApprove,
+      signOffFlowCountersign:
+          signOffFlowCountersign ?? this.signOffFlowCountersign,
+      signOffFlowNotify: signOffFlowNotify ?? this.signOffFlowNotify,
     );
   }
 
@@ -279,6 +298,15 @@ class FormDesignThemeColors extends ThemeExtension<FormDesignThemeColors> {
       actionWarning: Color.lerp(actionWarning, other.actionWarning, t)!,
       actionInfo: Color.lerp(actionInfo, other.actionInfo, t)!,
       actionSuccess: Color.lerp(actionSuccess, other.actionSuccess, t)!,
+      signOffFlowApprove:
+          Color.lerp(signOffFlowApprove, other.signOffFlowApprove, t)!,
+      signOffFlowCountersign: Color.lerp(
+        signOffFlowCountersign,
+        other.signOffFlowCountersign,
+        t,
+      )!,
+      signOffFlowNotify:
+          Color.lerp(signOffFlowNotify, other.signOffFlowNotify, t)!,
     );
   }
 }

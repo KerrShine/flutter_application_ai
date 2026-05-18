@@ -172,6 +172,15 @@ class _FormDataBindingPageState extends State<FormDataBindingPage> {
                           ),
                         );
                   },
+                  onProvidedDataKeyChanged: (sectionId, itemId, key) {
+                    context.read<FormDataBindingBloc>().add(
+                          UpdateProvidedDataKeyEvent(
+                            sectionId: sectionId,
+                            itemId: itemId,
+                            providedDataKey: key,
+                          ),
+                        );
+                  },
                   onExportJson: () {
                     context.read<FormDataBindingBloc>().add(
                           const ExportJsonPreviewEvent(),

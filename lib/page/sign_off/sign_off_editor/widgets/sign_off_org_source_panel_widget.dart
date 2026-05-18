@@ -11,6 +11,7 @@ class SignOffOrgSourcePanelWidget extends StatefulWidget {
   final VoidCallback onAddApplicantSelf;
   final VoidCallback onAddApplicantAncestorManager;
   final void Function(int depthLevel) onAddApplicantManagerAtDepth;
+  final VoidCallback onAddApplicantAgent;
   final bool hasApplicantOrigin;
 
   const SignOffOrgSourcePanelWidget({
@@ -23,6 +24,7 @@ class SignOffOrgSourcePanelWidget extends StatefulWidget {
     required this.onAddApplicantSelf,
     required this.onAddApplicantAncestorManager,
     required this.onAddApplicantManagerAtDepth,
+    required this.onAddApplicantAgent,
     required this.hasApplicantOrigin,
   });
 
@@ -40,6 +42,30 @@ class _SignOffOrgSourcePanelWidgetState
   void dispose() {
     _filterController.dispose();
     super.dispose();
+  }
+
+  /// 相對申請人類 node 的小型「新增」按鈕（2×2 排列共用）。
+  Widget _relativeAddButton(
+    ThemeData theme, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
+          fontWeight: FontWeight.w600,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+      ),
+    );
   }
 
   @override
@@ -77,7 +103,7 @@ class _SignOffOrgSourcePanelWidgetState
           ),
         ],
       ),
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,82 +221,73 @@ class _SignOffOrgSourcePanelWidgetState
               ),
             ),
             const SizedBox(height: 8),
-            // Add relative applicant nodes
+            // Add relative applicant nodes — 2x2 排列以節省垂直空間
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: _relativeAddButton(
+                    theme,
+                    icon: Icons.person_outline,
+                    label: '申請人',
                     onPressed: widget.onAddApplicantSelf,
-                    icon: const Icon(Icons.person_outline, size: 16),
-                    label: Text(
-                      '申請人',
-                      style: TextStyle(
-                        fontSize:
-                            (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: _relativeAddButton(
+                    theme,
+                    icon: Icons.supervisor_account_outlined,
+                    label: '上層主管',
                     onPressed: widget.onAddApplicantAncestorManager,
-                    icon: const Icon(Icons.supervisor_account_outlined, size: 16),
-                    label: Text(
-                      '上層主管',
-                      style: TextStyle(
-                        fontSize:
-                            (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _relativeAddButton(
+                    theme,
+                    icon: Icons.business_center_outlined,
+                    label: '指定層級',
+                    onPressed: () => widget.onAddApplicantManagerAtDepth(1),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => widget.onAddApplicantManagerAtDepth(1),
-                    icon: const Icon(Icons.business_center_outlined, size: 16),
-                    label: Text(
-                      '指定層級',
-                      style: TextStyle(
-                        fontSize:
-                            (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
+                  child: _relativeAddButton(
+                    theme,
+                    icon: Icons.swap_horiz,
+                    label: '代理人',
+                    onPressed: widget.onAddApplicantAgent,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            // List
-            Expanded(
-              child: selectable.isEmpty
-                  ? Center(
-                      child: Text(
-                        _filterText.isEmpty ? '目前沒有可用的組織節點' : '沒有符合條件的部門',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize:
-                              (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
-                          color: colors.faintText,
-                        ),
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: selectable.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
+            // List — shrinkWrap 並交由外層 SingleChildScrollView 捲動
+            if (selectable.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    _filterText.isEmpty ? '目前沒有可用的組織節點' : '沒有符合條件的部門',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize:
+                          (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
+                      color: colors.faintText,
+                    ),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: selectable.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
                         final dept = selectable[index];
                         final isPlaced = widget.placedDepartmentIds
                             .contains(dept.departmentId);
@@ -309,7 +326,6 @@ class _SignOffOrgSourcePanelWidgetState
                         );
                       },
                     ),
-            ),
           ],
         ),
       ),

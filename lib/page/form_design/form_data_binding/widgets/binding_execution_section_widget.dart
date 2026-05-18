@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/enum/designer_item_type.dart';
+import 'package:flutter_application_ai/enum/injected_data_source.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
 import 'package:flutter_application_ai/theme/form_design_page_theme.dart';
 import 'package:flutter_application_ai/theme/form_design_theme_colors.dart';
@@ -18,6 +19,8 @@ class BindingExecutionSectionWidget extends StatelessWidget {
   ) onNullStrategyChanged;
   final void Function(String sectionId, String itemId, String value)
       onCustomDefaultChanged;
+  final void Function(String sectionId, String itemId, String key)
+      onProvidedDataKeyChanged;
 
   const BindingExecutionSectionWidget({
     super.key,
@@ -28,6 +31,7 @@ class BindingExecutionSectionWidget extends StatelessWidget {
     required this.onOutputKeyChanged,
     required this.onNullStrategyChanged,
     required this.onCustomDefaultChanged,
+    required this.onProvidedDataKeyChanged,
   });
 
   @override
@@ -94,6 +98,7 @@ class BindingExecutionSectionWidget extends StatelessWidget {
                     onOutputKeyChanged: onOutputKeyChanged,
                     onNullStrategyChanged: onNullStrategyChanged,
                     onCustomDefaultChanged: onCustomDefaultChanged,
+                    onProvidedDataKeyChanged: onProvidedDataKeyChanged,
                   );
                 }),
               ],
@@ -142,6 +147,8 @@ class _FieldRow extends StatelessWidget {
   ) onNullStrategyChanged;
   final void Function(String sectionId, String itemId, String value)
       onCustomDefaultChanged;
+  final void Function(String sectionId, String itemId, String key)
+      onProvidedDataKeyChanged;
 
   const _FieldRow({
     required this.sectionId,
@@ -152,6 +159,7 @@ class _FieldRow extends StatelessWidget {
     required this.onOutputKeyChanged,
     required this.onNullStrategyChanged,
     required this.onCustomDefaultChanged,
+    required this.onProvidedDataKeyChanged,
   });
 
   bool get _supportsActionBinding {
@@ -272,30 +280,12 @@ class _FieldRow extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 18,
-                      child: field.nullStrategy == BindingNullStrategy.skip
-                          ? _SystemDefaultDisplay(field: field)
-                          : TextFormField(
-                              initialValue: field.customDefaultValue,
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: colors.headerAccentForeground,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              decoration:
-                                  FormDesignPageTheme.executionInputDecoration(
-                                context,
-                                isDense: true,
-                                errorText: hasError && errorText != '套用結果不可為空'
-                                    ? errorText
-                                    : null,
-                              ),
-                              onChanged: (value) {
-                                onCustomDefaultChanged(
-                                  sectionId,
-                                  field.itemId,
-                                  value,
-                                );
-                              },
-                            ),
+                      child: _buildDefaultValueCell(
+                        context,
+                        theme,
+                        colors,
+                        hasError: hasError,
+                      ),
                     ),
                   ],
                 ),
@@ -328,6 +318,62 @@ class _FieldRow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 「預設值 / 預設行為」儲存格 — 依 nullStrategy 切換內容。
+  Widget _buildDefaultValueCell(
+    BuildContext context,
+    ThemeData theme,
+    FormDesignThemeColors colors, {
+    required bool hasError,
+  }) {
+    switch (field.nullStrategy) {
+      case BindingNullStrategy.skip:
+        return _SystemDefaultDisplay(field: field);
+      case BindingNullStrategy.custom:
+        return TextFormField(
+          initialValue: field.customDefaultValue,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: colors.headerAccentForeground,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: FormDesignPageTheme.executionInputDecoration(
+            context,
+            isDense: true,
+            errorText: hasError && errorText != '套用結果不可為空' ? errorText : null,
+          ),
+          onChanged: (value) {
+            onCustomDefaultChanged(sectionId, field.itemId, value);
+          },
+        );
+      case BindingNullStrategy.injected:
+        final current = InjectedDataSourceX.fromCode(field.providedDataKey);
+        return DropdownButtonFormField<InjectedDataSource>(
+          value: current,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: colors.headerAccentForeground,
+            fontWeight: FontWeight.w700,
+          ),
+          dropdownColor: const Color(0xFF262B38),
+          iconEnabledColor: colors.headerAccentForeground,
+          isDense: true,
+          decoration: FormDesignPageTheme.executionInputDecoration(
+            context,
+            isDense: true,
+            errorText: hasError && errorText != '套用結果不可為空' ? errorText : null,
+          ).copyWith(hintText: '選擇資料源'),
+          items: InjectedDataSource.values
+              .map((src) => DropdownMenuItem<InjectedDataSource>(
+                    value: src,
+                    child: Text(src.label),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            onProvidedDataKeyChanged(sectionId, field.itemId, value.code);
+          },
+        );
+    }
   }
 
   Widget _buildActionBindingFieldRow(

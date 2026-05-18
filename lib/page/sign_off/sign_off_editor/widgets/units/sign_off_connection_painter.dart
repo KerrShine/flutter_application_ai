@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/enum/sign_off_approver_mode.dart';
+import 'package:flutter_application_ai/enum/sign_off_node_type.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
 import 'package:flutter_application_ai/model/sign_off_canvas_node.dart';
 
@@ -24,7 +25,12 @@ class SignOffConnectionPainter extends CustomPainter {
   final Map<String, OrgDepartmentNode> deptById;
   final Color hierarchyColor;
   final Color crossLevelColor;
-  final Color flowColor;
+
+  /// 簽核流向線色 — 依目標節點 nodeType 區分（A2 UX 增強）：
+  /// approve = 綠 / countersign = 紫 / notify = 琥珀。
+  /// 找不到對應 key 時用 fallback (approve 色) 避免崩潰。
+  final Map<SignOffNodeType, Color> flowColorByNodeType;
+
   final bool showHierarchy;
 
   SignOffConnectionPainter({
@@ -32,7 +38,7 @@ class SignOffConnectionPainter extends CustomPainter {
     required this.deptById,
     required this.hierarchyColor,
     required this.crossLevelColor,
-    required this.flowColor,
+    required this.flowColorByNodeType,
     required this.showHierarchy,
   });
 
@@ -87,16 +93,9 @@ class SignOffConnectionPainter extends CustomPainter {
       _drawDashedLine(canvas, crossPaint, anchors.from, anchors.to);
     }
 
-    // 3. 簽核流向連線（綠色實線含箭頭）
-    final flowPaint = Paint()
-      ..color = flowColor
-      ..strokeWidth = 2.4
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final flowFillPaint = Paint()
-      ..color = flowColor
-      ..style = PaintingStyle.fill;
+    // 3. 簽核流向連線（實線含箭頭，依目標節點 nodeType 取色）
+    final fallbackFlowColor =
+        flowColorByNodeType[SignOffNodeType.approve] ?? Colors.green;
 
     final sortedNodes = List<SignOffCanvasNode>.from(nodes)
       ..sort((a, b) {
@@ -109,6 +108,17 @@ class SignOffConnectionPainter extends CustomPainter {
       final fromC = centerByNodeId[sortedNodes[i].nodeId];
       final toC = centerByNodeId[sortedNodes[i + 1].nodeId];
       if (fromC == null || toC == null) continue;
+
+      final targetType = sortedNodes[i + 1].nodeType;
+      final color = flowColorByNodeType[targetType] ?? fallbackFlowColor;
+      final flowPaint = Paint()
+        ..color = color
+        ..strokeWidth = 2.4
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+      final flowFillPaint = Paint()
+        ..color = color
+        ..style = PaintingStyle.fill;
 
       final anchors = _pickEdgeAnchors(fromC, toC);
       _drawArrowLine(canvas, flowPaint, flowFillPaint, anchors.from, anchors.to);
@@ -233,6 +243,17 @@ class SignOffConnectionPainter extends CustomPainter {
       old.deptById != deptById ||
       old.hierarchyColor != hierarchyColor ||
       old.crossLevelColor != crossLevelColor ||
-      old.flowColor != flowColor ||
+      !_mapEquals(old.flowColorByNodeType, flowColorByNodeType) ||
       old.showHierarchy != showHierarchy;
+
+  static bool _mapEquals(
+    Map<SignOffNodeType, Color> a,
+    Map<SignOffNodeType, Color> b,
+  ) {
+    if (a.length != b.length) return false;
+    for (final entry in a.entries) {
+      if (b[entry.key] != entry.value) return false;
+    }
+    return true;
+  }
 }

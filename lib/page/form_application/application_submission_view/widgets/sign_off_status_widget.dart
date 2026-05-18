@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ai/model/leave_sign_off_model.dart';
+import 'package:flutter_application_ai/model/employee_model.dart';
+import 'package:flutter_application_ai/model/sign_off_instance.dart';
+import 'package:flutter_application_ai/page/form_application/application_submission_view/widgets/sign_off_chain_step_row_widget.dart';
+import 'package:flutter_application_ai/page/form_application/application_submission_view/widgets/sign_off_history_row_widget.dart';
+import 'package:flutter_application_ai/page/form_application/application_submission_view/widgets/sign_off_stat_card_widget.dart';
 import 'package:flutter_application_ai/service/sign_off_service.dart';
 import 'package:flutter_application_ai/theme/form_application_theme_colors.dart';
 import 'package:flutter_application_ai/theme/text_size.dart';
@@ -9,19 +13,20 @@ import 'package:flutter_application_ai/theme/text_size.dart';
 /// 風格參照 form_launch_permission_editor 的 EditorSummarySidebarWidget：
 /// header 區（icon + 標題） + 三個 stat card（狀態 / 簽核者 / 意見） + 簽核軌跡列表。
 class SignOffStatusWidget extends StatelessWidget {
-  final LeaveSignOffModel signOff;
+  final SignOffInstance signOff;
   final List<ResolvedApprover> resolvedChain;
+  final List<EmployeeModel> employees;
 
   const SignOffStatusWidget({
     super.key,
     required this.signOff,
     this.resolvedChain = const [],
+    this.employees = const [],
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors =
-        Theme.of(context).extension<FormApplicationThemeColors>()!;
+    final colors = Theme.of(context).extension<FormApplicationThemeColors>()!;
     final statusColor = _statusColor(signOff.status, colors);
 
     return Container(
@@ -40,20 +45,20 @@ class SignOffStatusWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _StatCard(
+                SignOffStatCard(
                   label: '整體狀態',
                   value: signOff.status.label,
                   valueColor: statusColor,
                   colors: colors,
                 ),
                 const SizedBox(height: 12),
-                _StatCard(
+                SignOffStatCard(
                   label: '目前簽核者',
                   value: _formatCurrentApprover(),
                   colors: colors,
                 ),
                 const SizedBox(height: 12),
-                _StatCard(
+                SignOffStatCard(
                   label: '最新意見',
                   value: signOff.latestComment.isEmpty
                       ? '（尚無意見）'
@@ -123,9 +128,7 @@ class SignOffStatusWidget extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                signOff.templateId.isEmpty
-                    ? '（此申請未綁定簽核流程模板）'
-                    : '（無法解析簽核流程）',
+                signOff.templateId.isEmpty ? '（此申請未綁定簽核流程模板）' : '（無法解析簽核流程）',
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: TextSize.body,
                   color: colors.emptyText,
@@ -142,7 +145,7 @@ class SignOffStatusWidget extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: index == resolvedChain.length - 1 ? 0 : 10,
                 ),
-                child: _ChainStepRow(
+                child: SignOffChainStepRow(
                   stepNumber: index + 1,
                   approver: approver,
                   isCurrent: isCurrent,
@@ -160,10 +163,10 @@ class SignOffStatusWidget extends StatelessWidget {
   /// 申請起點（origin）不計入步數。
   int _currentStepIndex() {
     // actionHistory 每筆代表一次簽核動作；考慮 origin 佔 index 0
-    final originOffset = resolvedChain.isNotEmpty &&
-            resolvedChain.first.description == '申請起點'
-        ? 1
-        : 0;
+    final originOffset =
+        resolvedChain.isNotEmpty && resolvedChain.first.description == '申請起點'
+            ? 1
+            : 0;
     return signOff.actionHistory.length + originOffset;
   }
 
@@ -275,7 +278,12 @@ class SignOffStatusWidget extends StatelessWidget {
               final isLast = entry.key == signOff.actionHistory.length - 1;
               return Padding(
                 padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-                child: _HistoryRow(record: entry.value, colors: colors),
+                child: SignOffHistoryRow(
+                  record: entry.value,
+                  colors: colors,
+                  resolvedChain: resolvedChain,
+                  employees: employees,
+                ),
               );
             }),
         ],
@@ -316,9 +324,8 @@ class SignOffStatusWidget extends StatelessWidget {
     }
 
     // 過濾掉申請起點，純取簽核節點清單
-    final approvers = resolvedChain
-        .where((r) => r.description != '申請起點')
-        .toList();
+    final approvers =
+        resolvedChain.where((r) => r.description != '申請起點').toList();
     if (approvers.isEmpty) {
       return '（簽核流程模板未設定任何簽核節點）';
     }
@@ -333,12 +340,9 @@ class SignOffStatusWidget extends StatelessWidget {
     if (!current.resolved) {
       return '${current.description}  ⚠ ${current.unresolvedReason}';
     }
-    final name = current.approverName.isEmpty
-        ? '（尚未指派人員）'
-        : current.approverName;
-    return current.description.isEmpty
-        ? name
-        : '$name｜${current.description}';
+    final name =
+        current.approverName.isEmpty ? '（尚未指派人員）' : current.approverName;
+    return current.description.isEmpty ? name : '$name｜${current.description}';
   }
 
   Color _statusColor(
@@ -360,295 +364,3 @@ class SignOffStatusWidget extends StatelessWidget {
   }
 }
 
-class _ChainStepRow extends StatelessWidget {
-  final int stepNumber;
-  final ResolvedApprover approver;
-  final bool isCurrent;
-  final bool isPast;
-  final FormApplicationThemeColors colors;
-
-  const _ChainStepRow({
-    required this.stepNumber,
-    required this.approver,
-    required this.isCurrent,
-    required this.isPast,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final accent = _stepColor(colors);
-    final fade = !isCurrent && !isPast;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: isCurrent
-            ? accent.withValues(alpha: 0.12)
-            : colors.chipBackground.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isCurrent
-              ? accent.withValues(alpha: 0.5)
-              : colors.cardBorder,
-          width: isCurrent ? 1.5 : 1.0,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: isCurrent ? 0.2 : 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(color: accent.withValues(alpha: 0.4)),
-            ),
-            child: isPast
-                ? Icon(Icons.check, size: 18, color: accent)
-                : Text(
-                    '$stepNumber',
-                    style: TextStyle(
-                      fontSize: TextSize.body,
-                      fontWeight: FontWeight.w700,
-                      color: accent,
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  approver.description.isEmpty
-                      ? '節點 ${approver.nodeId}'
-                      : approver.description,
-                  style: textTheme.titleLarge?.copyWith(
-                    fontSize: TextSize.title,
-                    fontWeight: FontWeight.w600,
-                    color: fade
-                        ? colors.listSubtitleText
-                        : colors.listTitleText,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (approver.approverName.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    approver.approverName,
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontSize: TextSize.body,
-                      color: colors.listSubtitleText,
-                    ),
-                  ),
-                ],
-                if (!approver.resolved &&
-                    approver.unresolvedReason.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '⚠ ${approver.unresolvedReason}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontSize: TextSize.body,
-                      color: colors.errorColor,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (isCurrent)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: accent.withValues(alpha: 0.5)),
-              ),
-              child: Text(
-                '進行中',
-                style: TextStyle(
-                  fontSize: TextSize.small,
-                  fontWeight: FontWeight.w700,
-                  color: accent,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Color _stepColor(FormApplicationThemeColors colors) {
-    if (isCurrent) return colors.inReviewIcon;
-    if (isPast) return colors.submittedIcon;
-    return colors.withdrawnIcon;
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-  final FormApplicationThemeColors colors;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.colors,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: colors.chipBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: textTheme.bodyMedium?.copyWith(
-              fontSize: TextSize.body,
-              color: colors.listSubtitleText,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: textTheme.titleLarge?.copyWith(
-              fontSize: TextSize.title,
-              fontWeight: FontWeight.w700,
-              color: valueColor ?? colors.listTitleText,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HistoryRow extends StatelessWidget {
-  final SignOffActionRecord record;
-  final FormApplicationThemeColors colors;
-
-  const _HistoryRow({required this.record, required this.colors});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final actionColor = _actionColor(record.actionType, colors);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.chipBackground.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
-        border: Border(
-          left: BorderSide(color: actionColor, width: 3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: actionColor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: actionColor.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Text(
-                  record.actionType.label,
-                  style: TextStyle(
-                    fontSize: TextSize.small,
-                    fontWeight: FontWeight.w700,
-                    color: actionColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  record.approverName.isEmpty
-                      ? record.approverId
-                      : '${record.approverName} (${record.approverId})',
-                  style: textTheme.titleLarge?.copyWith(
-                    fontSize: TextSize.title,
-                    fontWeight: FontWeight.w600,
-                    color: colors.listTitleText,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                _formatTimestamp(record.actionAt),
-                style: textTheme.bodyMedium?.copyWith(
-                  fontSize: TextSize.body,
-                  color: colors.listSubtitleText,
-                ),
-              ),
-            ],
-          ),
-          if (record.comment.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              record.comment,
-              style: textTheme.bodyMedium?.copyWith(
-                fontSize: TextSize.body,
-                color: colors.listSubtitleText,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Color _actionColor(
-    SignOffActionType type,
-    FormApplicationThemeColors colors,
-  ) {
-    switch (type) {
-      case SignOffActionType.approve:
-        return colors.submittedIcon;
-      case SignOffActionType.reject:
-        return colors.errorColor;
-      case SignOffActionType.returnBack:
-        return colors.pendingIcon;
-      case SignOffActionType.requestSupplement:
-        return colors.inReviewIcon;
-      case SignOffActionType.transfer:
-      case SignOffActionType.addApprover:
-        return colors.withdrawnIcon;
-    }
-  }
-
-  String _formatTimestamp(String iso) {
-    if (iso.isEmpty) return '—';
-    try {
-      final dt = DateTime.parse(iso).toLocal();
-      String two(int n) => n.toString().padLeft(2, '0');
-      return '${dt.year}-${two(dt.month)}-${two(dt.day)} '
-          '${two(dt.hour)}:${two(dt.minute)}';
-    } catch (_) {
-      return iso;
-    }
-  }
-}

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_application_ai/model/leave_sign_off_model.dart';
+import 'package:flutter_application_ai/model/sign_off_instance.dart';
 import 'package:flutter_application_ai/service/form_application_service.dart';
 
 part 'application_my_event.dart';

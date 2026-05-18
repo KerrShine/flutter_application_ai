@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ai/enum/sign_off_node_type.dart';
 import 'package:flutter_application_ai/model/org_department_node.dart';
 import 'package:flutter_application_ai/model/sign_off_canvas_node.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/bloc/sign_off_editor_bloc.dart';
+import 'package:flutter_application_ai/page/sign_off/sign_off_editor/widgets/units/sign_off_canvas_legend_widget.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/widgets/units/sign_off_connection_painter.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/widgets/units/sign_off_grid_painter.dart';
 import 'package:flutter_application_ai/page/sign_off/sign_off_editor/widgets/units/sign_off_node_card.dart';
@@ -226,7 +228,15 @@ class SignOffCanvasPanelWidget extends StatelessWidget {
                                               hierarchyColor: scheme.outline,
                                               crossLevelColor:
                                                   colors.actionButtonAccent,
-                                              flowColor: colors.actionSuccess,
+                                              flowColorByNodeType: {
+                                                SignOffNodeType.approve:
+                                                    colors.signOffFlowApprove,
+                                                SignOffNodeType.countersign:
+                                                    colors
+                                                        .signOffFlowCountersign,
+                                                SignOffNodeType.notify:
+                                                    colors.signOffFlowNotify,
+                                              },
                                               showHierarchy:
                                                   showHierarchyConnections,
                                             ),
@@ -344,6 +354,11 @@ class SignOffCanvasPanelWidget extends StatelessWidget {
                     onZoomOut: onZoomOut,
                     onToggleHierarchy: onToggleHierarchy,
                   ),
+                ),
+                const Positioned(
+                  left: 16,
+                  bottom: 16,
+                  child: SignOffCanvasLegendWidget(),
                 ),
               ],
             );

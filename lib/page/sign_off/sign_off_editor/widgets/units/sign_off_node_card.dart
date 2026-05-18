@@ -241,6 +241,9 @@ class SignOffNodeCard extends StatelessWidget {
     if (node.approverMode == SignOffApproverMode.applicantManagerAtDepth) {
       return _depthLabel(node.applicantTargetDepthLevel);
     }
+    if (node.approverMode == SignOffApproverMode.applicantAgent) {
+      return '申請人的代理人';
+    }
     return department?.name ?? '（未指定部門）';
   }
 
@@ -267,6 +270,9 @@ class SignOffNodeCard extends StatelessWidget {
     }
     if (node.approverMode == SignOffApproverMode.applicantManagerAtDepth) {
       return Icons.business_center_outlined;
+    }
+    if (node.approverMode == SignOffApproverMode.applicantAgent) {
+      return Icons.swap_horiz;
     }
     switch (node.nodeType) {
       case SignOffNodeType.approve:

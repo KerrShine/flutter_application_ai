@@ -12,7 +12,7 @@ class ApplicationMyState extends Equatable {
   final String message;
   final int messageRequestId;
   final String employeeId;
-  final List<LeaveSignOffModel> mySignOffs;
+  final List<SignOffInstance> mySignOffs;
   final String exportJson;
   final int exportDialogRequestId;
 
@@ -31,7 +31,7 @@ class ApplicationMyState extends Equatable {
     String? message,
     int? messageRequestId,
     String? employeeId,
-    List<LeaveSignOffModel>? mySignOffs,
+    List<SignOffInstance>? mySignOffs,
     String? exportJson,
     int? exportDialogRequestId,
   }) {

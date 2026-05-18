@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_application_ai/enum/designer_item_type.dart';
+import 'package:flutter_application_ai/enum/injected_data_source.dart';
 import 'package:flutter_application_ai/enum/text_input_type.dart';
 import 'package:flutter_application_ai/model/designer_item.dart';
 import 'package:flutter_application_ai/model/form_data_binding_draft.dart';
@@ -179,6 +180,18 @@ class FormDataBindingService {
           if (typeError != null) {
             errors[key] = typeError;
           }
+        } else if (field.nullStrategy == BindingNullStrategy.injected) {
+          final providedKey = field.providedDataKey.trim();
+          if (providedKey.isEmpty) {
+            errors[key] = '請選擇資料源';
+            continue;
+          }
+          // 驗證 key 為已知 InjectedDataSource code
+          final isKnown =
+              InjectedDataSource.values.any((src) => src.code == providedKey);
+          if (!isKnown) {
+            errors[key] = '未知的資料源';
+          }
         }
       }
     }
@@ -265,6 +278,9 @@ class FormDataBindingService {
           customDefaultValue: item.type == DesignerItemType.button
               ? '事件綁定'
               : savedField?.customDefaultValue ?? '',
+          providedDataKey: item.type == DesignerItemType.button
+              ? ''
+              : savedField?.providedDataKey ?? '',
         );
       }).toList();
 

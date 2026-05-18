@@ -4,6 +4,8 @@ import 'package:flutter_application_ai/enum/sign_off_approver_mode.dart';
 import 'package:flutter_application_ai/enum/condition_field_type.dart';
 import 'package:flutter_application_ai/enum/sign_off_condition_operator.dart';
 import 'package:flutter_application_ai/enum/sign_off_condition_field_status.dart';
+import 'package:flutter_application_ai/enum/sign_off_multi_strategy.dart';
+import 'package:flutter_application_ai/enum/sign_off_node_type.dart';
 import 'package:flutter_application_ai/model/employee_model.dart';
 import 'package:flutter_application_ai/model/emp_role_model.dart';
 import 'package:flutter_application_ai/model/sign_off_condition_field_summary.dart';
@@ -22,6 +24,7 @@ import 'package:flutter_application_ai/repositories/interface/form_repository.da
 import 'package:flutter_application_ai/repositories/interface/org_design_repository.dart';
 import 'package:flutter_application_ai/repositories/interface/sign_off_repository.dart';
 import 'package:flutter_application_ai/service/condition_field_service.dart';
+import 'package:flutter_application_ai/service/emp_agent_service.dart';
 import 'package:flutter_application_ai/unit/base/result.dart';
 
 /// 簽核設定的初始化資料包。
@@ -50,8 +53,43 @@ class ResolvedApprover {
   final String approverName;
   final String approverDepartmentId;
   final String approverRoleName;
+
+  /// 該節點所有可簽核員工的 employeeId（v1 多人情境主要為 designatedRole）。
+  /// 給「待我簽核」清單過濾用：判斷登入者是否落在當前步的簽核人集合內。
+  final List<String> approverEmployeeIds;
+
   final bool resolved;
   final String unresolvedReason;
+
+  /// 該節點是否啟用「允許代理人代簽」(從 SignOffCanvasNode.allowAgentFallback 帶下來)。
+  final bool allowAgentFallback;
+
+  /// 已設定的代理人 employeeId（v1 只查 approverEmployeeIds 第一個的代理）；
+  /// 未設代理或未啟用 allowAgentFallback 時為空字串。
+  final String agentEmployeeId;
+
+  /// 已設代理人姓名；未設或未啟用時為空字串。
+  final String agentName;
+
+  /// 該節點是否啟用「允許加簽」(從 SignOffCanvasNode.allowAddSigner 帶下來)。
+  /// runtime 在簽核者開啟 panel 時用此值決定是否顯示「加簽」選單項。
+  final bool allowAddSigner;
+
+  /// 多人會簽收斂策略（A1 用）。
+  /// - `all`：approverEmployeeIds 全簽完才推進
+  /// - `any`：任一人簽完即推進（單人節點等效於此）
+  /// - `sequential`：approverEmployeeIds 依序簽核
+  ///
+  /// 從 SignOffCanvasNode.multiStrategy 帶下來；舊 snapshot 無此欄位時 fallback `.any`
+  /// — 行為等同舊邏輯（首人決定）。
+  final SignOffMultiStrategy multiStrategy;
+
+  /// 節點類型（A2 用）— approve / countersign / notify。
+  ///
+  /// 從 SignOffCanvasNode.nodeType 帶下來；舊 snapshot 無此欄位時 fallback `.approve`
+  /// — 行為等同舊邏輯（所有節點皆視為審核）。
+  /// runtime 於 notify 節點時自動 skip 推進（_executeAction 內處理）。
+  final SignOffNodeType nodeType;
 
   const ResolvedApprover({
     required this.nodeId,
@@ -59,9 +97,100 @@ class ResolvedApprover {
     this.approverName = '',
     this.approverDepartmentId = '',
     this.approverRoleName = '',
+    this.approverEmployeeIds = const [],
     this.resolved = true,
     this.unresolvedReason = '',
+    this.allowAgentFallback = false,
+    this.agentEmployeeId = '',
+    this.agentName = '',
+    this.allowAddSigner = false,
+    this.multiStrategy = SignOffMultiStrategy.any,
+    this.nodeType = SignOffNodeType.approve,
   });
+
+  ResolvedApprover copyWith({
+    String? nodeId,
+    String? description,
+    String? approverName,
+    String? approverDepartmentId,
+    String? approverRoleName,
+    List<String>? approverEmployeeIds,
+    bool? resolved,
+    String? unresolvedReason,
+    bool? allowAgentFallback,
+    String? agentEmployeeId,
+    String? agentName,
+    bool? allowAddSigner,
+    SignOffMultiStrategy? multiStrategy,
+    SignOffNodeType? nodeType,
+  }) {
+    return ResolvedApprover(
+      nodeId: nodeId ?? this.nodeId,
+      description: description ?? this.description,
+      approverName: approverName ?? this.approverName,
+      approverDepartmentId: approverDepartmentId ?? this.approverDepartmentId,
+      approverRoleName: approverRoleName ?? this.approverRoleName,
+      approverEmployeeIds: approverEmployeeIds ?? this.approverEmployeeIds,
+      resolved: resolved ?? this.resolved,
+      unresolvedReason: unresolvedReason ?? this.unresolvedReason,
+      allowAgentFallback: allowAgentFallback ?? this.allowAgentFallback,
+      agentEmployeeId: agentEmployeeId ?? this.agentEmployeeId,
+      agentName: agentName ?? this.agentName,
+      allowAddSigner: allowAddSigner ?? this.allowAddSigner,
+      multiStrategy: multiStrategy ?? this.multiStrategy,
+      nodeType: nodeType ?? this.nodeType,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nodeId': nodeId,
+      'description': description,
+      'approverName': approverName,
+      'approverDepartmentId': approverDepartmentId,
+      'approverRoleName': approverRoleName,
+      'approverEmployeeIds': approverEmployeeIds,
+      'resolved': resolved,
+      'unresolvedReason': unresolvedReason,
+      'allowAgentFallback': allowAgentFallback,
+      'agentEmployeeId': agentEmployeeId,
+      'agentName': agentName,
+      'allowAddSigner': allowAddSigner,
+      'multiStrategy': multiStrategy.name,
+      'nodeType': nodeType.code,
+    };
+  }
+
+  factory ResolvedApprover.fromMap(Map<String, dynamic> map) {
+    final rawIds = map['approverEmployeeIds'];
+    final strategyName = map['multiStrategy']?.toString();
+    SignOffMultiStrategy strategy = SignOffMultiStrategy.any;
+    if (strategyName != null && strategyName.isNotEmpty) {
+      try {
+        strategy = SignOffMultiStrategy.values.byName(strategyName);
+      } catch (_) {
+        // 未知 enum 值（前向相容）→ fallback any
+      }
+    }
+    return ResolvedApprover(
+      nodeId: map['nodeId']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      approverName: map['approverName']?.toString() ?? '',
+      approverDepartmentId: map['approverDepartmentId']?.toString() ?? '',
+      approverRoleName: map['approverRoleName']?.toString() ?? '',
+      approverEmployeeIds: rawIds is List
+          ? rawIds.map((e) => e.toString()).toList()
+          : const [],
+      resolved: map['resolved'] as bool? ?? true,
+      unresolvedReason: map['unresolvedReason']?.toString() ?? '',
+      allowAgentFallback: map['allowAgentFallback'] as bool? ?? false,
+      agentEmployeeId: map['agentEmployeeId']?.toString() ?? '',
+      agentName: map['agentName']?.toString() ?? '',
+      allowAddSigner: map['allowAddSigner'] as bool? ?? false,
+      multiStrategy: strategy,
+      nodeType: SignOffNodeTypeX.fromCode(map['nodeType']?.toString()),
+    );
+  }
 }
 
 class SignOffService {
@@ -72,6 +201,7 @@ class SignOffService {
   final EmpInfoRepository _empInfoRepository;
   final OrgDesignRepository _orgDesignRepository;
   final ConditionFieldService _conditionFieldService;
+  final EmpAgentService _empAgentService;
 
   SignOffService(
     this._signOffRepository,
@@ -81,6 +211,7 @@ class SignOffService {
     this._empInfoRepository,
     this._orgDesignRepository,
     this._conditionFieldService,
+    this._empAgentService,
   );
 
   /// 載入指定表單可作為 path rule 條件的欄位列表。
@@ -494,6 +625,7 @@ class SignOffService {
             approverName: applicant?.employeeName ?? applicantEmployeeId,
             approverDepartmentId: applicant?.departmentId ?? '',
             approverRoleName: applicant?.roleName ?? '',
+            approverEmployeeIds: [applicantEmployeeId],
           ));
           continue;
         }
@@ -524,7 +656,43 @@ class SignOffService {
             _resolveApplicantManagerAtDepth(
                 node, applicantEmployeeId, deptById, empById, result);
             break;
+          case SignOffApproverMode.applicantAgent:
+            await _resolveApplicantAgent(
+                node, applicantEmployeeId, empById, result);
+            break;
         }
+      }
+
+      // 後處理：把 node 上的 allowAddSigner / allowAgentFallback 等屬性帶進 ResolvedApprover
+      // 並對勾選 allowAgentFallback 的節點查代理人
+      final nodeById = {for (final n in template.canvasNodes) n.nodeId: n};
+      for (var i = 0; i < result.length; i++) {
+        final entry = result[i];
+        final node = nodeById[entry.nodeId];
+        if (node == null) continue;
+        var updated = entry.copyWith(
+          allowAddSigner: node.allowAddSigner,
+          multiStrategy: node.multiStrategy,
+          nodeType: node.nodeType,
+        );
+        if (!node.allowAgentFallback) {
+          result[i] = updated;
+          continue;
+        }
+        if (!updated.resolved || updated.approverEmployeeIds.isEmpty) {
+          result[i] = updated.copyWith(allowAgentFallback: true);
+          continue;
+        }
+        final principalId = updated.approverEmployeeIds.first;
+        final agentResult =
+            await _empAgentService.findActiveAgentFor(principalId);
+        final agent = agentResult.isSuccess ? agentResult.data : null;
+        final agentEmp = agent != null ? empById[agent.agentEmployeeId] : null;
+        result[i] = updated.copyWith(
+          allowAgentFallback: true,
+          agentEmployeeId: agent?.agentEmployeeId ?? '',
+          agentName: agentEmp?.employeeName ?? agent?.agentEmployeeId ?? '',
+        );
       }
 
       return Result.success(result);
@@ -557,6 +725,7 @@ class SignOffService {
       approverName: manager?.employeeName ?? '（尚未設定主管）',
       approverDepartmentId: dept.departmentId,
       approverRoleName: manager?.roleName ?? '',
+      approverEmployeeIds: manager != null ? [manager.employeeId] : const [],
       resolved: manager != null,
       unresolvedReason: manager == null ? '部門未指定主管' : '',
     ));
@@ -614,6 +783,7 @@ class SignOffService {
       approverName: manager?.employeeName ?? '（尚未設定主管）',
       approverDepartmentId: dept?.departmentId ?? '',
       approverRoleName: manager?.roleName ?? '',
+      approverEmployeeIds: manager != null ? [manager.employeeId] : const [],
       resolved: manager != null,
       unresolvedReason: manager == null ? '目標部門未指定主管' : '',
     ));
@@ -642,6 +812,7 @@ class SignOffService {
       description: '指定角色 → ${role?.roleName ?? node.designatedRoleId}',
       approverName: matched.map((e) => e.employeeName).join('、'),
       approverRoleName: role?.roleName ?? '',
+      approverEmployeeIds: matched.map((e) => e.employeeId).toList(),
     ));
   }
 
@@ -657,6 +828,7 @@ class SignOffService {
       approverName: emp?.employeeName ?? node.designatedEmployeeId,
       approverDepartmentId: emp?.departmentId ?? '',
       approverRoleName: emp?.roleName ?? '',
+      approverEmployeeIds: emp != null ? [emp.employeeId] : const [],
       resolved: emp != null,
       unresolvedReason: emp == null ? '指定員工不存在' : '',
     ));
@@ -675,8 +847,50 @@ class SignOffService {
       approverName: applicant?.employeeName ?? applicantEmployeeId,
       approverDepartmentId: applicant?.departmentId ?? '',
       approverRoleName: applicant?.roleName ?? '',
+      approverEmployeeIds: [applicantEmployeeId],
       resolved: applicant != null,
       unresolvedReason: applicant == null ? '申請人不存在' : '',
+    ));
+  }
+
+  /// 解析「申請人的代理人」node — 透過 EmpAgentService 動態查申請人當前代理。
+  /// 無代理時回傳 unresolved + 原因「申請人未設代理人」，dialog 將顯示 warning + 「前往設定」。
+  Future<void> _resolveApplicantAgent(
+    SignOffCanvasNode node,
+    String applicantEmployeeId,
+    Map<String, EmployeeModel> empById,
+    List<ResolvedApprover> result,
+  ) async {
+    if (applicantEmployeeId.isEmpty) {
+      result.add(ResolvedApprover(
+        nodeId: node.nodeId,
+        description: '申請人的代理人',
+        resolved: false,
+        unresolvedReason: '申請人未指定',
+      ));
+      return;
+    }
+    final agentResult =
+        await _empAgentService.findActiveAgentFor(applicantEmployeeId);
+    final agent = agentResult.isSuccess ? agentResult.data : null;
+    if (agent == null) {
+      result.add(ResolvedApprover(
+        nodeId: node.nodeId,
+        description: '申請人的代理人',
+        resolved: false,
+        unresolvedReason: '申請人未設代理人',
+      ));
+      return;
+    }
+    final agentEmp = empById[agent.agentEmployeeId];
+    result.add(ResolvedApprover(
+      nodeId: node.nodeId,
+      description: '申請人的代理人',
+      approverName: agentEmp?.employeeName ?? agent.agentEmployeeId,
+      approverDepartmentId: agentEmp?.departmentId ?? '',
+      approverRoleName: agentEmp?.roleName ?? '',
+      approverEmployeeIds: [agent.agentEmployeeId],
+      resolved: true,
     ));
   }
 
@@ -734,6 +948,7 @@ class SignOffService {
       approverName: manager?.employeeName ?? '（尚未設定主管）',
       approverDepartmentId: dept.departmentId,
       approverRoleName: manager?.roleName ?? '',
+      approverEmployeeIds: manager != null ? [manager.employeeId] : const [],
       resolved: manager != null,
       unresolvedReason: manager == null ? '部門未指定主管' : '',
     ));
@@ -803,6 +1018,7 @@ class SignOffService {
       approverName: manager?.employeeName ?? '（尚未設定主管）',
       approverDepartmentId: dept.departmentId,
       approverRoleName: manager?.roleName ?? '',
+      approverEmployeeIds: manager != null ? [manager.employeeId] : const [],
       resolved: manager != null,
       unresolvedReason: manager == null ? '部門未指定主管' : '',
     ));

@@ -6,7 +6,7 @@ export 'package:flutter_application_ai/enum/sign_off_action_type.dart';
 /// 單筆簽核動作軌跡。
 ///
 /// 每當簽核者執行 [SignOffActionType] 中任一動作，即追加一筆 [SignOffActionRecord]
-/// 至 LeaveSignOffModel.actionHistory，供「我的申請 / 待我簽核 / 簽核軌跡」檢視。
+/// 至 SignOffInstance.actionHistory，供「我的申請 / 待我簽核 / 簽核軌跡」檢視。
 class SignOffActionRecord extends Equatable {
   final String recordId;
   final SignOffActionType actionType;
@@ -25,6 +25,10 @@ class SignOffActionRecord extends Equatable {
   /// 其他動作此欄位為空。
   final String targetRef;
 
+  /// 代理代簽時記錄原本該簽的主簽核者 employeeId；
+  /// 親簽（approverId 就是主簽人）時留空。供 UI 顯示「X（代 Y 簽）」。
+  final String principalApproverId;
+
   const SignOffActionRecord({
     this.recordId = '',
     this.actionType = SignOffActionType.approve,
@@ -33,6 +37,7 @@ class SignOffActionRecord extends Equatable {
     this.comment = '',
     this.actionAt = '',
     this.targetRef = '',
+    this.principalApproverId = '',
   });
 
   SignOffActionRecord copyWith({
@@ -43,6 +48,7 @@ class SignOffActionRecord extends Equatable {
     String? comment,
     String? actionAt,
     String? targetRef,
+    String? principalApproverId,
   }) {
     return SignOffActionRecord(
       recordId: recordId ?? this.recordId,
@@ -52,6 +58,7 @@ class SignOffActionRecord extends Equatable {
       comment: comment ?? this.comment,
       actionAt: actionAt ?? this.actionAt,
       targetRef: targetRef ?? this.targetRef,
+      principalApproverId: principalApproverId ?? this.principalApproverId,
     );
   }
 
@@ -64,6 +71,7 @@ class SignOffActionRecord extends Equatable {
       'comment': comment,
       'action_at': actionAt,
       'target_ref': targetRef,
+      'principal_approver_id': principalApproverId,
     };
   }
 
@@ -85,6 +93,9 @@ class SignOffActionRecord extends Equatable {
           map['action_at']?.toString() ?? map['actionAt']?.toString() ?? '',
       targetRef:
           map['target_ref']?.toString() ?? map['targetRef']?.toString() ?? '',
+      principalApproverId: map['principal_approver_id']?.toString() ??
+          map['principalApproverId']?.toString() ??
+          '',
     );
   }
 
@@ -97,5 +108,6 @@ class SignOffActionRecord extends Equatable {
         comment,
         actionAt,
         targetRef,
+        principalApproverId,
       ];
 }

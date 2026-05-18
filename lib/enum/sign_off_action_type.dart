@@ -20,6 +20,10 @@ enum SignOffActionType {
 
   /// 加簽 — 在當前節點之後追加額外簽核者，需留痕
   addApprover,
+
+  /// 自動通知 — 系統推進到 notify 知會節點時自動產生的軌跡，
+  /// 表示「該節點已通知對應人 + 流程不停直接推進」。非使用者主動動作。
+  autoNotify,
 }
 
 extension SignOffActionTypeX on SignOffActionType {
@@ -37,6 +41,8 @@ extension SignOffActionTypeX on SignOffActionType {
         return 'transfer';
       case SignOffActionType.addApprover:
         return 'addApprover';
+      case SignOffActionType.autoNotify:
+        return 'autoNotify';
     }
   }
 
@@ -54,6 +60,8 @@ extension SignOffActionTypeX on SignOffActionType {
         return '轉派';
       case SignOffActionType.addApprover:
         return '加簽';
+      case SignOffActionType.autoNotify:
+        return '自動通知';
     }
   }
 
@@ -70,6 +78,8 @@ extension SignOffActionTypeX on SignOffActionType {
         return SignOffActionType.transfer;
       case 'addApprover':
         return SignOffActionType.addApprover;
+      case 'autoNotify':
+        return SignOffActionType.autoNotify;
       case 'approve':
       default:
         return SignOffActionType.approve;

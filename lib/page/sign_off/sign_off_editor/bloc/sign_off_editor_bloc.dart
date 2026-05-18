@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_ai/route/app_router.dart';
 import 'package:flutter_application_ai/enum/sign_off_approver_mode.dart';
 import 'package:flutter_application_ai/enum/sign_off_multi_strategy.dart';
 import 'package:flutter_application_ai/enum/sign_off_node_type.dart';
@@ -42,6 +44,7 @@ class SignOffEditorBloc
     on<AddApplicantAncestorManagerNodeEvent>(_onAddApplicantAncestorManager);
     on<UpdateApplicantAncestorOffsetEvent>(_onUpdateApplicantAncestorOffset);
     on<AddApplicantManagerAtDepthNodeEvent>(_onAddApplicantManagerAtDepth);
+    on<AddApplicantAgentNodeEvent>(_onAddApplicantAgent);
     on<UpdateApplicantTargetDepthLevelEvent>(_onUpdateApplicantTargetDepthLevel);
     on<MoveNodeOrderUpEvent>(_onMoveOrderUp);
     on<MoveNodeOrderDownEvent>(_onMoveOrderDown);
@@ -57,6 +60,8 @@ class SignOffEditorBloc
     on<UpdateMultiStrategyEvent>(_onUpdateMultiStrategy);
     on<UpdateReturnPolicyEvent>(_onUpdateReturnPolicy);
     on<UpdateSlaDaysEvent>(_onUpdateSlaDays);
+    on<UpdateAllowAgentFallbackEvent>(_onUpdateAllowAgentFallback);
+    on<UpdateAllowAddSignerEvent>(_onUpdateAllowAddSigner);
 
     // Simulation preview
     on<EnterSimulationEvent>(_onEnterSimulation);
@@ -89,6 +94,12 @@ class SignOffEditorBloc
     // Condition Field Status (per-form form_condition_field draft)
     on<LoadAllConditionFieldStatusesEvent>(_onLoadAllConditionFieldStatuses);
     on<RefreshConditionFieldStatusEvent>(_onRefreshConditionFieldStatus);
+
+    // Export / Navigation
+    on<RequestExportJsonEvent>(_onRequestExportJson);
+    on<RequestOpenConditionFieldCenterEvent>(_onRequestOpenConditionFieldCenter);
+    on<RequestOpenEmpAgentPageEvent>(_onRequestOpenEmpAgentPage);
+    on<NavigationHandledEvent>(_onNavigationHandled);
   }
 
   void _onInit(
@@ -213,7 +224,10 @@ class SignOffEditorBloc
 
     final updated = [...state.template.canvasNodes, newNode];
     emit(state.copyWith(
-      template: state.template.copyWith(canvasNodes: updated),
+      template: state.template.copyWith(
+        canvasNodes: updated,
+        pathRules: _appendNodeToAllPathRules(newNode.nodeId),
+      ),
       selectedNodeId: newNode.nodeId,
     ));
   }
@@ -309,8 +323,34 @@ class SignOffEditorBloc
     );
 
     emit(state.copyWith(
-      template: state.template
-          .copyWith(canvasNodes: [...state.template.canvasNodes, node]),
+      template: state.template.copyWith(
+        canvasNodes: [...state.template.canvasNodes, node],
+        pathRules: _appendNodeToAllPathRules(node.nodeId),
+      ),
+      selectedNodeId: node.nodeId,
+    ));
+  }
+
+  void _onAddApplicantAgent(
+    AddApplicantAgentNodeEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    final relativeCount = state.template.canvasNodes
+        .where((n) => n.approverMode.isRelativeToApplicant)
+        .length;
+    final node = SignOffCanvasNode(
+      nodeId: 'rel_agent_${DateTime.now().microsecondsSinceEpoch}',
+      offsetDx: 320,
+      offsetDy: 80 + (relativeCount * 40).toDouble(),
+      sortOrder: _nextSortOrder(),
+      approverMode: SignOffApproverMode.applicantAgent,
+    );
+
+    emit(state.copyWith(
+      template: state.template.copyWith(
+        canvasNodes: [...state.template.canvasNodes, node],
+        pathRules: _appendNodeToAllPathRules(node.nodeId),
+      ),
       selectedNodeId: node.nodeId,
     ));
   }
@@ -332,8 +372,10 @@ class SignOffEditorBloc
     );
 
     emit(state.copyWith(
-      template: state.template
-          .copyWith(canvasNodes: [...state.template.canvasNodes, node]),
+      template: state.template.copyWith(
+        canvasNodes: [...state.template.canvasNodes, node],
+        pathRules: _appendNodeToAllPathRules(node.nodeId),
+      ),
       selectedNodeId: node.nodeId,
     ));
   }
@@ -367,8 +409,10 @@ class SignOffEditorBloc
     );
 
     emit(state.copyWith(
-      template: state.template
-          .copyWith(canvasNodes: [...state.template.canvasNodes, node]),
+      template: state.template.copyWith(
+        canvasNodes: [...state.template.canvasNodes, node],
+        pathRules: _appendNodeToAllPathRules(node.nodeId),
+      ),
       selectedNodeId: node.nodeId,
     ));
   }
@@ -415,6 +459,19 @@ class SignOffEditorBloc
       if (n.sortOrder > maxOrder) maxOrder = n.sortOrder;
     }
     return maxOrder + 1;
+  }
+
+  /// 把新加入的 nodeId 同步進所有現有 path rules 的 activatedNodeIds。
+  /// 與 _onRemoveCanvasNode 對稱：刪 node 移除引用；加 node 自動納入。
+  /// 沒有 path rules 時 no-op（走 fallback「全部 node 啟用」）。
+  List<SignOffPathRule> _appendNodeToAllPathRules(String nodeId) {
+    if (state.template.pathRules.isEmpty) return state.template.pathRules;
+    return state.template.pathRules.map((r) {
+      if (r.activatedNodeIds.contains(nodeId)) return r;
+      return r.copyWith(
+        activatedNodeIds: [...r.activatedNodeIds, nodeId],
+      );
+    }).toList();
   }
 
   /// 將指定節點與其相鄰（依排序後）的節點交換 sortOrder。
@@ -578,6 +635,26 @@ class SignOffEditorBloc
   ) {
     final days = event.days < 0 ? 0 : event.days;
     _updateSelectedNode(emit, (node) => node.copyWith(slaDays: days));
+  }
+
+  void _onUpdateAllowAgentFallback(
+    UpdateAllowAgentFallbackEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    _updateSelectedNode(
+      emit,
+      (node) => node.copyWith(allowAgentFallback: event.allow),
+    );
+  }
+
+  void _onUpdateAllowAddSigner(
+    UpdateAllowAddSignerEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    _updateSelectedNode(
+      emit,
+      (node) => node.copyWith(allowAddSigner: event.allow),
+    );
   }
 
   void _onEnterSimulation(
@@ -956,6 +1033,92 @@ class SignOffEditorBloc
     emit(state.copyWith(
       message: message,
       messageRequestId: state.messageRequestId + 1,
+    ));
+  }
+
+  /// 計算當前模板的 JSON snapshot 並 bump exportDialogRequestId，
+  /// page 透過 BlocListener 監聽顯示 dialog。
+  void _onRequestExportJson(
+    RequestExportJsonEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    final template = state.template;
+    final sortedNodes = List<SignOffCanvasNode>.from(template.canvasNodes)
+      ..sort((a, b) {
+        if (a.isApplicantOrigin && !b.isApplicantOrigin) return -1;
+        if (!a.isApplicantOrigin && b.isApplicantOrigin) return 1;
+        return a.sortOrder.compareTo(b.sortOrder);
+      });
+
+    final payload = {
+      'snapshot': '簽核流程編輯器當前狀態（未必已儲存）',
+      'templateId':
+          template.templateId.isEmpty ? '(尚未儲存)' : template.templateId,
+      'formId': template.formId,
+      'formName': template.formName,
+      'permissionId':
+          template.permissionId.isEmpty ? '(無對應權限)' : template.permissionId,
+      'name': template.name,
+      'status': template.status,
+      'version': template.version,
+      'createdAt':
+          template.createdAt.isEmpty ? '(尚未儲存)' : template.createdAt,
+      'updatedAt':
+          template.updatedAt.isEmpty ? '(尚未儲存)' : template.updatedAt,
+      'totalNodes': sortedNodes.length,
+      'approverNodeCount':
+          sortedNodes.where((n) => !n.isApplicantOrigin).length,
+      'hasApplicantOrigin': sortedNodes.any((n) => n.isApplicantOrigin),
+      'canvasNodes': sortedNodes.map((n) => n.toMap()).toList(),
+      'canvasTransformValues': template.canvasTransform,
+    };
+
+    final json = const JsonEncoder.withIndent('  ').convert(payload);
+
+    emit(state.copyWith(
+      exportJson: json,
+      exportDialogRequestId: state.exportDialogRequestId + 1,
+    ));
+  }
+
+  /// 設定導航至 form_condition_field 編輯器；若未選表單則發 message。
+  void _onRequestOpenConditionFieldCenter(
+    RequestOpenConditionFieldCenterEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    final formId = state.template.formId;
+    if (formId.isEmpty) {
+      _emitMessage(emit, '請先選擇對應表單');
+      return;
+    }
+    emit(state.copyWith(
+      navigateRoute: RouteName.formConditionFieldPage,
+      navigateExtra: <String, dynamic>{
+        'formId': formId,
+        'formName': state.template.formName,
+      },
+    ));
+  }
+
+  /// 跳轉至員工代理人設定頁；由預覽鏈 dialog「前往設定」按鈕觸發。
+  void _onRequestOpenEmpAgentPage(
+    RequestOpenEmpAgentPageEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    emit(state.copyWith(
+      navigateRoute: RouteName.empAgentPage,
+      navigateExtra: const {},
+    ));
+  }
+
+  /// 清空 navigateRoute，避免重複觸發 push。
+  void _onNavigationHandled(
+    NavigationHandledEvent event,
+    Emitter<SignOffEditorState> emit,
+  ) {
+    emit(state.copyWith(
+      navigateRoute: '',
+      navigateExtra: const {},
     ));
   }
 }

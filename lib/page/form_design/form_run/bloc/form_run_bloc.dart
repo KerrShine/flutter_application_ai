@@ -40,6 +40,11 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       event.formId,
       event.bindingId,
       signOffId: event.signOffId,
+      currentEmployeeId: event.applicantId,
+      currentEmployeeName: event.applicantName,
+      currentEmployeeCode: event.applicantCode,
+      currentDepartmentName: event.departmentName,
+      currentRoleName: event.roleName,
     );
     if (!result.isSuccess) {
       emit(state.copyWith(
@@ -75,7 +80,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     print('[FormRunBloc] actions count: ${data.draft.actions.length}');
     for (final a in data.draft.actions) {
       // ignore: avoid_print
-      print('[FormRunBloc]   action: ${a.actionId} | type=${a.actionType.name} | apiId="${a.apiId}" | parameterName="${a.parameterName}" | source=${a.sourceItemId}');
+      print(
+          '[FormRunBloc]   action: ${a.actionId} | type=${a.actionType.name} | apiId="${a.apiId}" | parameterName="${a.parameterName}" | source=${a.sourceItemId}');
     }
 
     // 自動觸發 dropdownLoaded 事件
@@ -83,7 +89,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       for (final field in section.fields) {
         if (field.sourceType == 'dropdown') {
           // ignore: avoid_print
-          print('[FormRunBloc] 觸發 DropdownLoadedEvent: itemId=${field.itemId}, label=${field.label}');
+          print(
+              '[FormRunBloc] 觸發 DropdownLoadedEvent: itemId=${field.itemId}, label=${field.label}');
           add(FormRunDropdownLoadedEvent(field.itemId));
         }
       }
@@ -96,7 +103,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
   ) async {
     final updated = Map<String, FormRunFieldValue>.from(state.fieldValues);
     if (updated.containsKey(event.itemId)) {
-      updated[event.itemId] = updated[event.itemId]!.copyWith(value: event.value);
+      updated[event.itemId] =
+          updated[event.itemId]!.copyWith(value: event.value);
     }
     final computed = await _evaluate(state.formId, updated);
     emit(state.copyWith(
@@ -149,12 +157,11 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       switch (action.actionType) {
         case ActionType.callApi:
         case ActionType.submitForm:
-          // 「測試寫入」特例 — 構造 LeaveSignOffModel 寫入 LocalStorage，
+          // 「測試寫入」特例 — 構造 SignOffInstance 寫入 LocalStorage，
           // 不走 executeCallApi 的 mock/真實 API 流程。
           // 編輯模式（state.signOffId 非空）走 update 分支覆寫該筆。
           final apiDef = state.apiMap[action.apiId];
-          if (apiDef != null &&
-              apiDef.apiId == 'test_write_to_storage_api') {
+          if (apiDef != null && apiDef.apiId == 'test_write_to_storage_api') {
             final isEdit = state.signOffId.isNotEmpty;
             final writeResult = isEdit
                 ? await _formRunService.executeUpdateSignOff(
@@ -271,21 +278,22 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
         a.sourceItemId == event.itemId &&
         a.triggerType == ActionTriggerType.dropdownLoaded);
     // ignore: avoid_print
-    print('[FormRunBloc]   matching actions for this dropdown (dropdownLoaded): ${allMatching.length}');
+    print(
+        '[FormRunBloc]   matching actions for this dropdown (dropdownLoaded): ${allMatching.length}');
     for (final m in allMatching) {
       // ignore: avoid_print
-      print('[FormRunBloc]     -> actionType=${m.actionType.name}, apiId="${m.apiId}", parameterName="${m.parameterName}"');
+      print(
+          '[FormRunBloc]     -> actionType=${m.actionType.name}, apiId="${m.apiId}", parameterName="${m.parameterName}"');
     }
 
-    final action = state.draft.actions
-        .cast<FormActionBindingDraft?>()
-        .firstWhere(
-          (a) =>
-              a?.sourceItemId == event.itemId &&
-              a?.triggerType == ActionTriggerType.dropdownLoaded &&
-              a?.actionType == ActionType.loadDropdownOptions,
-          orElse: () => null,
-        );
+    final action =
+        state.draft.actions.cast<FormActionBindingDraft?>().firstWhere(
+              (a) =>
+                  a?.sourceItemId == event.itemId &&
+                  a?.triggerType == ActionTriggerType.dropdownLoaded &&
+                  a?.actionType == ActionType.loadDropdownOptions,
+              orElse: () => null,
+            );
 
     if (action == null) {
       // ignore: avoid_print
@@ -294,14 +302,17 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
     }
 
     // ignore: avoid_print
-    print('[FormRunBloc]   ✅ 找到 action: apiId="${action.apiId}", parameterName="${action.parameterName}"');
+    print(
+        '[FormRunBloc]   ✅ 找到 action: apiId="${action.apiId}", parameterName="${action.parameterName}"');
 
     // 有 apiId → 從 API 取得選項（使用 action.parameterName 作為取值 key）
     if (action.apiId.isNotEmpty) {
       // ignore: avoid_print
-      print('[FormRunBloc]   呼叫 executeLoadDropdownOptions, apiId="${action.apiId}"');
+      print(
+          '[FormRunBloc]   呼叫 executeLoadDropdownOptions, apiId="${action.apiId}"');
       // ignore: avoid_print
-      print('[FormRunBloc]   apiMap 是否包含此 apiId: ${state.apiMap.containsKey(action.apiId)}');
+      print(
+          '[FormRunBloc]   apiMap 是否包含此 apiId: ${state.apiMap.containsKey(action.apiId)}');
 
       final result = await _formRunService.executeLoadDropdownOptions(
         action,
@@ -309,7 +320,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
       );
 
       // ignore: avoid_print
-      print('[FormRunBloc]   result: success=${result.isSuccess}, data=${result.data}, error=${result.error}');
+      print(
+          '[FormRunBloc]   result: success=${result.isSuccess}, data=${result.data}, error=${result.error}');
 
       if (!result.isSuccess || result.data == null) return;
 
@@ -326,7 +338,8 @@ class FormRunBloc extends Bloc<FormRunEvent, FormRunState> {
 
     // 無 apiId → fallback: 從 targetItemId 靜態選項讀取（舊行為）
     // ignore: avoid_print
-    print('[FormRunBloc]   apiId 為空，走 fallback 路徑, targetItemId="${action.targetItemId}"');
+    print(
+        '[FormRunBloc]   apiId 為空，走 fallback 路徑, targetItemId="${action.targetItemId}"');
     if (action.targetItemId.isEmpty) return;
 
     List<String>? options;

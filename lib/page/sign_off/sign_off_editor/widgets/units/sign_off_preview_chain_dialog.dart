@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ai/enum/condition_field_type.dart';
+import 'package:flutter_application_ai/enum/sign_off_approver_mode.dart';
 import 'package:flutter_application_ai/model/employee_model.dart';
 import 'package:flutter_application_ai/model/sign_off_canvas_node.dart';
 import 'package:flutter_application_ai/model/sign_off_condition_field_choice.dart';
@@ -17,6 +18,7 @@ Future<void> showSignOffPreviewChainDialog({
   required List<EmployeeModel> employees,
   required List<SignOffConditionFieldChoice> formFields,
   required SignOffService service,
+  required VoidCallback onRequestOpenEmpAgentPage,
 }) {
   return showDialog<void>(
     context: context,
@@ -32,6 +34,10 @@ Future<void> showSignOffPreviewChainDialog({
               employees: employees,
               formFields: formFields,
               service: service,
+              onRequestOpenEmpAgentPage: () {
+                Navigator.of(dialogContext).pop();
+                onRequestOpenEmpAgentPage();
+              },
             ),
           ),
         ),
@@ -51,12 +57,14 @@ class _PreviewChainBody extends StatefulWidget {
   final List<EmployeeModel> employees;
   final List<SignOffConditionFieldChoice> formFields;
   final SignOffService service;
+  final VoidCallback onRequestOpenEmpAgentPage;
 
   const _PreviewChainBody({
     required this.template,
     required this.employees,
     required this.formFields,
     required this.service,
+    required this.onRequestOpenEmpAgentPage,
   });
 
   @override
@@ -364,8 +372,61 @@ class _PreviewChainBodyState extends State<_PreviewChainBody> {
               ),
             ),
           ],
+          if (ok && r.allowAgentFallback) ...[
+            const SizedBox(height: 6),
+            _buildAgentRow(theme, colors, r,
+                missingMessage: '未設代理人 — 此關卡需要備援'),
+          ] else if (!ok &&
+              node?.approverMode == SignOffApproverMode.applicantAgent) ...[
+            const SizedBox(height: 6),
+            _buildAgentRow(theme, colors, r,
+                missingMessage: '申請人未設代理人'),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildAgentRow(
+    ThemeData theme,
+    FormDesignThemeColors colors,
+    ResolvedApprover r, {
+    required String missingMessage,
+  }) {
+    final hasAgent = r.agentEmployeeId.isNotEmpty;
+    final color = hasAgent ? colors.actionSuccess : colors.actionWarning;
+    return Row(
+      children: [
+        Icon(
+          hasAgent
+              ? Icons.swap_horiz
+              : Icons.report_problem_outlined,
+          size: 16,
+          color: color,
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            hasAgent ? '代理人：${r.agentName}' : missingMessage,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        if (!hasAgent)
+          TextButton.icon(
+            onPressed: widget.onRequestOpenEmpAgentPage,
+            icon: const Icon(Icons.open_in_new, size: 14),
+            label: const Text('前往設定'),
+            style: TextButton.styleFrom(
+              foregroundColor: color,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 28),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+      ],
     );
   }
 

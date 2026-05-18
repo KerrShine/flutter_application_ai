@@ -36,13 +36,17 @@ class _FormRunPageState extends State<FormRunPage> {
   void initState() {
     super.initState();
     _bloc = FormRunBloc(sl<FormRunService>());
-    final emp = context.read<CurrentEmployeeBloc>().state.current;
+    final currentState = context.read<CurrentEmployeeBloc>().state;
+    final emp = currentState.current;
     _bloc.add(FormRunInitEvent(
       widget.formId,
       bindingId: widget.bindingId,
       applicantId: emp.employeeId,
       applicantName: emp.employeeName,
+      applicantCode: emp.employeeCode,
       departmentId: emp.departmentId,
+      departmentName: currentState.departmentNameOf(emp.departmentId),
+      roleName: emp.roleName,
       signOffId: widget.signOffId,
     ));
   }

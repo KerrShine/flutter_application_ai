@@ -59,6 +59,11 @@ class SignOffCanvasNode extends Equatable {
   /// 僅 approverMode = applicantManagerAtDepth 使用。
   final int applicantTargetDepthLevel;
 
+  /// 是否允許代理人代簽：勾選後預覽簽核鏈會檢查該簽核者是否已設代理，
+  /// 未設則 dialog 顯示 warning + 「前往設定」按鈕。
+  /// 僅 nodeType = approve / countersign 有意義。
+  final bool allowAgentFallback;
+
   const SignOffCanvasNode({
     required this.nodeId,
     this.departmentId = '',
@@ -78,6 +83,7 @@ class SignOffCanvasNode extends Equatable {
     this.slaDays = 0,
     this.applicantAncestorOffset = 0,
     this.applicantTargetDepthLevel = 0,
+    this.allowAgentFallback = false,
   });
 
   SignOffCanvasNode copyWith({
@@ -99,6 +105,7 @@ class SignOffCanvasNode extends Equatable {
     int? slaDays,
     int? applicantAncestorOffset,
     int? applicantTargetDepthLevel,
+    bool? allowAgentFallback,
   }) {
     return SignOffCanvasNode(
       nodeId: nodeId ?? this.nodeId,
@@ -122,6 +129,7 @@ class SignOffCanvasNode extends Equatable {
           applicantAncestorOffset ?? this.applicantAncestorOffset,
       applicantTargetDepthLevel:
           applicantTargetDepthLevel ?? this.applicantTargetDepthLevel,
+      allowAgentFallback: allowAgentFallback ?? this.allowAgentFallback,
     );
   }
 
@@ -145,6 +153,7 @@ class SignOffCanvasNode extends Equatable {
       'slaDays': slaDays,
       'applicantAncestorOffset': applicantAncestorOffset,
       'applicantTargetDepthLevel': applicantTargetDepthLevel,
+      'allowAgentFallback': allowAgentFallback,
     };
   }
 
@@ -173,6 +182,7 @@ class SignOffCanvasNode extends Equatable {
           (map['applicantAncestorOffset'] as num?)?.toInt() ?? 0,
       applicantTargetDepthLevel:
           (map['applicantTargetDepthLevel'] as num?)?.toInt() ?? 0,
+      allowAgentFallback: map['allowAgentFallback'] as bool? ?? false,
     );
   }
 
@@ -196,5 +206,6 @@ class SignOffCanvasNode extends Equatable {
         slaDays,
         applicantAncestorOffset,
         applicantTargetDepthLevel,
+        allowAgentFallback,
       ];
 }

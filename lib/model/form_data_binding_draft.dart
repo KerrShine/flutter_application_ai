@@ -14,8 +14,14 @@ enum BindingFieldKind {
 }
 
 enum BindingNullStrategy {
+  /// 略過 — 值為空時不輸出至 API 參數
   skip,
+
+  /// 自訂 — 使用 customDefaultValue 固定字串作為預設值
   custom,
+
+  /// 帶入指定資料 — 由 runtime 依 providedDataKey 從系統 context（如登入者、日期）取值
+  injected,
 }
 
 enum ActionTriggerType {
@@ -209,6 +215,10 @@ class FormDataBindingFieldDraft extends Equatable {
   final BindingNullStrategy nullStrategy;
   final String customDefaultValue;
 
+  /// nullStrategy = injected 時的資料源 key — 對應 `InjectedDataSource.code`。
+  /// 其他策略時為空字串。
+  final String providedDataKey;
+
   const FormDataBindingFieldDraft({
     this.itemId = '',
     this.label = '',
@@ -220,6 +230,7 @@ class FormDataBindingFieldDraft extends Equatable {
     this.outputKey = '',
     this.nullStrategy = BindingNullStrategy.skip,
     this.customDefaultValue = '',
+    this.providedDataKey = '',
   });
 
   FormDataBindingFieldDraft copyWith({
@@ -233,6 +244,7 @@ class FormDataBindingFieldDraft extends Equatable {
     String? outputKey,
     BindingNullStrategy? nullStrategy,
     String? customDefaultValue,
+    String? providedDataKey,
   }) {
     return FormDataBindingFieldDraft(
       itemId: itemId ?? this.itemId,
@@ -245,6 +257,7 @@ class FormDataBindingFieldDraft extends Equatable {
       outputKey: outputKey ?? this.outputKey,
       nullStrategy: nullStrategy ?? this.nullStrategy,
       customDefaultValue: customDefaultValue ?? this.customDefaultValue,
+      providedDataKey: providedDataKey ?? this.providedDataKey,
     );
   }
 
@@ -276,9 +289,11 @@ class FormDataBindingFieldDraft extends Equatable {
 
     switch (nullStrategy) {
       case BindingNullStrategy.custom:
-        return '預設';
+        return '預設_自定義';
       case BindingNullStrategy.skip:
         return '略過';
+      case BindingNullStrategy.injected:
+        return '預設_指定';
     }
   }
 
@@ -314,6 +329,7 @@ class FormDataBindingFieldDraft extends Equatable {
       'outputKey': outputKey,
       'nullStrategy': nullStrategy.name,
       'customDefaultValue': customDefaultValue,
+      'providedDataKey': providedDataKey,
     };
   }
 
@@ -338,6 +354,7 @@ class FormDataBindingFieldDraft extends Equatable {
         orElse: () => BindingNullStrategy.skip,
       ),
       customDefaultValue: map['customDefaultValue'] ?? '',
+      providedDataKey: map['providedDataKey']?.toString() ?? '',
     );
   }
 
@@ -353,6 +370,7 @@ class FormDataBindingFieldDraft extends Equatable {
         outputKey,
         nullStrategy,
         customDefaultValue,
+        providedDataKey,
       ];
 }
 

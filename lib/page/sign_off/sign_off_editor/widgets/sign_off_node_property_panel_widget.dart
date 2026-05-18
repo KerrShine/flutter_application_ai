@@ -31,6 +31,8 @@ class SignOffNodePropertyPanelWidget extends StatelessWidget {
   final void Function(int) onSlaDaysChanged;
   final void Function(int) onApplicantAncestorOffsetChanged;
   final void Function(int) onApplicantTargetDepthLevelChanged;
+  final void Function(bool) onAllowAgentFallbackChanged;
+  final void Function(bool) onAllowAddSignerChanged;
 
   // Path rule props (only used by origin node section)
   final List<SignOffPathRule> pathRules;
@@ -62,6 +64,8 @@ class SignOffNodePropertyPanelWidget extends StatelessWidget {
     required this.onSlaDaysChanged,
     required this.onApplicantAncestorOffsetChanged,
     required this.onApplicantTargetDepthLevelChanged,
+    required this.onAllowAgentFallbackChanged,
+    required this.onAllowAddSignerChanged,
     required this.pathRules,
     required this.formFields,
     required this.onAddPathRule,
@@ -299,6 +303,35 @@ class SignOffNodePropertyPanelWidget extends StatelessWidget {
             onSlaDaysChanged(parsed);
           },
         ),
+        const SizedBox(height: 6),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: node.allowAgentFallback,
+          onChanged: onAllowAgentFallbackChanged,
+          title: Text('允許代理人代簽', style: fieldStyle),
+          subtitle: Text(
+            '預覽簽核鏈時若該簽核者未設代理，會顯示提醒並可前往設定',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 1,
+              color: colors.faintText,
+            ),
+          ),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          value: node.allowAddSigner,
+          onChanged: onAllowAddSignerChanged,
+          title: Text('允許加簽', style: fieldStyle),
+          subtitle: Text(
+            '此關卡簽核者可在當下加簽新關卡（執行時於詳情頁顯示加簽選項）',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 1,
+              color: colors.faintText,
+            ),
+          ),
+        ),
       ],
       const SizedBox(height: 14),
       _label(context, '退回策略', colors),
@@ -442,6 +475,33 @@ class SignOffNodePropertyPanelWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '執行時直接帶入申請人為簽核人，常用於補件確認。',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize:
+                          (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,
+                      color: colors.subtleText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ];
+      case SignOffApproverMode.applicantAgent:
+        return [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colors.infoRowBackground,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: colors.infoRowBorder),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.swap_horiz, size: 16, color: colors.actionInfo),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '執行階段依申請人當下的代理人指派決定簽核者；請至代理人設定頁維護。',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize:
                           (theme.textTheme.bodySmall?.fontSize ?? 12) + 2,

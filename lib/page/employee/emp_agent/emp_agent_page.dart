@@ -117,9 +117,8 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
             child: FilledButton.icon(
               icon: const Icon(Icons.file_download_outlined),
               label: const Text('匯出代理人下拉 JSON'),
-              onPressed: () => context
-                  .read<EmpAgentBloc>()
-                  .add(const ExportAgentOptionsJsonEvent()),
+              onPressed: () =>
+                  _bloc.add(const ExportAgentOptionsJsonEvent()),
             ),
           ),
           const SizedBox(height: 16),
@@ -136,14 +135,10 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
               principalEmployeeId: state.principalEmployeeId,
               selectedPrincipalEmployee: state.selectedPrincipalEmployee,
               onSelectDepartment: (value) {
-                context.read<EmpAgentBloc>().add(
-                      SelectPrincipalDepartmentEvent(value),
-                    );
+                _bloc.add(SelectPrincipalDepartmentEvent(value));
               },
               onSelectEmployee: (value) {
-                context.read<EmpAgentBloc>().add(
-                      SelectPrincipalEmployeeEvent(value),
-                    );
+                _bloc.add(SelectPrincipalEmployeeEvent(value));
               },
             ),
           );
@@ -156,19 +151,13 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
               agentEmployeeId: state.agentEmployeeId,
               selectedAgentEmployee: state.selectedAgentEmployee,
               onSelectDepartment: (value) {
-                context.read<EmpAgentBloc>().add(
-                      SelectAgentDepartmentEvent(value),
-                    );
+                _bloc.add(SelectAgentDepartmentEvent(value));
               },
               onSelectEmployee: (value) {
-                context.read<EmpAgentBloc>().add(
-                      SelectAgentEmployeeEvent(value),
-                    );
+                _bloc.add(SelectAgentEmployeeEvent(value));
               },
               onSubmitAssignment: () {
-                context.read<EmpAgentBloc>().add(
-                      const SubmitAssignmentEvent(),
-                    );
+                _bloc.add(const SubmitAssignmentEvent());
               },
             ),
           );
@@ -176,9 +165,7 @@ class _EmpAgentPageState extends State<EmpAgentPage> {
           final assignmentPanel = EmpAgentAssignmentListPanelWidget(
             assignmentRows: state.assignmentRows,
             onDeleteAssignment: (assignmentId) {
-              context.read<EmpAgentBloc>().add(
-                    DeleteAssignmentEvent(assignmentId),
-                  );
+              _bloc.add(DeleteAssignmentEvent(assignmentId));
             },
           );
 

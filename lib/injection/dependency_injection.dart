@@ -175,6 +175,7 @@ Future<void> initDI() async {
         sl<ApiCatalogRepository>(),
         sl<ConditionFieldService>(),
         sl<SignOffRepository>(),
+        sl<SignOffService>(),
         sl<LocalStorage>(),
         sl<DioClient>(),
       ));
@@ -229,6 +230,7 @@ Future<void> initDI() async {
             sl<EmpInfoRepository>(),
             sl<OrgDesignRepository>(),
             sl<ConditionFieldService>(),
+            sl<EmpAgentService>(),
           ));
 
   // 4. Bloc
@@ -279,7 +281,7 @@ Future<void> initDI() async {
   sl.registerFactory<ApplicationSubmissionViewBloc>(
       () => ApplicationSubmissionViewBloc(sl<FormApplicationService>()));
   sl.registerFactory<ApplicationSignOffPendingBloc>(
-      () => ApplicationSignOffPendingBloc());
+      () => ApplicationSignOffPendingBloc(sl<FormApplicationService>()));
   sl.registerFactory<FormConditionFieldBloc>(
       () => FormConditionFieldBloc(sl<ConditionFieldService>()));
   sl.registerFactory<IdentityService>(() => IdentityService(
